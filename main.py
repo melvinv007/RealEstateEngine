@@ -23,6 +23,9 @@ Usage:
 
     # ⚠️ Clear all data (testing only)
     python main.py --clear
+
+    # To run as API server: uvicorn main:app --reload --port 8000
+    # To expose publicly with ngrok: ngrok http 8000
 """
 
 import argparse
@@ -149,8 +152,8 @@ def main():
     print_json(listings)
 
     # ── Insert into DB ─────────────────────────────────────────────────────────
-    inserted_ids = insert_many_listings(listings)
-    print(f"\n✅ Inserted {len(inserted_ids)} listing(s) into MongoDB.")
+    inserted_ids, dupes = insert_many_listings(listings)
+    print(f"\n✅ Inserted {len(inserted_ids)} listing(s) into MongoDB. ({dupes} duplicate(s) skipped)")
 
     # ── Run Matching ───────────────────────────────────────────────────────────
     matches = run_matching()
@@ -165,3 +168,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+from api import app  # noqa — makes `uvicorn main:app` work

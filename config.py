@@ -3,14 +3,20 @@ config.py
 All configuration constants — change here, affects entire system.
 """
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # ── API Keys ──────────────────────────────────────────────────────────────────
-GEMINI_API_KEY = "AIzaSyB1kWvpDa2RbbkIzcMjDib2mhm2PWDNiVg"
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+API_KEY = os.getenv("API_KEY")
 # GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY"   # for geocoding
 
 # ── MongoDB ───────────────────────────────────────────────────────────────────
 # MONGO_URI = "mongodb://localhost:27017"             # or Atlas URI
 # MONGO_URI = "mongodb+srv://fonot94264_db_user:3xp9bBPec8jkTFQS@cluster0.rkuyemc.mongodb.net/?appName=Cluster0"             # or Atlas URI
-MONGO_URI = "mongodb://fonot94264_db_user:3xp9bBPec8jkTFQS@ac-b3w3hiq-shard-00-00.rkuyemc.mongodb.net:27017,ac-b3w3hiq-shard-00-01.rkuyemc.mongodb.net:27017,ac-b3w3hiq-shard-00-02.rkuyemc.mongodb.net:27017/?ssl=true&replicaSet=atlas-13s27k-shard-0&authSource=admin&appName=Cluster0"             # or Atlas URI
+MONGO_URI = os.getenv("MONGO_URI")
 MONGO_DB_NAME = "realestate"
 COLLECTION_BUY = "buy_listings"
 COLLECTION_SELL = "sell_listings"
@@ -41,14 +47,12 @@ FUZZY_LOCATION_THRESHOLD = 85       # 0–100 similarity score
  
 # ── Duplicate Detection ───────────────────────────────────────────────────────
 DUPLICATE_DETECTION = True
-DUPLICATE_PRICE_TOLERANCE = 0.02    # ±2% for fingerprint price comparison (tighter than match)
+DUPLICATE_PRICE_TOLERANCE = 0.05    # ±5% for fingerprint price comparison (tighter than match)
  
 # ── Geocoding / Location Normalization ────────────────────────────────────────
-GEOCODE_CACHE_FILE = "geocode_cache.json"
 # Uses Gemini to normalize broker slang → official Dubai area names
 # e.g. "Greenway 2" → "Emaar South", "Costa Brava" → "DAMAC Lagoons"
 USE_GEMINI_LOCATION_NORMALIZER = True
  
 # ── Behavior ──────────────────────────────────────────────────────────────────
 DELETE_AFTER_MATCH = False      # True = delete matched listings after match
- 

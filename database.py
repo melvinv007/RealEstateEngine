@@ -60,11 +60,11 @@ def _build_fingerprint(listing: dict) -> str:
     """
     Build a hash from the listing's key identity fields.
     Two listings with the same fingerprint are considered duplicates.
-    Price is rounded to nearest 50K to handle minor reposts.
+    Price is rounded to nearest DUPLICATE_PRICE_TOLERANCE to handle minor reposts.
     """
     price = listing.get("price_aed") or 0
-    # Round price to nearest 50,000 to tolerate trivial reprice changes
-    price_bucket = round(price / 50000) * 50000
+    # Round price to nearest DUPLICATE_PRICE_TOLERANCE to tolerate trivial reprice changes
+    price_bucket = round(price / DUPLICATE_PRICE_TOLERANCE) * DUPLICATE_PRICE_TOLERANCE
 
     identity = {
         "type": (listing.get("property_type") or "").lower().strip(),

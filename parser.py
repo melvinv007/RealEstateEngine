@@ -268,6 +268,83 @@ def _validate_listings(listings: list[dict]) -> list[dict]:
 # Text Parsing
 # ─────────────────────────────────────────────────────────────
 
+def _rule_score(text: str) -> int:
+    t = text.lower()
+    score = 0
+
+    if re.search(r"\bfor\s+sale\b|\bfor\s+rent\b|\bto\s+rent\b|\blease\b", t):
+        score += 2
+
+    if re.search(r"\b(looking\s+for|requirement|wanted|budget|cash\s+buyer|mortgage\s+buyer)\b", t):
+        score += 2
+
+    if re.search(r"\b\d+\s*(br|bhk)\b", t):
+        score += 2
+
+    if re.search(r"\b(aed|dhs|dirham)\b", t) and re.search(r"\d", t):
+        score += 2
+
+    if re.search(r"\b\d+(\.\d+)?\s*(m|million|k)\b", t):
+        score += 2
+
+    if "sqft" in t or "sq ft" in t:
+        score += 1
+
+    if re.search(r"\b(studio|apartment|villa|townhouse|penthouse|duplex|plot|office|warehouse)\b", t):
+        score += 1
+
+    return score
+
+
+def _classify_with_gemini(text: str) -> tuple[bool | None, float | None]:
+    prompt = (
+        "You are a classifier for a Dubai real estate WhatsApp group.\n"
+        "Is the following message a real estate listing, property requirement, or buying/selling inquiry?\n"
+        "Reply ONLY with valid JSON in this exact format:\n"
+        '{"is_real_estate": true|false, "confidence": 0.0-1.0}\n\n'
+        f"Message: {text}"
+    )
+
+    response = model.generate_content(prompt)
+    data = _safe_json_loads(response.text.strip())
+    if isinstance(data, dict):
+        label = data.get("is_real_estate")
+        confidence = data.get("confidence")
+        if isinstance(label, bool) and isinstance(confidence, (int, float)):
+            return label, float(confidence)
+
+    cleaned = response.text.strip().lower()
+    if cleaned in ("yes", "no"):
+        return cleaned == "yes", 0.5
+
+    return None, None
+
+def is_real_estate_message(text: str) -> bool:
+    """
+    Returns True if the message is a real estate listing or requirement.
+    Fail open on API errors to avoid dropping messages.
+    """
+    try:
+        score = _rule_score(text)
+        if score >= 4:
+            return True
+
+        label, confidence = _classify_with_gemini(text)
+
+        if label is None:
+            return True
+
+        if label is False and confidence is not None and confidence >= 0.8 and score <= 1:
+            return False
+
+        if label is True and confidence is not None and confidence >= 0.6:
+            return True
+
+        return score >= 2
+    except Exception as e:
+        print(f"[Parser] Real estate filter failed: {e}")
+        return True
+
 def parse_text_message(message: str) -> list[dict]:
     """
     Parse WhatsApp text message into structured listings.

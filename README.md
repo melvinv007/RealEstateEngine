@@ -6,13 +6,19 @@ Parses Dubai real estate WhatsApp messages (text + images) → MongoDB → auto-
 
 ```bash
 pip install -r requirements.txt
+cp .env.example .env
 ```
 
-Set your API keys in `config.py`:
-```python
-GEMINI_API_KEY = "..."        # console.cloud.google.com → Gemini API
-GOOGLE_MAPS_API_KEY = "..."   # console.cloud.google.com → Maps Geocoding API
-MONGO_URI = "mongodb://localhost:27017"  # or Atlas URI
+Set your API keys in `.env`:
+```dotenv
+GEMINI_API_KEY=your_gemini_api_key_here
+MONGO_URI=your_mongodb_connection_string_here
+API_KEY=your_api_key_here
+```
+
+Run the API server:
+```bash
+uvicorn main:app --reload --port 8000
 ```
 
 ## Tuning (all in config.py — one line each)
@@ -49,6 +55,45 @@ python main.py --show-matches
 # ⚠️ Clear everything (testing)
 python main.py --clear
 ```
+
+## API Endpoints
+
+All endpoints require `X-API-Key` header.
+
+### POST /ingest/text
+
+Body:
+```json
+{ "message": "raw whatsapp message string" }
+```
+
+Response (filtered):
+```json
+{ "filtered": true, "reason": "not a real estate message" }
+```
+
+Response (processed):
+```json
+{
+  "filtered": false,
+  "inserted": 2,
+  "duplicates_skipped": 1,
+  "listings": [ ... ],
+  "matches": [ ... ]
+}
+```
+
+### POST /ingest/image
+
+Multipart upload with `file` field.
+
+### GET /stats
+
+Returns counts for buy/sell/matches.
+
+### GET /matches
+
+Returns all matches.
 
 ## MongoDB Collections
 
@@ -110,13 +155,14 @@ python main.py --clear
 ## File Structure
 
 ```
-realestate_matcher/
+RealEstate/
 ├── config.py          ← All tunable constants
 ├── parser.py          ← Gemini parsing (text + images)
-├── geocoder.py        ← Google Maps geocoding + Haversine
+├── geocoder.py        ← Gemini normalization + Nominatim + Haversine
 ├── database.py        ← MongoDB CRUD
 ├── matcher.py         ← Buy/sell matching engine
-├── main.py            ← CLI entry point
+├── api.py             ← FastAPI server
+├── main.py            ← CLI entry point + FastAPI app
 ├── requirements.txt
 └── geocode_cache.json ← Auto-created, caches geocoded locations
 ```

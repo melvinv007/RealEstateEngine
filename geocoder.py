@@ -180,10 +180,10 @@ def _geocode_raw(query: str) -> tuple[float, float] | None:
     """
     global _last_nominatim_call
 
-    # Rate-limit: at least 1.1s between calls
+    # Rate-limit: at least 2s between calls
     elapsed = time.time() - _last_nominatim_call
-    if elapsed < 1.1:
-        time.sleep(1.1 - elapsed)
+    if elapsed < 2:
+        time.sleep(2 - elapsed)
 
     try:
         _last_nominatim_call = time.time()

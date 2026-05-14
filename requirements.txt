@@ -2,3 +2,7 @@ google-generativeai>=0.7.0
 geopy
 pymongo>=4.6.0
 rapidfuzz>=3.6.0
+python-dotenv>=1.0.0
+fastapi
+uvicorn
+python-multipart
