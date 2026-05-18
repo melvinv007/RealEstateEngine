@@ -20,7 +20,7 @@ from pathlib import Path
 
 import google.generativeai as genai
 
-from config import (
+from core.config import (
     GEMINI_API_KEY,
     MODEL,
     USE_GEMINI_PARSER_CLASSIFIER,
@@ -226,7 +226,7 @@ def _normalize_listing(listing: dict) -> dict:
     Ensures required structure/types exist.
     """
 
-    from location_resolver import resolve_location
+    from location.resolver import resolve_location
 
     # Transaction normalization
     t = str(listing.get("transaction", "sell")).lower().strip()

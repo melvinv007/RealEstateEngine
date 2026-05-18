@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pymongo import MongoClient, ASCENDING
 from bson import ObjectId
 
-from config import (
+from core.config import (
     MONGO_URI, MONGO_DB_NAME,
     COLLECTION_BUY, COLLECTION_SELL, COLLECTION_MATCHES,
     DUPLICATE_DETECTION, DUPLICATE_PRICE_TOLERANCE,

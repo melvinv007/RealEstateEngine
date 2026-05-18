@@ -13,10 +13,10 @@ from fastapi import FastAPI, File, UploadFile, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from config import API_KEY
-from database import insert_many_listings, count_listings, get_all_matches
-from matcher import run_matching
-from parser import parse_text_message, parse_image, is_real_estate_message
+from core.config import API_KEY
+from core.database import insert_many_listings, count_listings, get_all_matches
+from core.matcher import run_matching
+from ingestion.parser import parse_text_message, parse_image, is_real_estate_message
 
 app = FastAPI(title="Matcher API")
 

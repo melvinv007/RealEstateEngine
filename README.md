@@ -21,7 +21,7 @@ Run the API server:
 uvicorn main:app --reload --port 8000
 ```
 
-## Tuning (all in config.py — one line each)
+## Tuning (all in core/config.py — one line each)
 
 | Constant | Default | Meaning |
 |---|---|---|
@@ -99,22 +99,22 @@ Returns all matches.
 
 Raw broker locations are normalized to canonical Dubai area names before storage.
 
-- `locations.csv` contains canonical names and comma-separated aliases.
+- `data/locations.csv` contains canonical names and comma-separated aliases.
 - Update the sheet and re-generate the CSV with:
   ```bash
-  python convert_excel_to_csv.py locations.xlsx
+  python tools/convert_excel_to_csv.py locations.xlsx
   ```
-- Column names for Excel are configured in `config.py`:
+- Column names for Excel are configured in `core/config.py`:
   `LOCATION_EXCEL_CANONICAL_COLUMN` and `LOCATION_EXCEL_ALIASES_COLUMN`.
-- `location_cache.json` stores resolved locations.
-- `unresolved_locations.log` captures failed resolutions with best fuzzy guesses.
+- `cache/location_cache.json` stores resolved locations.
+- `cache/unresolved_locations.log` captures failed resolutions with best fuzzy guesses.
 
 Resolution layers:
 1. Exact match, then fuzzy match against aliases + canonical names (WRatio).
 2. Gemini resolver constrained to the canonical list.
 3. Unresolved entries logged for review.
 
-Tune `LOCATION_FUZZY_THRESHOLD` in `config.py` to control strictness.
+Tune `LOCATION_FUZZY_THRESHOLD` in `core/config.py` to control strictness.
 
 ## MongoDB Collections
 
@@ -177,16 +177,27 @@ Tune `LOCATION_FUZZY_THRESHOLD` in `config.py` to control strictness.
 
 ```
 RealEstate/
-├── config.py          ← All tunable constants
-├── parser.py          ← Gemini parsing (text + images)
-├── geocoder.py        ← Nominatim geocoding + Haversine
-├── location_resolver.py ← Canonical location resolution
-├── convert_excel_to_csv.py ← Excel to locations.csv converter
-├── locations.csv      ← Canonical locations + aliases
-├── database.py        ← MongoDB CRUD
-├── matcher.py         ← Buy/sell matching engine
-├── api.py             ← FastAPI server
+├── core/
+│   ├── config.py      ← All tunable constants
+│   ├── database.py    ← MongoDB CRUD
+│   └── matcher.py     ← Buy/sell matching engine
+├── ingestion/
+│   ├── api.py         ← FastAPI server
+│   └── parser.py      ← Gemini parsing (text + images)
+├── location/
+│   ├── geocoder.py    ← Nominatim geocoding + Haversine
+│   └── resolver.py    ← Canonical location resolution
+├── tools/
+│   ├── convert_excel_to_csv.py ← Excel to data/locations.csv converter
+│   └── geocode_locations.py    ← Excel to data/coordinates.csv geocoder
+├── data/
+│   ├── locations.csv  ← Canonical locations + aliases
+│   └── coordinates.csv ← canonical_name → lat/lng
+├── cache/
+│   ├── geocode_cache.json ← Auto-created, caches geocoded locations
+│   ├── location_cache.json
+│   └── unresolved_locations.log
 ├── main.py            ← CLI entry point + FastAPI app
 ├── requirements.txt
-└── geocode_cache.json ← Auto-created, caches geocoded locations
+└── .env.example
 ```

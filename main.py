@@ -35,9 +35,9 @@ import re
 from bson import ObjectId
 from datetime import datetime
 
-from parser import parse_input, parse_text_message
-from database import insert_many_listings, count_listings, get_all_matches, clear_all, dedupe_collection
-from matcher import run_matching
+from ingestion.parser import parse_input, parse_text_message
+from core.database import insert_many_listings, count_listings, get_all_matches, clear_all, dedupe_collection
+from core.matcher import run_matching
 
 # ── Rate limit config ──────────────────────────────────────────────────────────
 # How many seconds to wait when a 429 is hit before retrying
@@ -302,4 +302,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-from api import app  # noqa — makes `uvicorn main:app` work
+from ingestion.api import app  # noqa — makes `uvicorn main:app` work

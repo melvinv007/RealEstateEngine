@@ -18,7 +18,7 @@ from rapidfuzz import fuzz
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
-from config import (
+from core.config import (
     COORDINATES_CSV,
     GEOCODE_CACHE_FILE,
     FUZZY_LOCATION_THRESHOLD,

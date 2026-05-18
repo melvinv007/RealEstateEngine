@@ -1,14 +1,13 @@
 """
 convert_excel_to_csv.py
-Convert an Excel sheet of locations into locations.csv.
+Convert an Excel sheet of locations into data/locations.csv.
 """
 
 import csv
-import os
 import sys
 from openpyxl import load_workbook
 
-from config import (
+from core.config import (
     LOCATIONS_CSV,
     LOCATION_CSV_CANONICAL_COLUMN,
     LOCATION_CSV_ALIASES_COLUMN,
@@ -87,7 +86,7 @@ def convert_excel(path: str) -> int:
 
         converted.append((canonical, ",".join(deduped)))
 
-    output_path = os.path.join(os.path.dirname(__file__), LOCATIONS_CSV)
+    output_path = LOCATIONS_CSV
     with open(output_path, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow([LOCATION_CSV_CANONICAL_COLUMN, LOCATION_CSV_ALIASES_COLUMN])
@@ -105,7 +104,7 @@ def convert_excel(path: str) -> int:
 
 def main() -> None:
     if len(sys.argv) < 2:
-        print("Usage: python convert_excel_to_csv.py <locations.xlsx>")
+        print("Usage: python tools/convert_excel_to_csv.py <locations.xlsx>")
         sys.exit(1)
 
     sys.exit(convert_excel(sys.argv[1]))

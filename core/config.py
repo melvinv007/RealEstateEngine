@@ -4,9 +4,12 @@ All configuration constants — change here, affects entire system.
 """
 
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # ── API Keys ──────────────────────────────────────────────────────────────────
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -14,21 +17,21 @@ API_KEY = os.getenv("API_KEY")
 # GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY"   # for geocoding
 
 # ── API Usage Toggles ─────────────────────────────────────────────────────────
-# parser.py — Gemini classifier in is_real_estate_message()
+# ingestion/parser.py — Gemini classifier in is_real_estate_message()
 USE_GEMINI_PARSER_CLASSIFIER = False
-# parser.py — Gemini extraction in parse_text_message()
+# ingestion/parser.py — Gemini extraction in parse_text_message()
 USE_GEMINI_PARSER_TEXT_EXTRACTION = True
-# parser.py — Gemini extraction in parse_image()
+# ingestion/parser.py — Gemini extraction in parse_image()
 USE_GEMINI_PARSER_IMAGE_EXTRACTION = True
-# location_resolver.py — Gemini disambiguation in _gemini_disambiguate()
+# location/resolver.py — Gemini disambiguation in _gemini_disambiguate()
 USE_GEMINI_RESOLVER_DISAMBIGUATE = True
-# location_resolver.py — Gemini confirmation in _gemini_confirm()
+# location/resolver.py — Gemini confirmation in _gemini_confirm()
 USE_GEMINI_RESOLVER_CONFIRM = True
-# location_resolver.py — Gemini cold Step A in _gemini_cold()
+# location/resolver.py — Gemini cold Step A in _gemini_cold()
 USE_GEMINI_RESOLVER_COLD_STEP_A = True
-# location_resolver.py — Gemini cold Step B in _gemini_cold()
+# location/resolver.py — Gemini cold Step B in _gemini_cold()
 USE_GEMINI_RESOLVER_COLD_STEP_B = True
-# geocoder.py — Nominatim geocoding in _geocode_raw()
+# location/geocoder.py — Nominatim geocoding in _geocode_raw()
 USE_NOMINATIM_GEOCODING = True
 
 # ── MongoDB ───────────────────────────────────────────────────────────────────
@@ -50,12 +53,12 @@ MODEL = "gemini-2.5-flash-lite"
 
 # ── Geocoding Cache ───────────────────────────────────────────────────────────
 # Avoids re-geocoding the same location repeatedly
-GEOCODE_CACHE_FILE = "geocode_cache.json"
-COORDINATES_CSV = "coordinates.csv" # canonical_name,lat,lng
+GEOCODE_CACHE_FILE = str(_PROJECT_ROOT / "cache" / "geocode_cache.json")
+COORDINATES_CSV = str(_PROJECT_ROOT / "data" / "coordinates.csv")  # canonical_name,lat,lng
 USE_LEGACY_GEOCODING = False  # True = use cache + fuzzy + Nominatim fallback; False = coordinates.csv only
 
 # ── Location Resolution ──────────────────────────────────────────────────────
-LOCATIONS_CSV = "locations.csv"
+LOCATIONS_CSV = str(_PROJECT_ROOT / "data" / "locations.csv")
 # Column names in the CSV/Excel — change here if the sheet headers change
 LOCATION_CSV_CANONICAL_COLUMN = "canonical_name"
 LOCATION_CSV_ALIASES_COLUMN = "aliases"
@@ -67,9 +70,9 @@ LOCATION_EXCEL_ALIASES_COLUMN = "aliases"
 # Higher = stricter (fewer matches, more falls through to Gemini)
 LOCATION_FUZZY_THRESHOLD = 80
 # Cache file for resolved locations (separate from geocode cache)
-LOCATION_RESOLUTION_CACHE_FILE = "location_cache.json"
+LOCATION_RESOLUTION_CACHE_FILE = str(_PROJECT_ROOT / "cache" / "location_cache.json")
 # Log file for locations that failed all resolution layers
-UNRESOLVED_LOG_FILE = "unresolved_locations.log"
+UNRESOLVED_LOG_FILE = str(_PROJECT_ROOT / "cache" / "unresolved_locations.log")
 
 # ── Match Quality Gate ────────────────────────────────────────────────────────
 # Minimum score (0.0–1.0) for a match to be recorded

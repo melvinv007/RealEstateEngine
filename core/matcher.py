@@ -9,7 +9,7 @@ Buy/sell matching engine with:
 """
 
 from bson import ObjectId
-from config import (
+from core.config import (
     PRICE_TOLERANCE,
     DISTANCE_KM_TOLERANCE,
     BHK_TOLERANCE,
@@ -18,8 +18,8 @@ from config import (
     MIN_MATCH_SCORE,
     REQUIRE_PRICE_OR_LOCATION,
 )
-from geocoder import location_distance_km
-from database import get_unmatched, get_unmatched_filtered, record_match, already_matched_pair
+from location.geocoder import location_distance_km
+from core.database import get_unmatched, get_unmatched_filtered, record_match, already_matched_pair
 
 
 # ── Individual field checks ────────────────────────────────────────────────────

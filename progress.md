@@ -73,11 +73,12 @@
 
 ---
 
-## 2. Config Reference (`config.py`)
+## 2. Config Reference (`core/config.py`)
 
 | Constant | Default | Description |
 |---|---|---|
 | `GEMINI_API_KEY` | — | Gemini API key |
+| `API_KEY` | — | API key for FastAPI auth |
 | `MONGO_URI` | — | MongoDB connection string (Atlas or local) |
 | `MONGO_DB_NAME` | `"realestate"` | Database name |
 | `PRICE_TOLERANCE` | `0.10` | ±10% price flexibility for matching |
@@ -86,13 +87,26 @@
 | `SQFT_TOLERANCE` | `0.15` | ±15% sqft tolerance; `None` = disable |
 | `MIN_MATCH_SCORE` | `0.75` | Minimum weighted score to record a match |
 | `REQUIRE_PRICE_OR_LOCATION` | `True` | Reject if both price and location are skipped |
-| `FUZZY_LOCATION_THRESHOLD` | `85` | rapidfuzz similarity needed for typo match |
+| `FUZZY_LOCATION_THRESHOLD` | `85` | Legacy typo threshold in geocoder |
+| `LOCATION_FUZZY_THRESHOLD` | `80` | Resolver fuzzy cutoff |
 | `DUPLICATE_DETECTION` | `True` | Enable fingerprint-based duplicate rejection |
-| `DUPLICATE_PRICE_TOLERANCE` | `0.02` | *(imported but not yet wired up — see known issues)* |
-| `USE_GEMINI_LOCATION_NORMALIZER` | `True` | Use Gemini to normalize broker location names |
-| `GEOCODE_CACHE_FILE` | `"geocode_cache.json"` | Local cache for geocoded coordinates |
+| `DUPLICATE_PRICE_TOLERANCE` | `0.05` | ±5% for fingerprint price comparison |
+| `LOCATIONS_CSV` | `"data/locations.csv"` | Canonical names + aliases |
+| `COORDINATES_CSV` | `"data/coordinates.csv"` | canonical_name → lat, lng |
+| `LOCATION_RESOLUTION_CACHE_FILE` | `"cache/location_cache.json"` | Resolver output cache |
+| `UNRESOLVED_LOG_FILE` | `"cache/unresolved_locations.log"` | Failed resolution log |
+| `GEOCODE_CACHE_FILE` | `"cache/geocode_cache.json"` | Legacy Nominatim cache |
+| `USE_LEGACY_GEOCODING` | `False` | If False, only data/coordinates.csv is used |
+| `USE_NOMINATIM_GEOCODING` | `True` | Enables Nominatim fallback when legacy geocoding is on |
+| `USE_GEMINI_PARSER_CLASSIFIER` | `False` | Toggle Gemini classifier |
+| `USE_GEMINI_PARSER_TEXT_EXTRACTION` | `True` | Toggle Gemini text extraction |
+| `USE_GEMINI_PARSER_IMAGE_EXTRACTION` | `True` | Toggle Gemini image extraction |
+| `USE_GEMINI_RESOLVER_DISAMBIGUATE` | `True` | Toggle Gemini disambiguation |
+| `USE_GEMINI_RESOLVER_CONFIRM` | `True` | Toggle Gemini confirmation |
+| `USE_GEMINI_RESOLVER_COLD_STEP_A` | `True` | Toggle Gemini cold Step A |
+| `USE_GEMINI_RESOLVER_COLD_STEP_B` | `True` | Toggle Gemini cold Step B |
 | `DELETE_AFTER_MATCH` | `False` | `True` = delete matched docs from buy/sell |
-| `MODEL` | `"gemini-2.5-flash"` | Gemini model used by parser and geocoder |
+| `MODEL` | `"gemini-2.5-flash-lite"` | Gemini model used by parser and resolver |
 
 ---
 
@@ -143,12 +157,12 @@ python main.py --clear
 The entire base system was designed and implemented through a planning + coding session with Claude. Copilot is taking over from this point. Everything below is the established history before Copilot's first session.
 
 ### Core architecture designed
-- **Parser** (`parser.py`): Uses Gemini `gemini-2.5-flash` with `response_mime_type: application/json` to extract structured listing data from both text messages and image flyers. Handles multiple listings per message, buyer vs seller detection, broker contact extraction.
-- **Geocoder** (`geocoder.py`): 4-layer pipeline — exact cache → fuzzy typo correction → Gemini location normalization → Nominatim geocoding. Results cached in `geocode_cache.json`.
-- **Database** (`database.py`): MongoDB with two listing collections (`buy_listings`, `sell_listings`) and a `matches` collection. Compound indexes on type/BHK/price for efficient pre-filtering. MD5 fingerprint-based duplicate detection.
-- **Matcher** (`matcher.py`): Weighted scoring engine. MongoDB pre-filters candidates. Python-side checks: property type, BHK, price, sqft, location (Haversine). Two quality gates: `REQUIRE_PRICE_OR_LOCATION` and `MIN_MATCH_SCORE`.
+- **Parser** (`ingestion/parser.py`): Uses Gemini `gemini-2.5-flash` with `response_mime_type: application/json` to extract structured listing data from both text messages and image flyers. Handles multiple listings per message, buyer vs seller detection, broker contact extraction.
+- **Geocoder** (`location/geocoder.py`): 4-layer pipeline — exact cache → fuzzy typo correction → Gemini location normalization → Nominatim geocoding. Results cached in `cache/geocode_cache.json`.
+- **Database** (`core/database.py`): MongoDB with two listing collections (`buy_listings`, `sell_listings`) and a `matches` collection. Compound indexes on type/BHK/price for efficient pre-filtering. MD5 fingerprint-based duplicate detection.
+- **Matcher** (`core/matcher.py`): Weighted scoring engine. MongoDB pre-filters candidates. Python-side checks: property type, BHK, price, sqft, location (Haversine). Two quality gates: `REQUIRE_PRICE_OR_LOCATION` and `MIN_MATCH_SCORE`.
 - **CLI** (`main.py`): `--text`, `--image`, `--raw`, `--match-only`, `--stats`, `--show-matches`, `--dedupe`, `--clear`.
-- **Config** (`config.py`): Single source of truth for all constants and tolerances.
+- **Config** (`core/config.py`): Single source of truth for all constants and tolerances.
 
 ### Bugs found and fixed during design phase
 
@@ -202,7 +216,7 @@ The entire base system was designed and implemented through a planning + coding 
 2. `FUZZY_LOCATION_THRESHOLD=85` may be slightly permissive — monitor in production
 3. Matching is 1-to-1; multi-match (top 3 sellers per buyer) not yet implemented
 4. No WhatsApp automation yet — CLI only
-5. API keys and MongoDB URI hardcoded in `config.py` — needs `.env` migration
+5. API keys and MongoDB URI hardcoded in `core/config.py` — needs `.env` migration
 
 ---
 
@@ -214,23 +228,49 @@ Sessions will be driven by prompts from Melvi. Each prompt comes from a planning
 
 <!-- Copilot: Add new entries below this line after each coding session -->
 
+## 2026-05-18 — Refactor structure and paths
+
+### What was done
+- Updated imports to new module paths under core/, ingestion/, location/, and tools/
+- Centralized data/cache paths using `_PROJECT_ROOT` in core/config.py
+- Added package `__init__.py` files and cache/.gitkeep; tightened .gitignore to cache-only artifacts
+- Updated tools usage strings and documentation for new layout
+
+### Files changed
+- core/config.py, core/database.py, core/matcher.py
+- ingestion/parser.py, ingestion/api.py
+- location/geocoder.py, location/resolver.py
+- tools/convert_excel_to_csv.py, tools/geocode_locations.py
+- main.py, README.md, CONTEXT.md, progress.md, .gitignore
+- core/__init__.py, ingestion/__init__.py, location/__init__.py, tools/__init__.py, cache/.gitkeep
+
+### Decisions made
+- Keep main.py at repo root to preserve CLI and `uvicorn main:app`
+- Use Path-based project root to avoid brittle relative paths
+
+### What was learned
+- Absolute data/cache paths reduce tool execution surprises across directories
+
+### Next step
+- Run a quick CLI/API smoke test to confirm imports and paths
+
 ## 2026-05-18 — API usage toggles and legacy geocoding gate
 
 ### What was done
 - Added per-call toggles for Gemini and Nominatim API usage
-- Added coordinates.csv Layer 0 geocoding with optional legacy fallback
+- Added data/coordinates.csv Layer 0 geocoding with optional legacy fallback
 
 ### Files changed
-- config.py — per-call API toggles and legacy geocoding switch
-- geocoder.py — coordinates.csv map + legacy/Nominatim gating
-- parser.py — separate Gemini toggles for classifier, text, and image extraction
-- location_resolver.py — per-mode Gemini toggles for disambiguate/confirm/cold
+- core/config.py — per-call API toggles and legacy geocoding switch
+- location/geocoder.py — data/coordinates.csv map + legacy/Nominatim gating
+- ingestion/parser.py — separate Gemini toggles for classifier, text, and image extraction
+- location/resolver.py — per-mode Gemini toggles for disambiguate/confirm/cold
 - CONTEXT.md — updated system docs
 - progress.md — session log
 
 ### Decisions made
 - Make every external API call individually switchable to control cost and quota
-- Keep coordinates.csv as primary geocoding source, with legacy fallback behind a toggle
+- Keep data/coordinates.csv as primary geocoding source, with legacy fallback behind a toggle
 
 ### What was learned
 - Granular toggles make it easier to isolate API cost spikes during batch runs
@@ -241,7 +281,7 @@ Sessions will be driven by prompts from Melvi. Each prompt comes from a planning
 ## 2026-05-17 — Location resolver overhaul + batch processing fixes
 
 ### What was done
-- Rewrote location_resolver.py from 3-layer to 4-layer pipeline with candidate generation and confidence scoring
+- Rewrote location/resolver.py from 3-layer to 4-layer pipeline with candidate generation and confidence scoring
 - Added phase-aware matching — `ar3` now correctly resolves to Arabian Ranches 3, not Arabian Ranches
 - Added token coverage scoring — sub-communities (Marina Gate) no longer collapse into parent areas (Dubai Marina)
 - Added three targeted Gemini modes: Disambiguate, Confirm, Cold — replacing blind two-step call
@@ -252,7 +292,7 @@ Sessions will be driven by prompts from Melvi. Each prompt comes from a planning
 - Cleaned up CLI output — only errors and final summary printed during batch runs
 
 ### Files changed
-- `location_resolver.py` — full rewrite of Layer 1+2, new candidate scoring system, 3-mode Gemini
+- `location/resolver.py` — full rewrite of Layer 1+2, new candidate scoring system, 3-mode Gemini
 - `main.py` — `_process_text_file()`, `_split_messages()`, `_parse_with_retry()` added
 
 ### Decisions made
@@ -266,17 +306,17 @@ Sessions will be driven by prompts from Melvi. Each prompt comes from a planning
 ### What was learned
 - Free tier daily cap is 20 requests — insufficient for 183-message batch runs; paid tier needed for production
 - Each message uses 2+ Gemini calls (classifier + parser + optional location resolver escalations)
-- Changing MODEL in config.py only takes effect on next process start — in-memory model instance is not hot-reloaded
+- Changing MODEL in core/config.py only takes effect on next process start — in-memory model instance is not hot-reloaded
 
 ### Known issues
-- `locations.csv` needs phased communities added as separate canonical rows (Arabian Ranches 2/3 etc.) for L1 exact match to work on abbreviations like `ar3`
+- `data/locations.csv` needs phased communities added as separate canonical rows (Arabian Ranches 2/3 etc.) for L1 exact match to work on abbreviations like `ar3`
 - `DUPLICATE_PRICE_TOLERANCE` still defined in config but not wired into `_build_fingerprint()`
 - Free tier quota (20 req/day) is a hard blocker for batch runs — need paid Gemini API access
 
 ### Next step
-- Add phased communities to locations.csv
+- Add phased communities to data/locations.csv
 - Upgrade Gemini API to paid tier for production batch runs
-- Test with real broker messages and review unresolved_locations.log
+- Test with real broker messages and review cache/unresolved_locations.log
 
 ## 2026-05-14 — Location resolution system
 
@@ -286,12 +326,12 @@ Sessions will be driven by prompts from Melvi. Each prompt comes from a planning
 - Wired canonical resolution into listing normalization
 
 ### Files changed
-- location_resolver.py — new resolver with cache, Gemini fallback, and unresolved logging
-- locations.csv — initial canonical locations and aliases
-- convert_excel_to_csv.py — Excel conversion script
-- config.py — location resolution settings and thresholds
-- geocoder.py — removed Gemini normalization step
-- parser.py — resolve raw locations to canonical names
+- location/resolver.py — new resolver with cache, Gemini fallback, and unresolved logging
+- data/locations.csv — initial canonical locations and aliases
+- tools/convert_excel_to_csv.py — Excel conversion script
+- core/config.py — location resolution settings and thresholds
+- location/geocoder.py — removed Gemini normalization step
+- ingestion/parser.py — resolve raw locations to canonical names
 - requirements.txt — add openpyxl
 - README.md — document location resolution workflow
 - progress.md — session log
@@ -306,7 +346,7 @@ Sessions will be driven by prompts from Melvi. Each prompt comes from a planning
 - The unresolved log provides actionable signals for improving the alias sheet and thresholds
 
 ### Next step
-- Test with real broker messages and review unresolved_locations.log
+- Test with real broker messages and review cache/unresolved_locations.log
 
 ## 2026-05-13 — make.com integration
 
@@ -331,7 +371,7 @@ Sessions will be driven by prompts from Melvi. Each prompt comes from a planning
 - Added hybrid rules + Gemini classification for message filtering
 
 ### Files changed
-- parser.py — rule scoring and JSON-based Gemini classifier with confidence gating
+- ingestion/parser.py — rule scoring and JSON-based Gemini classifier with confidence gating
 - progress.md — session log
 
 ### Decisions made
@@ -354,9 +394,9 @@ Sessions will be driven by prompts from Melvi. Each prompt comes from a planning
 ### Files changed
 - requirements.txt — add fastapi, uvicorn, python-multipart
 - .env.example — add API_KEY placeholder
-- config.py — load API_KEY from environment
-- parser.py — add is_real_estate_message() filter
-- api.py — new FastAPI app with ingest/stats/matches endpoints
+- core/config.py — load API_KEY from environment
+- ingestion/parser.py — add is_real_estate_message() filter
+- ingestion/api.py — new FastAPI app with ingest/stats/matches endpoints
 - main.py — document API run commands and expose app
 - progress.md — session log
 
@@ -380,7 +420,7 @@ Sessions will be driven by prompts from Melvi. Each prompt comes from a planning
 - Added python-dotenv dependency
 
 ### Files changed
-- config.py — load .env and read GEMINI_API_KEY/MONGO_URI from environment
+- core/config.py — load .env and read GEMINI_API_KEY/MONGO_URI from environment
 - requirements.txt — add python-dotenv
 - .env.example — placeholder environment variables
 - .gitignore — ignore .env

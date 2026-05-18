@@ -21,22 +21,28 @@ This system:
 
 ```
 RealEstate/
-├── config.py                  ← All tunable constants (single source of truth)
-├── parser.py                  ← Gemini-powered text + image parser
-├── location_resolver.py       ← 4-layer location resolution pipeline
-├── geocoder.py                ← Haversine distance via coordinates.csv (optional legacy Nominatim)
-├── database.py                ← MongoDB CRUD, duplicate detection, indexes
-├── matcher.py                 ← Buy/sell matching engine
+├── core/
+│   ├── config.py              ← All tunable constants (single source of truth)
+│   ├── database.py            ← MongoDB CRUD, duplicate detection, indexes
+│   └── matcher.py             ← Buy/sell matching engine
+├── ingestion/
+│   ├── api.py                 ← FastAPI server for make.com integration
+│   └── parser.py              ← Gemini-powered text + image parser
+├── location/
+│   ├── resolver.py            ← 4-layer location resolution pipeline
+│   └── geocoder.py            ← Haversine distance via data/coordinates.csv (optional legacy Nominatim)
+├── tools/
+│   ├── convert_excel_to_csv.py ← Manual script: converts Excel alias sheet to data/locations.csv
+│   └── geocode_locations.py   ← Geocode Excel sheet and sync data/coordinates.csv
+├── data/
+│   ├── locations.csv          ← Canonical Dubai area names + aliases (~28 areas, growing)
+│   └── coordinates.csv        ← canonical_name → lat, lng (partially filled)
+├── cache/
+│   ├── location_cache.json    ← Auto-created: caches all resolver outputs (pass + fail)
+│   ├── geocode_cache.json     ← Auto-created: legacy Nominatim cache (being phased out)
+│   └── unresolved_locations.log ← Every location that failed all resolver layers
 ├── main.py                    ← CLI entry point
-├── api.py                     ← FastAPI server for make.com integration
-├── locations.csv              ← Canonical Dubai area names + aliases (~28 areas, growing)
-├── coordinates.csv            ← canonical_name → lat, lng (partially filled)
-├── convert_excel_to_csv.py    ← Manual script: converts Excel alias sheet to locations.csv
-├── geocode_locations_with_excel.py ← Geocode Excel sheet and sync coordinates.csv
 ├── requirements.txt
-├── location_cache.json        ← Auto-created: caches all resolver outputs (pass + fail)
-├── geocode_cache.json         ← Auto-created: legacy Nominatim cache (being phased out)
-├── unresolved_locations.log   ← Every location that failed all resolver layers
 ├── .env                       ← GEMINI_API_KEY, MONGO_URI, API_KEY (never committed)
 └── .env.example               ← Template with placeholder values (committed)
 ```
@@ -49,7 +55,7 @@ RealEstate/
 |---|---|---|
 | **LLM Parser** | Google Gemini (`gemini-2.5-flash-lite`) | Multimodal — handles both text and image flyers in one API. Forced JSON output via `response_mime_type`. |
 | **Location resolution** | 4-layer pipeline (see Section 10) | Broker messages use abbreviations, typos, project names, phase numbers — no single method handles all cases |
-| **Geocoding** | `coordinates.csv` + Haversine (legacy Nominatim optional) | Coordinates CSV is primary; legacy Nominatim can be enabled for fallback on missing coords. |
+| **Geocoding** | `data/coordinates.csv` + Haversine (legacy Nominatim optional) | Coordinates CSV is primary; legacy Nominatim can be enabled for fallback on missing coords. |
 | **Fuzzy matching** | `rapidfuzz` (`WRatio`) | Handles abbreviations, concatenations, token reordering better than `ratio` alone |
 | **Database** | MongoDB Atlas | Scalability, cloud access, native JSON document storage |
 | **Distance** | Haversine formula | Standard great-circle distance, accurate enough for city-scale (Dubai) |
@@ -63,24 +69,24 @@ RealEstate/
 Input (text file / image / raw string)
         │
         ▼
-    parser.py
+    ingestion/parser.py
     Gemini API → structured JSON array
     Each listing: transaction, type, location (raw, as-is), price, BHK, sqft, broker, etc.
         │
         ▼
-    location_resolver.py  resolve_location(raw_loc)
+    location/resolver.py  resolve_location(raw_loc)
     4-layer pipeline → canonical name or None
     Sets location_unresolved=True if None (listing still stored)
         │
         ▼
-    database.py  insert_listing()
+    core/database.py  insert_listing()
     ├── Build fingerprint (MD5 of type+location+bhk+price_bucket+sqft)
     ├── Check for duplicate → reject if exists
     ├── Route to buy_listings or sell_listings based on transaction field
     └── Store with matched=False, match_id=None
         │
         ▼
-    matcher.py  run_matching()
+    core/matcher.py  run_matching()
     For each unmatched buy:
     ├── MongoDB pre-filter by property_type + BHK (indexed)
     ├── For each sell candidate:
@@ -88,13 +94,13 @@ Input (text file / image / raw string)
     │   ├── BHK check (hard fail if BHK_TOLERANCE=0)
     │   ├── price check (hard fail if out of range)
     │   ├── sqft check (soft, skippable)
-    │   └── location check → exact string → Haversine via coordinates.csv (legacy Nominatim optional)
+    │   └── location check → exact string → Haversine via data/coordinates.csv (legacy Nominatim optional)
     ├── Score passed checks
     ├── Apply quality gates (MIN_MATCH_SCORE, REQUIRE_PRICE_OR_LOCATION)
     └── Pick best scoring sell for this buy
         │
         ▼
-    database.py  record_match()
+    core/database.py  record_match()
     ├── Check historical match (don't re-record same pair)
     ├── Insert into matches collection
     └── Mark buy + sell as matched=True
@@ -196,7 +202,7 @@ Sell price must be strictly within this range. No value above 4.95M can ever mat
 
 **Fix (original):** Two-layer normalization before geocoding — fuzzy match against cached keys + Gemini normalization to convert broker slang to official names.
 
-**Fix (current):** Primary geocoding uses `coordinates.csv` — a local CSV mapping canonical names to lat/lng. Legacy Nominatim can be enabled as a fallback via `USE_LEGACY_GEOCODING` + `USE_NOMINATIM_GEOCODING`.
+**Fix (current):** Primary geocoding uses `data/coordinates.csv` — a local CSV mapping canonical names to lat/lng. Legacy Nominatim can be enabled as a fallback via `USE_LEGACY_GEOCODING` + `USE_NOMINATIM_GEOCODING`.
 
 ---
 
@@ -207,7 +213,7 @@ Sell price must be strictly within this range. No value above 4.95M can ever mat
 
 **Original fix:** Switched to `fuzz.ratio` + added `_is_phase_variant()` guard.
 
-**Current fix (superseded):** The entire phase problem is now solved architecturally in `location_resolver.py` Layer 2 via phase-aware candidate scoring — see Section 10. `_is_phase_variant()` is retained but the new system handles all cases including previously-missed ones (`ar3` matching `ar`, `marina gate` collapsing to `Dubai Marina`).
+**Current fix (superseded):** The entire phase problem is now solved architecturally in `location/resolver.py` Layer 2 via phase-aware candidate scoring — see Section 10. `_is_phase_variant()` is retained but the new system handles all cases including previously-missed ones (`ar3` matching `ar`, `marina gate` collapsing to `Dubai Marina`).
 
 ---
 
@@ -268,18 +274,18 @@ python main.py --dedupe
 ### 6.8 Sub-community Collapsing Into Parent Area
 **Problem:** "Marina Gate" was resolving to "Dubai Marina" because "marina" appears in both and fuzzy matching pulled the shorter/more common one.
 
-**Fix:** Token coverage scoring in Layer 2 of `location_resolver.py`. Input tokens `{marina, gate}` cover 100% of "Marina Gate" but only 50% of "Dubai Marina" — specific candidate wins. See Section 10.
+**Fix:** Token coverage scoring in Layer 2 of `location/resolver.py`. Input tokens `{marina, gate}` cover 100% of "Marina Gate" but only 50% of "Dubai Marina" — specific candidate wins. See Section 10.
 
 ---
 
 ### 6.9 Phase Number Lost on Concatenated Abbreviations
 **Problem:** `ar3` was matching alias `ar` (Arabian Ranches) because the phase number wasn't being extracted before fuzzy matching.
 
-**Fix:** `_split_phase()` in `location_resolver.py` handles both spaced (`arabian ranches 3`) and concatenated (`ar3`) forms before any comparison. Phase hard-block: if input has phase N and candidate has any different or no phase → candidate is dropped entirely, regardless of fuzzy score. See Section 10.
+**Fix:** `_split_phase()` in `location/resolver.py` handles both spaced (`arabian ranches 3`) and concatenated (`ar3`) forms before any comparison. Phase hard-block: if input has phase N and candidate has any different or no phase → candidate is dropped entirely, regardless of fuzzy score. See Section 10.
 
 ---
 
-## 7. Config Reference (`config.py`)
+## 7. Config Reference (`core/config.py`)
 
 | Constant | Default | Description |
 |---|---|---|
@@ -297,25 +303,25 @@ python main.py --dedupe
 | `MIN_MATCH_SCORE` | `0.75` | Minimum weighted score to record a match |
 | `REQUIRE_PRICE_OR_LOCATION` | `True` | Reject if both price and location are skipped |
 | `FUZZY_LOCATION_THRESHOLD` | `85` | Legacy threshold — used in matcher, not resolver |
-| `LOCATION_FUZZY_THRESHOLD` | `80` | Base fuzzy cutoff inside location_resolver Layer 2 |
+| `LOCATION_FUZZY_THRESHOLD` | `80` | Base fuzzy cutoff inside location/resolver Layer 2 |
 | `DUPLICATE_DETECTION` | `True` | Enable fingerprint-based duplicate rejection |
 | `DUPLICATE_PRICE_TOLERANCE` | `0.05` | **Defined but not yet wired into `_build_fingerprint()` — dead config** |
-| `LOCATIONS_CSV` | `"locations.csv"` | Canonical names + aliases |
-| `COORDINATES_CSV` | `"coordinates.csv"` | canonical_name → lat, lng |
-| `USE_LEGACY_GEOCODING` | `False` | If False, only coordinates.csv is used for geocoding |
+| `LOCATIONS_CSV` | `"data/locations.csv"` | Canonical names + aliases |
+| `COORDINATES_CSV` | `"data/coordinates.csv"` | canonical_name → lat, lng |
+| `USE_LEGACY_GEOCODING` | `False` | If False, only data/coordinates.csv is used for geocoding |
 | `USE_NOMINATIM_GEOCODING` | `True` | Enables Nominatim fallback when legacy geocoding is on |
-| `USE_GEMINI_PARSER_CLASSIFIER` | `True` | Toggle Gemini message classifier in `parser.py` |
-| `USE_GEMINI_PARSER_TEXT_EXTRACTION` | `True` | Toggle Gemini text extraction in `parser.py` |
-| `USE_GEMINI_PARSER_IMAGE_EXTRACTION` | `True` | Toggle Gemini image extraction in `parser.py` |
-| `USE_GEMINI_RESOLVER_DISAMBIGUATE` | `True` | Toggle Gemini disambiguation in `location_resolver.py` |
-| `USE_GEMINI_RESOLVER_CONFIRM` | `True` | Toggle Gemini confirmation in `location_resolver.py` |
-| `USE_GEMINI_RESOLVER_COLD_STEP_A` | `True` | Toggle Gemini cold Step A in `location_resolver.py` |
-| `USE_GEMINI_RESOLVER_COLD_STEP_B` | `True` | Toggle Gemini cold Step B in `location_resolver.py` |
-| `LOCATION_CSV_CANONICAL_COLUMN` | `"canonical_name"` | Column header in locations.csv |
-| `LOCATION_CSV_ALIASES_COLUMN` | `"aliases"` | Column header in locations.csv |
-| `LOCATION_RESOLUTION_CACHE_FILE` | `"location_cache.json"` | Resolver output cache |
-| `UNRESOLVED_LOG_FILE` | `"unresolved_locations.log"` | Failed resolution log |
-| `GEOCODE_CACHE_FILE` | `"geocode_cache.json"` | Legacy Nominatim cache |
+| `USE_GEMINI_PARSER_CLASSIFIER` | `False` | Toggle Gemini message classifier in `ingestion/parser.py` |
+| `USE_GEMINI_PARSER_TEXT_EXTRACTION` | `True` | Toggle Gemini text extraction in `ingestion/parser.py` |
+| `USE_GEMINI_PARSER_IMAGE_EXTRACTION` | `True` | Toggle Gemini image extraction in `ingestion/parser.py` |
+| `USE_GEMINI_RESOLVER_DISAMBIGUATE` | `True` | Toggle Gemini disambiguation in `location/resolver.py` |
+| `USE_GEMINI_RESOLVER_CONFIRM` | `True` | Toggle Gemini confirmation in `location/resolver.py` |
+| `USE_GEMINI_RESOLVER_COLD_STEP_A` | `True` | Toggle Gemini cold Step A in `location/resolver.py` |
+| `USE_GEMINI_RESOLVER_COLD_STEP_B` | `True` | Toggle Gemini cold Step B in `location/resolver.py` |
+| `LOCATION_CSV_CANONICAL_COLUMN` | `"canonical_name"` | Column header in data/locations.csv |
+| `LOCATION_CSV_ALIASES_COLUMN` | `"aliases"` | Column header in data/locations.csv |
+| `LOCATION_RESOLUTION_CACHE_FILE` | `"cache/location_cache.json"` | Resolver output cache |
+| `UNRESOLVED_LOG_FILE` | `"cache/unresolved_locations.log"` | Failed resolution log |
+| `GEOCODE_CACHE_FILE` | `"cache/geocode_cache.json"` | Legacy Nominatim cache |
 | `DELETE_AFTER_MATCH` | `False` | `True` = delete matched docs from buy/sell |
 | `MODEL` | `"gemini-2.5-flash-lite"` | Gemini model — change here affects parser + resolver |
 
@@ -357,7 +363,7 @@ ngrok http 8000
 
 ---
 
-## 9. API Endpoints (`api.py`)
+## 9. API Endpoints (`ingestion/api.py`)
 
 All endpoints require `X-API-Key` header.
 
@@ -391,10 +397,10 @@ All endpoints require `X-API-Key` header.
 
 ---
 
-## 10. location_resolver.py — 4-Layer Pipeline
+## 10. location/resolver.py — 4-Layer Pipeline
 
 ### On Startup
-Reads `locations.csv`, builds:
+Reads `data/locations.csv`, builds:
 - `_alias_map`: `normalized_key → canonical` (for O(1) exact lookup)
 - `_alias_entries`: every alias pre-split into `{alias_norm, alias_base, alias_phase, canonical}`
 - `_canonical_entries`: every canonical pre-split into `{canonical, base, phase}`
@@ -413,7 +419,7 @@ All splitting done once at load time via `_split_phase()`. Not repeated at query
 - No phase: `'business bay'` → `('business bay', None)`
 
 ### Layer 0 — Cache
-Hit `location_cache.json` first. Both successes and failures (`"UNKNOWN"`) are cached. Cache hit → return immediately, zero further processing.
+Hit `cache/location_cache.json` first. Both successes and failures (`"UNKNOWN"`) are cached. Cache hit → return immediately, zero further processing.
 
 ### Layer 1 — Exact Alias Match
 `normalize_key(input)` looked up directly in `_alias_map`. O(1) dict lookup. Catches known abbreviations (`jvc`, `dso`, `bbay`) and known typos already in the alias list.
@@ -460,7 +466,7 @@ Keep best candidate per canonical, sort descending by confidence.
 | top 0.65–0.82 | Medium confidence → Gemini confirm mode |
 | top < 0.65 | Low confidence → Gemini cold mode |
 
-Tunable thresholds at top of `location_resolver.py`:
+Tunable thresholds at top of `location/resolver.py`:
 ```python
 _CONFIDENCE_HIGH = 0.82
 _CONFIDENCE_AMBIGUITY_BAND = 0.08
@@ -494,7 +500,7 @@ Is this correct?
 - If Step A returns UNKNOWN → skip Step B → unresolved
 
 ### Layer 4 — Unresolved Logger
-All layers failed. Written to `unresolved_locations.log`:
+All layers failed. Written to `cache/unresolved_locations.log`:
 - Timestamp
 - Raw input
 - Top 3 candidates with full score breakdown
@@ -574,14 +580,14 @@ WhatsApp/Gmail message
 
 | # | Issue | Status |
 |---|---|---|
-| 1 | `coordinates.csv` needs lat/lng filled in for all canonical areas | Open |
-| 2 | `DUPLICATE_PRICE_TOLERANCE` defined in config, imported in database.py, never used in `_build_fingerprint()` — hardcodes 50000 instead | Open |
+| 1 | `data/coordinates.csv` needs lat/lng filled in for all canonical areas | Open |
+| 2 | `DUPLICATE_PRICE_TOLERANCE` defined in core/config.py, imported in core/database.py, never used in `_build_fingerprint()` — hardcodes 50000 instead | Open |
 | 3 | Matching is 1-to-1 (best sell per buy). Top-3 multi-match not yet implemented | Open |
 | 4 | Admin approval system for matches deferred — plan: make.com sends match to admin with Approve/Deny → `POST /matches/{id}/approve` | Open |
 | 5 | Production deployment beyond ngrok — Railway or Render | Open |
-| 6 | `locations.csv` needs phased communities as separate canonical rows (Arabian Ranches 2/3, JVC phases etc.) — resolver handles them without this but L1 exact match won't catch abbreviations like `ar3` | Open |
+| 6 | `data/locations.csv` needs phased communities as separate canonical rows (Arabian Ranches 2/3, JVC phases etc.) — resolver handles them without this but L1 exact match won't catch abbreviations like `ar3` | Open |
 | 7 | Free tier daily cap is 20 req/day — insufficient for batch runs with 100+ messages. Paid Gemini API needed for production | Open |
-| 8 | Changing `MODEL` in `config.py` only takes effect on process restart — in-memory Gemini instance is not hot-reloaded | Known behaviour |
+| 8 | Changing `MODEL` in `core/config.py` only takes effect on process restart — in-memory Gemini instance is not hot-reloaded | Known behaviour |
 
 ---
 
@@ -590,7 +596,7 @@ WhatsApp/Gmail message
 | Decision | Alternatives Considered | Reason Chosen |
 |---|---|---|
 | Gemini for parsing | OpenAI GPT-4o, local LLMs | Already in use, multimodal (text + image), forced JSON, generous free tier |
-| `coordinates.csv` over Nominatim | Nominatim, Google Maps API | Nominatim: 1 req/sec, fails on project names. CSV: instant, no API, we control data |
+| `data/coordinates.csv` over Nominatim | Nominatim, Google Maps API | Nominatim: 1 req/sec, fails on project names. CSV: instant, no API, we control data |
 | 4-layer location resolver | Static alias map only, pure Gemini | Static maps can't cover Dubai's constantly growing project name space. Pure Gemini is slow and uses quota on every call. Layered approach: fast for common cases, smart for edge cases |
 | Candidate generation + confidence scoring | Simple top-1 fuzzy match | Top-1 fuzzy ignores phase numbers and sub-community specificity. Scoring system handles both correctly by design |
 | Token coverage in scoring | Pure fuzzy score | Fuzzy alone can't distinguish "Marina Gate" from "Dubai Marina" — both contain "marina". Token coverage gives specificity signal |

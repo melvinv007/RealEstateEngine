@@ -1,5 +1,5 @@
 """
-location_resolver.py
+resolver.py
 Resolve raw Dubai location strings to canonical names.
 
 Pipeline:
@@ -27,7 +27,7 @@ from datetime import datetime
 import google.generativeai as genai
 from rapidfuzz import fuzz, process
 
-from config import (
+from core.config import (
     GEMINI_API_KEY,
     MODEL,
     LOCATIONS_CSV,
