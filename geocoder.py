@@ -8,6 +8,7 @@ Location normalization pipeline:
 All results are cached locally (geocode_cache.json).
 """
 
+import csv
 import json
 import math
 import os
@@ -18,13 +19,45 @@ from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from config import (
+    COORDINATES_CSV,
     GEOCODE_CACHE_FILE,
     FUZZY_LOCATION_THRESHOLD,
+    USE_LEGACY_GEOCODING,
+    USE_NOMINATIM_GEOCODING,
 )
 
 # Nominatim requires a descriptive user_agent and respects 1 req/sec
 _geolocator = Nominatim(user_agent="dubai_realestate_matcher_v1", timeout=10)
 _last_nominatim_call = 0.0   # rate-limit tracker
+
+
+# ── Coordinates Map ───────────────────────────────────────────────────────────
+_coord_map: dict[str, tuple[float, float]] = {}
+
+
+def _load_coord_map():
+    global _coord_map
+    _coord_map = {}
+    if not os.path.exists(COORDINATES_CSV):
+        return
+
+    with open(COORDINATES_CSV, "r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            name = (row.get("canonical_name") or "").strip()
+            lat_raw = (row.get("lat") or "").strip()
+            lng_raw = (row.get("lng") or "").strip()
+            if not name or not lat_raw or not lng_raw:
+                continue
+            try:
+                lat = float(lat_raw)
+                lng = float(lng_raw)
+            except ValueError:
+                continue
+            _coord_map[name.lower()] = (lat, lng)
+
+
+_load_coord_map()
 
 
 # ── Cache ──────────────────────────────────────────────────────────────────────
@@ -156,6 +189,7 @@ def _geocode_raw(query: str) -> tuple[float, float] | None:
 def geocode(location: str) -> tuple[float, float] | None:
     """
     Full pipeline:
+    0. coordinates.csv exact match
     1. Exact cache lookup
     2. Fuzzy typo correction (phase variants blocked)
     3. Nominatim geocoding (with Dubai context + fallback)
@@ -164,6 +198,13 @@ def geocode(location: str) -> tuple[float, float] | None:
         return None
 
     raw_key = location.strip().lower()
+
+    # 0. coordinates.csv exact match
+    if raw_key in _coord_map:
+        return _coord_map[raw_key]
+
+    if not USE_LEGACY_GEOCODING:
+        return None
 
     # 1. Exact cache hit
     if raw_key in _cache:
@@ -179,6 +220,9 @@ def geocode(location: str) -> tuple[float, float] | None:
             _cache[raw_key] = entry
             _save_cache()
             return (entry["lat"], entry["lng"])
+
+    if not USE_NOMINATIM_GEOCODING:
+        return None
 
     # 3. Nominatim — try with Dubai context, then bare name as fallback
     query = location if "dubai" in location.lower() else f"{location}, Dubai, UAE"

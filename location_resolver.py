@@ -36,6 +36,10 @@ from config import (
     LOCATION_FUZZY_THRESHOLD,
     LOCATION_RESOLUTION_CACHE_FILE,
     UNRESOLVED_LOG_FILE,
+    USE_GEMINI_RESOLVER_DISAMBIGUATE,
+    USE_GEMINI_RESOLVER_CONFIRM,
+    USE_GEMINI_RESOLVER_COLD_STEP_A,
+    USE_GEMINI_RESOLVER_COLD_STEP_B,
 )
 
 genai.configure(api_key=GEMINI_API_KEY)
@@ -422,6 +426,9 @@ def _gemini_disambiguate(raw_input: str, candidates: list[_Candidate]) -> str | 
     Mode A: We have 2+ close candidates. Ask Gemini to pick.
     e.g. 'marina gate' → candidates: [Marina Gate, Dubai Marina]
     """
+    if not USE_GEMINI_RESOLVER_DISAMBIGUATE:
+        return None
+
     options = "\n".join(
         f"  {i+1}. {c.canonical} (confidence={c.confidence:.2f})"
         for i, c in enumerate(candidates[:4])
@@ -463,6 +470,9 @@ def _gemini_confirm(raw_input: str, candidate: _Candidate) -> str | None:
     """
     Mode B: We have one medium-confidence candidate. Ask Gemini to confirm or correct.
     """
+    if not USE_GEMINI_RESOLVER_CONFIRM:
+        return None
+
     canonical_list_text = "\n".join(_canonical_list)
     prompt = (
         "You are a Dubai real estate location expert.\n"
@@ -502,6 +512,9 @@ def _gemini_cold(raw_input: str) -> str | None:
     Mode C: Low confidence, no useful candidates. Original two-step Gemini behavior.
     Step A: open-ended → Step B: constrained to canonical list.
     """
+    if not USE_GEMINI_RESOLVER_COLD_STEP_A:
+        return None
+
     prompt_a = (
         "You are a Dubai real estate expert.\n"
         "What place in Dubai could this refer to? Reply with ONLY the place name, "
@@ -529,6 +542,10 @@ def _gemini_cold(raw_input: str) -> str | None:
         resolved = _alias_map[step_a_norm]
         print(f"[Resolver] Gemini cold Step A (alias): '{raw_input}' → '{resolved}'")
         return resolved
+
+    if not USE_GEMINI_RESOLVER_COLD_STEP_B:
+        print(f"[Resolver] Gemini cold Step B disabled for '{raw_input}'")
+        return None
 
     # Step B — constrain to canonical list
     print(f"[Resolver] Gemini cold Step A '{step_a}' not in list, trying Step B...")
@@ -610,19 +627,33 @@ def resolve_location(raw: str) -> str | None:
     resolved = None
 
     if decision == "ambiguous":
-        print(f"[Resolver] Ambiguous candidates for '{raw_input}', escalating to Gemini...")
-        resolved = _gemini_disambiguate(raw_input, candidates)
-        gemini_result_str = resolved or "UNKNOWN"
+        if USE_GEMINI_RESOLVER_DISAMBIGUATE:
+            print(f"[Resolver] Ambiguous candidates for '{raw_input}', escalating to Gemini...")
+            resolved = _gemini_disambiguate(raw_input, candidates)
+            gemini_result_str = resolved or "UNKNOWN"
+        if not resolved and USE_GEMINI_RESOLVER_COLD_STEP_A:
+            print(f"[Resolver] Ambiguous resolution failed, cold Gemini call for '{raw_input}'...")
+            resolved = _gemini_cold(raw_input)
+            gemini_result_str = resolved or "UNKNOWN"
 
     elif decision == "confirm":
-        print(f"[Resolver] Medium confidence for '{raw_input}', asking Gemini to confirm...")
-        resolved = _gemini_confirm(raw_input, candidates[0])
-        gemini_result_str = resolved or "UNKNOWN"
+        if USE_GEMINI_RESOLVER_CONFIRM:
+            print(f"[Resolver] Medium confidence for '{raw_input}', asking Gemini to confirm...")
+            resolved = _gemini_confirm(raw_input, candidates[0])
+            gemini_result_str = resolved or "UNKNOWN"
+        if not resolved and USE_GEMINI_RESOLVER_COLD_STEP_A:
+            print(f"[Resolver] Confirm failed, cold Gemini call for '{raw_input}'...")
+            resolved = _gemini_cold(raw_input)
+            gemini_result_str = resolved or "UNKNOWN"
 
     else:  # "low"
-        print(f"[Resolver] Low confidence for '{raw_input}', cold Gemini call...")
-        resolved = _gemini_cold(raw_input)
-        gemini_result_str = resolved or "UNKNOWN"
+        if USE_GEMINI_RESOLVER_COLD_STEP_A:
+            print(f"[Resolver] Low confidence for '{raw_input}', cold Gemini call...")
+            resolved = _gemini_cold(raw_input)
+            gemini_result_str = resolved or "UNKNOWN"
+
+    if gemini_result_str is None:
+        gemini_result_str = "DISABLED"
 
     if resolved:
         _resolution_cache[norm] = resolved

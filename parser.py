@@ -20,7 +20,13 @@ from pathlib import Path
 
 import google.generativeai as genai
 
-from config import GEMINI_API_KEY, MODEL
+from config import (
+    GEMINI_API_KEY,
+    MODEL,
+    USE_GEMINI_PARSER_CLASSIFIER,
+    USE_GEMINI_PARSER_TEXT_EXTRACTION,
+    USE_GEMINI_PARSER_IMAGE_EXTRACTION,
+)
 
 # ─────────────────────────────────────────────────────────────
 # Gemini Setup
@@ -328,6 +334,9 @@ def _rule_score(text: str) -> int:
 
 
 def _classify_with_gemini(text: str) -> tuple[bool | None, float | None]:
+    if not USE_GEMINI_PARSER_CLASSIFIER:
+        return None, None
+
     prompt = (
         "You are a classifier for a Dubai real estate WhatsApp group.\n"
         "Is the following message a real estate listing, property requirement, or buying/selling inquiry?\n"
@@ -355,6 +364,9 @@ def is_real_estate_message(text: str) -> bool:
     Returns True if the message is a real estate listing or requirement.
     Fail open on API errors to avoid dropping messages.
     """
+    if not USE_GEMINI_PARSER_CLASSIFIER:
+        return True
+
     try:
         score = _rule_score(text)
         if score >= 4:
@@ -380,6 +392,10 @@ def parse_text_message(message: str) -> list[dict]:
     """
     Parse WhatsApp text message into structured listings.
     """
+
+    if not USE_GEMINI_PARSER_TEXT_EXTRACTION:
+        print("[Parser] Gemini extraction disabled; skipping text parse.")
+        return []
 
     try:
 
@@ -417,6 +433,10 @@ def parse_image(image_path: str) -> list[dict]:
     """
     Parse flyer/image into listings.
     """
+
+    if not USE_GEMINI_PARSER_IMAGE_EXTRACTION:
+        print("[Parser] Gemini extraction disabled; skipping image parse.")
+        return []
 
     path = Path(image_path)
 

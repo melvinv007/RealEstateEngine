@@ -13,6 +13,24 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 API_KEY = os.getenv("API_KEY")
 # GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY"   # for geocoding
 
+# ── API Usage Toggles ─────────────────────────────────────────────────────────
+# parser.py — Gemini classifier in is_real_estate_message()
+USE_GEMINI_PARSER_CLASSIFIER = False
+# parser.py — Gemini extraction in parse_text_message()
+USE_GEMINI_PARSER_TEXT_EXTRACTION = True
+# parser.py — Gemini extraction in parse_image()
+USE_GEMINI_PARSER_IMAGE_EXTRACTION = True
+# location_resolver.py — Gemini disambiguation in _gemini_disambiguate()
+USE_GEMINI_RESOLVER_DISAMBIGUATE = True
+# location_resolver.py — Gemini confirmation in _gemini_confirm()
+USE_GEMINI_RESOLVER_CONFIRM = True
+# location_resolver.py — Gemini cold Step A in _gemini_cold()
+USE_GEMINI_RESOLVER_COLD_STEP_A = True
+# location_resolver.py — Gemini cold Step B in _gemini_cold()
+USE_GEMINI_RESOLVER_COLD_STEP_B = True
+# geocoder.py — Nominatim geocoding in _geocode_raw()
+USE_NOMINATIM_GEOCODING = True
+
 # ── MongoDB ───────────────────────────────────────────────────────────────────
 # MONGO_URI = "mongodb://localhost:27017"             # or Atlas URI
 # MONGO_URI = "mongodb+srv://fonot94264_db_user:3xp9bBPec8jkTFQS@cluster0.rkuyemc.mongodb.net/?appName=Cluster0"             # or Atlas URI
@@ -28,12 +46,13 @@ DISTANCE_KM_TOLERANCE = 2.0     # ±2 km — change this one line to adjust
 BHK_TOLERANCE = 0               # 0 = exact match; 1 = allow ±1 bedroom
 SQFT_TOLERANCE = 0.15           # ±15% on sqft (set to None to skip sqft matching)
 
-MODEL = "gemini-3.1-flash-lite"
+MODEL = "gemini-2.5-flash-lite"
 
 # ── Geocoding Cache ───────────────────────────────────────────────────────────
 # Avoids re-geocoding the same location repeatedly
 GEOCODE_CACHE_FILE = "geocode_cache.json"
 COORDINATES_CSV = "coordinates.csv" # canonical_name,lat,lng
+USE_LEGACY_GEOCODING = False  # True = use cache + fuzzy + Nominatim fallback; False = coordinates.csv only
 
 # ── Location Resolution ──────────────────────────────────────────────────────
 LOCATIONS_CSV = "locations.csv"

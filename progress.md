@@ -214,6 +214,70 @@ Sessions will be driven by prompts from Melvi. Each prompt comes from a planning
 
 <!-- Copilot: Add new entries below this line after each coding session -->
 
+## 2026-05-18 — API usage toggles and legacy geocoding gate
+
+### What was done
+- Added per-call toggles for Gemini and Nominatim API usage
+- Added coordinates.csv Layer 0 geocoding with optional legacy fallback
+
+### Files changed
+- config.py — per-call API toggles and legacy geocoding switch
+- geocoder.py — coordinates.csv map + legacy/Nominatim gating
+- parser.py — separate Gemini toggles for classifier, text, and image extraction
+- location_resolver.py — per-mode Gemini toggles for disambiguate/confirm/cold
+- CONTEXT.md — updated system docs
+- progress.md — session log
+
+### Decisions made
+- Make every external API call individually switchable to control cost and quota
+- Keep coordinates.csv as primary geocoding source, with legacy fallback behind a toggle
+
+### What was learned
+- Granular toggles make it easier to isolate API cost spikes during batch runs
+
+### Next step
+- Validate toggle combinations in a dry run and confirm expected fallbacks
+
+## 2026-05-17 — Location resolver overhaul + batch processing fixes
+
+### What was done
+- Rewrote location_resolver.py from 3-layer to 4-layer pipeline with candidate generation and confidence scoring
+- Added phase-aware matching — `ar3` now correctly resolves to Arabian Ranches 3, not Arabian Ranches
+- Added token coverage scoring — sub-communities (Marina Gate) no longer collapse into parent areas (Dubai Marina)
+- Added three targeted Gemini modes: Disambiguate, Confirm, Cold — replacing blind two-step call
+- Fixed batch processing in main.py — messages now parsed and inserted one at a time instead of all-at-once
+- Added rate limit retry logic with configurable wait and max retries
+- Added inter-message delay (`_MESSAGE_DELAY_SECONDS = 13`) to stay under Gemini free tier RPM limit
+- Added auto separator detection for messages.txt (supports ---, ===, ***, ~~~, double blank lines)
+- Cleaned up CLI output — only errors and final summary printed during batch runs
+
+### Files changed
+- `location_resolver.py` — full rewrite of Layer 1+2, new candidate scoring system, 3-mode Gemini
+- `main.py` — `_process_text_file()`, `_split_messages()`, `_parse_with_retry()` added
+
+### Decisions made
+- Confidence = 0.50×fuzzy + 0.35×token_coverage + 0.15×phase_score
+- Phase hard-block: input with phase X never matches candidate with different or no phase
+- Single-token inputs get neutral 0.50 token coverage to avoid penalizing abbreviations
+- Decision gate thresholds: HIGH=0.82, AMBIGUITY_BAND=0.08, CONFIRM=0.65
+- Gemini only called when Layer 2 is uncertain — reduces API usage significantly
+- Per-message insert means partial progress is always saved on crash or quota hit
+
+### What was learned
+- Free tier daily cap is 20 requests — insufficient for 183-message batch runs; paid tier needed for production
+- Each message uses 2+ Gemini calls (classifier + parser + optional location resolver escalations)
+- Changing MODEL in config.py only takes effect on next process start — in-memory model instance is not hot-reloaded
+
+### Known issues
+- `locations.csv` needs phased communities added as separate canonical rows (Arabian Ranches 2/3 etc.) for L1 exact match to work on abbreviations like `ar3`
+- `DUPLICATE_PRICE_TOLERANCE` still defined in config but not wired into `_build_fingerprint()`
+- Free tier quota (20 req/day) is a hard blocker for batch runs — need paid Gemini API access
+
+### Next step
+- Add phased communities to locations.csv
+- Upgrade Gemini API to paid tier for production batch runs
+- Test with real broker messages and review unresolved_locations.log
+
 ## 2026-05-14 — Location resolution system
 
 ### What was done
