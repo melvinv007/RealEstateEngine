@@ -1,0 +1,54 @@
+[2026-05-14 21:48:01] UNRESOLVED: 'JLT'
+  Best fuzzy guess: 'al twar' → 'Al Twar' (score=60, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:02] UNRESOLVED: 'Damac Lagoons Costa Brava'
+  Best fuzzy guess: 'barsha' → 'Al Barsha' (score=57, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:02] UNRESOLVED: 'EMAAR Beachfront'
+  Best fuzzy guess: 'altwar' → 'Al Twar' (score=57, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:03] UNRESOLVED: 'Villanova'
+  Best fuzzy guess: 'jumeirah village' → 'Jumeirah Village Circle' (score=56, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:03] UNRESOLVED: 'Creek Harbour'
+  Best fuzzy guess: 'ic' → 'International City' (score=60, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:04] UNRESOLVED: 'Damac Hills 2'
+  Best fuzzy guess: 'duba hills' → 'Dubai Hills Estate' (score=69, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:04] UNRESOLVED: 'Mudon'
+  Best fuzzy guess: 'downtown dubai' → 'Downtown Dubai' (score=60, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:05] UNRESOLVED: 'The Valley'
+  Best fuzzy guess: 'the views' → 'The Views' (score=63, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:05] UNRESOLVED: 'Majan'
+  Best fuzzy guess: 'maidan' → 'Meydan' (score=72, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:06] UNRESOLVED: 'Damac Lagoons'
+  Best fuzzy guess: 'dg' → 'Discovery Gardens' (score=60, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:06] UNRESOLVED: 'Bluewaters'
+  Best fuzzy guess: 'barsha' → 'Al Barsha' (score=50, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:07] UNRESOLVED: 'Al Barari'
+  Best fuzzy guess: 'al barsha' → 'Al Barsha' (score=77, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:07] UNRESOLVED: 'Creek Vista Heights'
+  Best fuzzy guess: 'twar' → 'Al Twar' (score=57, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:08] UNRESOLVED: 'Address Harbour Point'
+  Best fuzzy guess: 'downtown burj' → 'Downtown Dubai' (score=52, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:08] UNRESOLVED: 'DAMAC Bay'
+  Best fuzzy guess: 'bbay' → 'Business Bay' (score=77, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:09] UNRESOLVED: 'Expo Valley'
+  Best fuzzy guess: 'jumeirah village circle' → 'Jumeirah Village Circle' (score=45, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:09] UNRESOLVED: 'Majestic Vistas | Trump Estates'
+  Best fuzzy guess: 'ic' → 'International City' (score=60, below threshold=80)
+  Gemini returned: UNKNOWN
+[2026-05-14 21:48:10] UNRESOLVED: 'Serena Casa Viva'
+  Best fuzzy guess: 'ic' → 'International City' (score=57, below threshold=80)
+  Gemini returned: UNKNOWN
