@@ -96,6 +96,10 @@ def _sqft_check(buy: dict, sell: dict) -> tuple[bool, bool, str]:
 
 
 def _location_check(buy: dict, sell: dict) -> tuple[bool, bool, str]:
+    # If either listing failed location resolution, skip location check entirely
+    if buy.get("location_unresolved") or sell.get("location_unresolved"):
+        return True, True, "location_skipped(unresolved)"
+
     b_loc = (buy.get("location") or "").strip()
     s_loc = (sell.get("location") or "").strip()
     if not b_loc or not s_loc:

@@ -166,7 +166,18 @@ IMPORTANT EXTRACTION RULES:
 
 14. raw_text should contain only the text relevant to THAT listing.
 
-15. Return ONLY JSON ARRAY.
+15. LOCATION EXTRACTION:
+    Extract the location string EXACTLY as written in the message.
+    Do NOT interpret, expand, or correct it.
+    "jvc" → "jvc"
+    "dso" → "dso"
+    "bbay" → "bbay"
+    "d.i.f.c" → "d.i.f.c"
+    "al  barsha" → "al  barsha"
+    Abbreviations, typos, and slang are VALID — extract as-is.
+    Resolution happens downstream. Your job is extraction only.
+
+16. Return ONLY JSON ARRAY.
 """
 
 # ─────────────────────────────────────────────────────────────
@@ -209,6 +220,8 @@ def _normalize_listing(listing: dict) -> dict:
     Ensures required structure/types exist.
     """
 
+    from location_resolver import resolve_location
+
     # Transaction normalization
     t = str(listing.get("transaction", "sell")).lower().strip()
 
@@ -216,6 +229,24 @@ def _normalize_listing(listing: dict) -> dict:
         t = "sell"
 
     listing["transaction"] = t
+
+    # raw_loc = listing.get("location")
+    # if raw_loc:
+    #     resolved = resolve_location(raw_loc)
+    #     listing["location"] = resolved if resolved else raw_loc
+
+    raw_loc = listing.get("location")
+    if raw_loc:
+        resolved = resolve_location(raw_loc)
+        if resolved:
+            listing["location"] = resolved
+            listing["location_unresolved"] = False
+        else:
+            listing["location"] = None
+            listing["location_unresolved"] = True
+            listing["location_raw"] = raw_loc
+    else:
+        listing["location_unresolved"] = False
 
     # Amenities always list
     if not isinstance(listing.get("amenities"), list):

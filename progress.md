@@ -214,6 +214,53 @@ Sessions will be driven by prompts from Melvi. Each prompt comes from a planning
 
 <!-- Copilot: Add new entries below this line after each coding session -->
 
+## 2026-05-14 — Location resolution system
+
+### What was done
+- Built a 3-layer location resolver (alias lookup, fuzzy match, Gemini constrained list)
+- Added Excel-to-CSV converter for maintaining canonical locations
+- Wired canonical resolution into listing normalization
+
+### Files changed
+- location_resolver.py — new resolver with cache, Gemini fallback, and unresolved logging
+- locations.csv — initial canonical locations and aliases
+- convert_excel_to_csv.py — Excel conversion script
+- config.py — location resolution settings and thresholds
+- geocoder.py — removed Gemini normalization step
+- parser.py — resolve raw locations to canonical names
+- requirements.txt — add openpyxl
+- README.md — document location resolution workflow
+- progress.md — session log
+
+### Decisions made
+- Use WRatio for fuzzy matching to handle abbreviations and concatenations better than ratio
+- Include canonical names in the Layer 1 fuzzy keyspace to catch direct matches and typos
+- Constrain Gemini to the canonical list to prevent invented locations
+- Log the best fuzzy guess to guide threshold tuning and alias expansion
+
+### What was learned
+- The unresolved log provides actionable signals for improving the alias sheet and thresholds
+
+### Next step
+- Test with real broker messages and review unresolved_locations.log
+
+## 2026-05-13 — make.com integration
+
+### What was done
+- Integrated the system with make.com to call the API remotely and accept inputs from services like WhatsApp and Gmail
+
+### Files changed
+- progress.md — session log
+
+### Decisions made
+- Use make.com as the orchestration layer for external message sources
+
+### What was learned
+- Centralizing ingestion through the API enables multi-channel inputs without code changes per channel
+
+### Next step
+- Verify make.com scenarios for WhatsApp and Gmail are sending requests with X-API-Key
+
 ## 2026-05-13 — Hybrid message classifier
 
 ### What was done

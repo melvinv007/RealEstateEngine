@@ -295,5 +295,25 @@
     "lat": 25.1894266,
     "lng": 55.264819,
     "normalized": "Business Bay"
+  },
+  "al nahda": {
+    "lat": 25.2732083,
+    "lng": 55.3694757,
+    "normalized": "Al Nahda"
+  },
+  "jumeirah beach residence": {
+    "lat": 25.0778021,
+    "lng": 55.1351809,
+    "normalized": "Jumeirah Beach Residence"
+  },
+  "al barsha": {
+    "lat": 25.0994892,
+    "lng": 55.2017252,
+    "normalized": "Al Barsha"
+  },
+  "difc": {
+    "lat": 25.2128259,
+    "lng": 55.2776348,
+    "normalized": "DIFC"
   }
 }

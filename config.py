@@ -28,11 +28,29 @@ DISTANCE_KM_TOLERANCE = 2.0     # ±2 km — change this one line to adjust
 BHK_TOLERANCE = 0               # 0 = exact match; 1 = allow ±1 bedroom
 SQFT_TOLERANCE = 0.15           # ±15% on sqft (set to None to skip sqft matching)
 
-MODEL = "gemini-2.5-flash"
+MODEL = "gemini-3.1-flash-lite"
 
 # ── Geocoding Cache ───────────────────────────────────────────────────────────
 # Avoids re-geocoding the same location repeatedly
 GEOCODE_CACHE_FILE = "geocode_cache.json"
+COORDINATES_CSV = "coordinates.csv" # canonical_name,lat,lng
+
+# ── Location Resolution ──────────────────────────────────────────────────────
+LOCATIONS_CSV = "locations.csv"
+# Column names in the CSV/Excel — change here if the sheet headers change
+LOCATION_CSV_CANONICAL_COLUMN = "canonical_name"
+LOCATION_CSV_ALIASES_COLUMN = "aliases"
+# Same for Excel conversion script
+LOCATION_EXCEL_CANONICAL_COLUMN = "canonical_name"
+LOCATION_EXCEL_ALIASES_COLUMN = "aliases"
+# Fuzzy matching threshold for Layer 1 (0-100). Default 80.
+# Lower = more permissive (more matches, more false positives)
+# Higher = stricter (fewer matches, more falls through to Gemini)
+LOCATION_FUZZY_THRESHOLD = 80
+# Cache file for resolved locations (separate from geocode cache)
+LOCATION_RESOLUTION_CACHE_FILE = "location_cache.json"
+# Log file for locations that failed all resolution layers
+UNRESOLVED_LOG_FILE = "unresolved_locations.log"
 
 # ── Match Quality Gate ────────────────────────────────────────────────────────
 # Minimum score (0.0–1.0) for a match to be recorded
@@ -48,11 +66,12 @@ FUZZY_LOCATION_THRESHOLD = 85       # 0–100 similarity score
 # ── Duplicate Detection ───────────────────────────────────────────────────────
 DUPLICATE_DETECTION = True
 DUPLICATE_PRICE_TOLERANCE = 0.05    # ±5% for fingerprint price comparison (tighter than match)
- 
-# ── Geocoding / Location Normalization ────────────────────────────────────────
-# Uses Gemini to normalize broker slang → official Dubai area names
-# e.g. "Greenway 2" → "Emaar South", "Costa Brava" → "DAMAC Lagoons"
-USE_GEMINI_LOCATION_NORMALIZER = True
+
  
 # ── Behavior ──────────────────────────────────────────────────────────────────
 DELETE_AFTER_MATCH = False      # True = delete matched listings after match
+
+
+LOCATION_CONFIDENCE_HIGH = 0.82
+LOCATION_CONFIDENCE_AMBIGUITY_BAND = 0.08
+LOCATION_CONFIDENCE_CONFIRM = 0.65

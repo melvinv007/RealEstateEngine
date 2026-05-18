@@ -95,6 +95,27 @@ Returns counts for buy/sell/matches.
 
 Returns all matches.
 
+## Location Resolution
+
+Raw broker locations are normalized to canonical Dubai area names before storage.
+
+- `locations.csv` contains canonical names and comma-separated aliases.
+- Update the sheet and re-generate the CSV with:
+  ```bash
+  python convert_excel_to_csv.py locations.xlsx
+  ```
+- Column names for Excel are configured in `config.py`:
+  `LOCATION_EXCEL_CANONICAL_COLUMN` and `LOCATION_EXCEL_ALIASES_COLUMN`.
+- `location_cache.json` stores resolved locations.
+- `unresolved_locations.log` captures failed resolutions with best fuzzy guesses.
+
+Resolution layers:
+1. Exact match, then fuzzy match against aliases + canonical names (WRatio).
+2. Gemini resolver constrained to the canonical list.
+3. Unresolved entries logged for review.
+
+Tune `LOCATION_FUZZY_THRESHOLD` in `config.py` to control strictness.
+
 ## MongoDB Collections
 
 | Collection | Contents |
@@ -158,7 +179,10 @@ Returns all matches.
 RealEstate/
 ├── config.py          ← All tunable constants
 ├── parser.py          ← Gemini parsing (text + images)
-├── geocoder.py        ← Gemini normalization + Nominatim + Haversine
+├── geocoder.py        ← Nominatim geocoding + Haversine
+├── location_resolver.py ← Canonical location resolution
+├── convert_excel_to_csv.py ← Excel to locations.csv converter
+├── locations.csv      ← Canonical locations + aliases
 ├── database.py        ← MongoDB CRUD
 ├── matcher.py         ← Buy/sell matching engine
 ├── api.py             ← FastAPI server

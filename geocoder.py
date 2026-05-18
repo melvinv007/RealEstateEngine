@@ -2,9 +2,8 @@
 geocoder.py
 Location normalization pipeline:
   1. Fuzzy string match  (rapidfuzz) — catches typos only, NOT phase variants
-  2. Gemini normalization — converts broker slang/project names to official Dubai area names
-  3. Nominatim (OpenStreetMap) geocoding — free, no API key needed
-  4. Haversine distance
+    2. Nominatim (OpenStreetMap) geocoding — free, no API key needed
+    3. Haversine distance
 
 All results are cached locally (geocode_cache.json).
 """
@@ -14,22 +13,14 @@ import math
 import os
 import re
 import time
-import google.generativeai as genai
 from rapidfuzz import fuzz
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from config import (
-    GEMINI_API_KEY,
     GEOCODE_CACHE_FILE,
     FUZZY_LOCATION_THRESHOLD,
-    USE_GEMINI_LOCATION_NORMALIZER,
-    MODEL,
 )
-
-# ── Clients ────────────────────────────────────────────────────────────────────
-genai.configure(api_key=GEMINI_API_KEY)
-_gemini = genai.GenerativeModel(MODEL)
 
 # Nominatim requires a descriptive user_agent and respects 1 req/sec
 _geolocator = Nominatim(user_agent="dubai_realestate_matcher_v1", timeout=10)
@@ -123,54 +114,7 @@ def fuzzy_match_known(location: str) -> str | None:
     return None
 
 
-# ── Step 2: Gemini location normalizer ────────────────────────────────────────
-
-_normalize_cache: dict = {}
-
-
-def _normalize_with_gemini(location: str) -> str:
-    """
-    Converts broker project/shorthand names → official Dubai area names.
-
-    "Greenway 2"     → "Emaar South"
-    "Costa Brava"    → "DAMAC Lagoons"
-    "Majan"          → "Dubailand"
-    "DLRC"           → "Dubai Land Residential Complex"
-    "JVC"            → "Jumeirah Village Circle"
-    "Jebel Ali Hills"→ "Jebel Ali Hills"   (unchanged)
-
-    IMPORTANT: phase numbers are preserved as-is.
-    "Arabian Ranches 3" stays "Arabian Ranches 3", not collapsed to "Arabian Ranches".
-    """
-    key = location.strip().lower()
-    if key in _normalize_cache:
-        return _normalize_cache[key]
-
-    prompt = (
-        "You are a Dubai real estate location expert.\n"
-        "Convert the broker shorthand, project name, or community name below "
-        "to its official Dubai area name recognizable by OpenStreetMap.\n"
-        "Rules:\n"
-        "- Preserve phase/edition numbers exactly. 'Arabian Ranches 3' stays 'Arabian Ranches 3'.\n"
-        "- If it is already an official area name, return it unchanged.\n"
-        "- Reply with ONLY the official name. No explanation, no quotes.\n\n"
-        f"Input: {location}"
-    )
-
-    try:
-        response = _gemini.generate_content(prompt)
-        normalized = response.text.strip().strip('"').strip("'")
-        if len(normalized) > 80 or "\n" in normalized:
-            normalized = location
-    except Exception as e:
-        print(f"[Geocoder] Gemini normalization failed for '{location}': {e}")
-        normalized = location
-
-    _normalize_cache[key] = normalized
-    return normalized
-
-
-# ── Step 3: Nominatim geocoding ────────────────────────────────────────────────
+# ── Step 2: Nominatim geocoding ────────────────────────────────────────────────
 
 def _geocode_raw(query: str) -> tuple[float, float] | None:
     """
@@ -214,8 +158,7 @@ def geocode(location: str) -> tuple[float, float] | None:
     Full pipeline:
     1. Exact cache lookup
     2. Fuzzy typo correction (phase variants blocked)
-    3. Gemini normalization
-    4. Nominatim geocoding (with Dubai context + fallback)
+    3. Nominatim geocoding (with Dubai context + fallback)
     """
     if not location:
         return None
@@ -237,25 +180,15 @@ def geocode(location: str) -> tuple[float, float] | None:
             _save_cache()
             return (entry["lat"], entry["lng"])
 
-    # 3. Gemini normalization
-    if USE_GEMINI_LOCATION_NORMALIZER:
-        normalized = _normalize_with_gemini(location)
-        if normalized.strip().lower() != raw_key:
-            print(f"[Geocoder] Gemini normalized: '{location}' → '{normalized}'")
-    else:
-        normalized = location
-
-    # 4. Nominatim — try with Dubai context, then bare name as fallback
-    query = normalized if "dubai" in normalized.lower() else f"{normalized}, Dubai, UAE"
+    # 3. Nominatim — try with Dubai context, then bare name as fallback
+    query = location if "dubai" in location.lower() else f"{location}, Dubai, UAE"
     coords = _geocode_raw(query)
 
-    if coords is None and normalized.lower() != location.strip().lower():
-        # Normalized name failed — try original
-        fallback = location if "dubai" in location.lower() else f"{location}, Dubai, UAE"
-        coords = _geocode_raw(fallback)
+    if coords is None and "dubai" not in location.lower():
+        coords = _geocode_raw(location)
 
     if coords:
-        entry = {"lat": coords[0], "lng": coords[1], "normalized": normalized}
+        entry = {"lat": coords[0], "lng": coords[1], "normalized": location}
         _cache[raw_key] = entry
     else:
         _cache[raw_key] = None

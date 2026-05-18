@@ -3,3 +3,10 @@ __pycache__/
 .copilot/
 *.png
 messages.txt
+prompt.txt
+.venv/
+CONTEXT.md
+old.*
+*.csv
+*.log
+*.json
