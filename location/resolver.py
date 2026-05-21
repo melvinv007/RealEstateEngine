@@ -1,673 +1,682 @@
 """
 resolver.py
-Resolve raw Dubai location strings to canonical names.
 
-Pipeline:
-  L0 — Cache (exact norm key hit)
-  L1 — Exact alias match
-  L2 — Candidate generation + confidence scoring
-         • Split input into {base, phase}
-         • Fuzzy match base against all alias bases → top-N candidates
-         • Score each by: fuzzy similarity + token coverage + phase agreement
-         • Decision:
-             HIGH confidence + clear winner  → return directly
-             AMBIGUOUS (top candidates close) → Gemini disambiguate
-             LOW confidence                  → Gemini cold
-  L3 — Gemini (3 modes: disambiguate / confirm / cold)
-  L4 — Unresolved logger + cache as UNKNOWN
+Tree-based location resolver with caching, hint validation, and fallback logic.
 """
 
-import csv
 import json
 import os
-import re
-from dataclasses import dataclass, field
+import time
+from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
-import google.generativeai as genai
+from core.gemini_client import call_gemini
 from rapidfuzz import fuzz, process
 
-from core.config import (
-    GEMINI_API_KEY,
-    MODEL,
-    LOCATIONS_CSV,
-    LOCATION_CSV_CANONICAL_COLUMN,
-    LOCATION_CSV_ALIASES_COLUMN,
-    LOCATION_FUZZY_THRESHOLD,
-    LOCATION_RESOLUTION_CACHE_FILE,
-    UNRESOLVED_LOG_FILE,
-    USE_GEMINI_RESOLVER_DISAMBIGUATE,
-    USE_GEMINI_RESOLVER_CONFIRM,
-    USE_GEMINI_RESOLVER_COLD_STEP_A,
-    USE_GEMINI_RESOLVER_COLD_STEP_B,
-)
+from core.config import GEMINI_API_KEY
+from location.location_tree import build_or_load_tree, normalize_key, split_phase
 
-genai.configure(api_key=GEMINI_API_KEY)
-_gemini = genai.GenerativeModel(MODEL)
+MIN_CONFIDENCE = 0.65
+HIGH_CONFIDENCE = 0.82
+AMBIGUITY_BAND = 0.08
+USE_EMBEDDINGS = False
+W_FUZZY = 0.50
+W_TOKEN_COVERAGE = 0.35
+W_PHASE = 0.15
 
-# ── Thresholds ─────────────────────────────────────────────────────────────────
-# Confidence above this with a clear winner → return without Gemini
-_CONFIDENCE_HIGH = 0.82
-# If top-2 candidates are within this band → treat as ambiguous → Gemini disambiguate
-_CONFIDENCE_AMBIGUITY_BAND = 0.08
-# Confidence above this but below HIGH → confirm with Gemini before returning
-_CONFIDENCE_CONFIRM = 0.65
-# Below CONFIRM → cold Gemini call
-
-# Score component weights (must sum to 1.0)
-_W_FUZZY = 0.50          # how well input base matches alias base
-_W_TOKEN_COVERAGE = 0.35  # what fraction of input tokens appear in candidate
-_W_PHASE = 0.15           # phase agreement bonus
+LOCATION_CACHE = "cache/location_cache.json"
+HINT_MISMATCH_LOG = "cache/hint_mismatches.log"
+GEMINI_ARBITRATION_LOG = "cache/gemini_arbitrations.log"
+UNRESOLVED_LOG = "cache/unresolved.log"
 
 
-# ── Data structures ────────────────────────────────────────────────────────────
+_LEVEL_ORDER = ["property", "subcommunity", "community", "city"]
+_LEVEL_RANK = {"city": 1, "community": 2, "subcommunity": 3, "property": 4}
+_LEVEL_SET_KEYS = {
+    "city": "cities",
+    "community": "communities",
+    "subcommunity": "subcommunities",
+    "property": "properties",
+}
 
-@dataclass
-class _AliasEntry:
-    """One alias mapped to a canonical, pre-split into base + phase."""
-    alias_norm: str          # full normalized alias key (for exact match)
-    alias_base: str          # alias without trailing number
-    alias_phase: int | None  # trailing number or None
-    canonical: str           # canonical name this alias points to
+_CACHE: dict[str, dict[str, Any]] | None = None
+_ALIAS_KEYS_BY_LEVEL: dict[str, set[str]] | None = None
 
 
 @dataclass
-class _CanonicalEntry:
-    """One canonical name pre-split into base + phase."""
+class Candidate:
     canonical: str
-    base: str
-    phase: int | None
-
-
-@dataclass
-class _Candidate:
-    """A scored candidate returned by Layer 2."""
-    canonical: str
+    level: str
     confidence: float
+    matched_via: str
+    node: dict[str, Any]
     fuzzy_score: float
     token_coverage: float
     phase_score: float
-    matched_via: str          # which alias key triggered this
 
 
-# ── Global state ───────────────────────────────────────────────────────────────
-
-_alias_entries: list[_AliasEntry] = []
-_alias_map: dict[str, str] = {}          # normalized_key → canonical (for exact match)
-_canonical_entries: list[_CanonicalEntry] = []
-_canonical_list: list[str] = []
-_canonical_set: set[str] = set()
-_resolution_cache: dict[str, str] = {}
+def _timestamp() -> str:
+    return datetime.now().isoformat(timespec="seconds")
 
 
-# ── Utilities ──────────────────────────────────────────────────────────────────
-
-_NUM_SUFFIX_RE = re.compile(r'^(.*?)\s*(\d+)\s*$')
-
-
-def normalize_key(s: str) -> str:
-    """
-    Lowercase → strip → remove dots → collapse whitespace.
-    'D.S.O' → 'dso', 'al  barsha' → 'al barsha', 'J.V.C.' → 'jvc'
-    """
-    s = s.lower().strip()
-    s = s.replace(".", "")
-    s = re.sub(r"\s+", " ", s)
-    return s
+def _load_cache() -> dict[str, dict[str, Any]]:
+    global _CACHE
+    if _CACHE is not None:
+        return _CACHE
+    path = Path(LOCATION_CACHE)
+    if path.exists():
+        with path.open("r", encoding="utf-8") as file:
+            _CACHE = json.load(file)
+    else:
+        _CACHE = {}
+    return _CACHE
 
 
-def _split_phase(s: str) -> tuple[str, int | None]:
-    """
-    Split a normalized string into (base, phase_number).
-    'arabian ranches 3' → ('arabian ranches', 3)
-    'ar3'               → ('ar', 3)         ← handles concatenated too
-    'business bay'      → ('business bay', None)
-    'jvc'               → ('jvc', None)
-    """
-    # First try standard trailing number with optional space
-    m = _NUM_SUFFIX_RE.match(s.strip())
-    if m:
-        base = m.group(1).strip()
-        phase = int(m.group(2))
-        if base:  # guard against input being just a number
-            return base, phase
+def _save_cache() -> None:
+    if _CACHE is None:
+        return
+    path = Path(LOCATION_CACHE)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as file:
+        json.dump(_CACHE, file, indent=2)
 
-    # Try concatenated: last char(s) are digits, rest is alpha
-    # e.g. 'ar3', 'phase3'
-    concat = re.match(r'^([a-z][a-z\s]*)(\d+)$', s.strip())
-    if concat:
-        base = concat.group(1).strip()
-        phase = int(concat.group(2))
-        if base:
-            return base, phase
 
-    return s.strip(), None
+def _append_log(path: str, message: str) -> None:
+    log_path = Path(path)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open("a", encoding="utf-8") as file:
+        file.write(message + "\n")
 
 
 def _token_coverage(input_tokens: set[str], candidate_canonical: str) -> float:
-    """
-    What fraction of input tokens appear in the candidate canonical name?
-    input: {'marina', 'gate'}  candidate: 'Marina Gate'    → 1.0
-    input: {'marina', 'gate'}  candidate: 'Dubai Marina'   → 0.5
-    input: {'jvc'}             candidate: 'Jumeirah Village Circle' → 0.0 (abbreviation)
-    Short single-token inputs get a neutral 0.5 to avoid over-penalizing abbreviations.
-    """
     if not input_tokens:
         return 0.5
     candidate_tokens = set(normalize_key(candidate_canonical).split())
     if len(input_tokens) == 1:
-        # Single token — coverage not very meaningful, return neutral
         return 0.5
     overlap = input_tokens & candidate_tokens
     return len(overlap) / len(input_tokens)
 
 
-def _phase_agreement_score(input_phase: int | None, canonical_entry: _CanonicalEntry) -> float:
-    """
-    Returns a score 0.0–1.0 for how well phases agree, and a hard-block flag.
-    Returns -1.0 if this candidate should be completely blocked.
-
-    Rules:
-    - input has phase N, candidate has phase N      → 1.0  (perfect)
-    - input has no phase, candidate has no phase    → 1.0  (perfect)
-    - input has phase N, candidate has no phase     → BLOCK (-1.0)
-    - input has no phase, candidate has phase N     → 0.3  (penalize, don't block —
-                                                      user might have omitted phase)
-    - input has phase N, candidate has phase M≠N    → BLOCK (-1.0)
-    """
-    c_phase = canonical_entry.phase
-
+def _phase_score(input_phase: int | None, candidate_phase: int | None) -> tuple[float, bool]:
     if input_phase is not None:
-        if c_phase == input_phase:
-            return 1.0
-        else:
-            return -1.0  # hard block — wrong phase or no phase
-
-    else:  # input has no phase
-        if c_phase is None:
-            return 1.0
-        else:
-            return 0.3  # candidate has a phase but input didn't specify — penalize
+        if candidate_phase == input_phase:
+            return 1.0, False
+        return 0.0, True
+    if candidate_phase is None:
+        return 1.0, False
+    return 0.3, False
 
 
-# ── Loaders ────────────────────────────────────────────────────────────────────
+def _candidate_sort_key(candidate: Candidate) -> tuple[float, int]:
+    return (candidate.confidence, _LEVEL_RANK.get(candidate.level, 0))
 
-def _load_locations() -> None:
-    global _alias_entries, _alias_map, _canonical_entries, _canonical_list, _canonical_set
 
-    if not os.path.exists(LOCATIONS_CSV):
-        print(f"[Resolver] Warning: {LOCATIONS_CSV} not found.")
+def _get_alias_keys_by_level(alias_map: dict[str, list[dict[str, Any]]]) -> dict[str, set[str]]:
+    global _ALIAS_KEYS_BY_LEVEL
+    if _ALIAS_KEYS_BY_LEVEL is not None:
+        return _ALIAS_KEYS_BY_LEVEL
+
+    keys: dict[str, set[str]] = {level: set() for level in _LEVEL_RANK}
+    for alias, nodes in alias_map.items():
+        for node in nodes:
+            level = (node.get("level") or "").lower()
+            if level in keys:
+                keys[level].add(alias)
+    _ALIAS_KEYS_BY_LEVEL = keys
+    return keys
+
+
+def _add_candidate(candidates: dict[str, Candidate], candidate: Candidate) -> None:
+    key = normalize_key(candidate.canonical)
+    existing = candidates.get(key)
+    if existing and existing.confidence >= candidate.confidence:
         return
-
-    with open(LOCATIONS_CSV, "r", newline="", encoding="utf-8") as file:
-        reader = csv.DictReader(file)
-        if not reader.fieldnames:
-            return
-
-        header_map = {name.strip().lower(): name for name in reader.fieldnames if name}
-        canonical_key = header_map.get(LOCATION_CSV_CANONICAL_COLUMN.lower())
-        alias_key = header_map.get(LOCATION_CSV_ALIASES_COLUMN.lower())
-
-        if not canonical_key or not alias_key:
-            print(f"[Resolver] Warning: missing required columns in {LOCATIONS_CSV}.")
-            return
-
-        alias_entries: list[_AliasEntry] = []
-        alias_map: dict[str, str] = {}
-        canonical_entries: list[_CanonicalEntry] = []
-        canonical_names: set[str] = set()
-
-        for row in reader:
-            canonical = (row.get(canonical_key) or "").strip()
-            if not canonical:
-                continue
-
-            canonical_names.add(canonical)
-
-            # Build canonical entry with phase split
-            c_norm = normalize_key(canonical)
-            c_base, c_phase = _split_phase(c_norm)
-            canonical_entries.append(_CanonicalEntry(
-                canonical=canonical,
-                base=c_base,
-                phase=c_phase,
-            ))
-
-            # Canonical name itself as an alias
-            alias_map[c_norm] = canonical
-            a_base, a_phase = _split_phase(c_norm)
-            alias_entries.append(_AliasEntry(
-                alias_norm=c_norm,
-                alias_base=a_base,
-                alias_phase=a_phase,
-                canonical=canonical,
-            ))
-
-            # All explicit aliases
-            aliases_raw = row.get(alias_key) or ""
-            for alias in aliases_raw.split(","):
-                alias = alias.strip()
-                if not alias:
-                    continue
-                a_norm = normalize_key(alias)
-                alias_map[a_norm] = canonical
-                a_base, a_phase = _split_phase(a_norm)
-                alias_entries.append(_AliasEntry(
-                    alias_norm=a_norm,
-                    alias_base=a_base,
-                    alias_phase=a_phase,
-                    canonical=canonical,
-                ))
-
-        _alias_entries = alias_entries
-        _alias_map = alias_map
-        _canonical_entries = canonical_entries
-        _canonical_list = sorted(canonical_names)
-        _canonical_set = set(_canonical_list)
-
-    print(f"[Resolver] Loaded {len(_canonical_list)} canonicals, "
-          f"{len(_alias_entries)} alias entries.")
+    candidates[key] = candidate
 
 
-def _load_resolution_cache() -> None:
-    global _resolution_cache
-    if os.path.exists(LOCATION_RESOLUTION_CACHE_FILE):
-        try:
-            with open(LOCATION_RESOLUTION_CACHE_FILE, "r", encoding="utf-8") as f:
-                _resolution_cache = json.load(f)
-        except Exception:
-            _resolution_cache = {}
-    else:
-        _resolution_cache = {}
+def _exact_candidates(term_norm: str, level: str, canonical_map: dict[str, dict[str, Any]], alias_map: dict[str, list[dict[str, Any]]]) -> list[Candidate]:
+    results: list[Candidate] = []
+
+    node = canonical_map.get(term_norm)
+    if node and (node.get("level") or "").lower() == level:
+        results.append(
+            Candidate(
+                canonical=node["canonical"],
+                level=level,
+                confidence=1.0,
+                matched_via="canonical",
+                node=node,
+                fuzzy_score=1.0,
+                token_coverage=1.0,
+                phase_score=1.0,
+            )
+        )
+
+    alias_nodes = alias_map.get(term_norm, [])
+    for alias_node in alias_nodes:
+        if (alias_node.get("level") or "").lower() != level:
+            continue
+        results.append(
+            Candidate(
+                canonical=alias_node["canonical"],
+                level=level,
+                confidence=0.93,
+                matched_via="alias",
+                node=alias_node,
+                fuzzy_score=1.0,
+                token_coverage=1.0,
+                phase_score=1.0,
+            )
+        )
+
+    return results
 
 
-def _save_resolution_cache() -> None:
-    with open(LOCATION_RESOLUTION_CACHE_FILE, "w", encoding="utf-8") as f:
-        json.dump(_resolution_cache, f, indent=2)
+def _fuzzy_candidates(
+    input_norm: str,
+    input_base: str,
+    input_phase: int | None,
+    level: str,
+    canonical_map: dict[str, dict[str, Any]],
+    alias_map: dict[str, list[dict[str, Any]]],
+    level_sets: dict[str, set[str]],
+) -> list[Candidate]:
+    set_key = _LEVEL_SET_KEYS.get(level, "")
+    candidate_strings: set[str] = set(level_sets.get(set_key, set()))
+    alias_keys = _get_alias_keys_by_level(alias_map).get(level, set())
+    candidate_strings.update(alias_keys)
 
+    if not candidate_strings:
+        return []
 
-# ── Logging ────────────────────────────────────────────────────────────────────
+    base_map: dict[str, list[str]] = {}
+    for candidate_str in candidate_strings:
+        base, _ = split_phase(candidate_str)
+        if base:
+            base_map.setdefault(base, []).append(candidate_str)
 
-def _log_unresolved(
-    raw_input: str,
-    candidates: list[_Candidate],
-    gemini_result: str | None,
-) -> None:
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(UNRESOLVED_LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(f"[{timestamp}] UNRESOLVED: '{raw_input}'\n")
-        if candidates:
-            f.write(f"  Top candidates:\n")
-            for c in candidates[:3]:
-                f.write(
-                    f"    '{c.canonical}' confidence={c.confidence:.2f} "
-                    f"(fuzzy={c.fuzzy_score:.0f}, token_cov={c.token_coverage:.2f}, "
-                    f"phase={c.phase_score:.2f}) via alias '{c.matched_via}'\n"
-                )
-        else:
-            f.write(f"  No candidates generated.\n")
-        f.write(f"  Gemini returned: {gemini_result or 'NOT_CALLED'}\n\n")
-
-
-# ── Layer 2: Candidate generation + scoring ────────────────────────────────────
-
-def _generate_candidates(norm_input: str) -> list[_Candidate]:
-    """
-    Core of the new system.
-    1. Split input into {base, phase}
-    2. Fuzzy match input_base against every alias_base → top N
-    3. Score each by fuzzy + token_coverage + phase_agreement
-    4. Deduplicate by canonical (keep best score per canonical)
-    5. Return sorted by confidence descending
-    """
-    input_base, input_phase = _split_phase(norm_input)
-    input_tokens = set(input_base.split())
-
-    # Collect all alias bases for fuzzy matching
-    alias_bases = [e.alias_base for e in _alias_entries]
-
-    # Get top-N fuzzy matches on base (generous cutoff, we filter by confidence later)
-    raw_results = process.extract(
+    matches = process.extract(
         input_base,
-        alias_bases,
+        list(base_map.keys()),
         scorer=fuzz.WRatio,
         limit=10,
-        score_cutoff=50,  # intentionally low — confidence scoring does the real filtering
+        score_cutoff=50,
     )
 
-    # Map results back to alias entries (by index)
-    # process.extract returns (match, score, index)
-    scored: dict[str, _Candidate] = {}  # canonical → best candidate
+    input_tokens = set(input_norm.split())
+    results: list[Candidate] = []
 
-    for matched_base, fuzzy_score, idx in raw_results:
-        entry = _alias_entries[idx]
+    for base, score, _ in matches:
+        for candidate_str in base_map.get(base, []):
+            nodes: list[dict[str, Any]] = []
+            node = canonical_map.get(candidate_str)
+            if node and (node.get("level") or "").lower() == level:
+                nodes.append(node)
+            for alias_node in alias_map.get(candidate_str, []):
+                if (alias_node.get("level") or "").lower() == level:
+                    nodes.append(alias_node)
 
-        # Phase agreement
-        # Find the canonical entry for this alias's canonical name
-        c_entry = next(
-            (ce for ce in _canonical_entries if ce.canonical == entry.canonical),
-            None,
-        )
-        if c_entry is None:
-            continue
+            for node in nodes:
+                candidate_phase = split_phase(node.get("canonical", ""))[1]
+                phase_score, blocked = _phase_score(input_phase, candidate_phase)
+                if blocked:
+                    continue
 
-        phase_score = _phase_agreement_score(input_phase, c_entry)
-        if phase_score == -1.0:
-            # Hard block — wrong phase
-            continue
+                token_score = _token_coverage(input_tokens, node.get("canonical", ""))
+                fuzzy_score = score / 100.0
+                confidence = (W_FUZZY * fuzzy_score) + (W_TOKEN_COVERAGE * token_score) + (W_PHASE * phase_score)
 
-        # Token coverage
-        token_cov = _token_coverage(input_tokens, entry.canonical)
+                results.append(
+                    Candidate(
+                        canonical=node["canonical"],
+                        level=level,
+                        confidence=min(confidence, 1.0),
+                        matched_via="fuzzy",
+                        node=node,
+                        fuzzy_score=fuzzy_score,
+                        token_coverage=token_score,
+                        phase_score=phase_score,
+                    )
+                )
 
-        # Combined confidence
-        fuzzy_norm = fuzzy_score / 100.0
-        confidence = (
-            _W_FUZZY * fuzzy_norm
-            + _W_TOKEN_COVERAGE * token_cov
-            + _W_PHASE * phase_score
-        )
-
-        candidate = _Candidate(
-            canonical=entry.canonical,
-            confidence=confidence,
-            fuzzy_score=fuzzy_score,
-            token_coverage=token_cov,
-            phase_score=phase_score,
-            matched_via=entry.alias_norm,
-        )
-
-        # Keep best candidate per canonical
-        existing = scored.get(entry.canonical)
-        if existing is None or candidate.confidence > existing.confidence:
-            scored[entry.canonical] = candidate
-
-    result = sorted(scored.values(), key=lambda c: c.confidence, reverse=True)
-    return result
+    return results
 
 
-def _decide_from_candidates(
-    candidates: list[_Candidate],
-) -> tuple[str | None, str]:
-    """
-    Given scored candidates, decide what to do.
-    Returns (resolved_canonical_or_None, decision_reason).
-
-    decision_reason is one of:
-      'direct'       — high confidence, clear winner
-      'ambiguous'    — top candidates too close, send to Gemini
-      'confirm'      — medium confidence, ask Gemini to confirm
-      'low'          — nothing useful, cold Gemini call
-    """
+def _best_candidate(candidates: list[Candidate]) -> Candidate | None:
     if not candidates:
-        return None, "low"
-
-    top = candidates[0]
-
-    if top.confidence >= _CONFIDENCE_HIGH:
-        # Check if second candidate is close — if so, ambiguous
-        if len(candidates) > 1:
-            second = candidates[1]
-            if (top.confidence - second.confidence) <= _CONFIDENCE_AMBIGUITY_BAND:
-                return None, "ambiguous"
-        # Clear winner
-        return top.canonical, "direct"
-
-    if top.confidence >= _CONFIDENCE_CONFIRM:
-        # Medium confidence — ask Gemini to confirm before committing
-        return None, "confirm"
-
-    return None, "low"
-
-
-# ── Layer 3: Targeted Gemini ───────────────────────────────────────────────────
-
-def _gemini_disambiguate(raw_input: str, candidates: list[_Candidate]) -> str | None:
-    """
-    Mode A: We have 2+ close candidates. Ask Gemini to pick.
-    e.g. 'marina gate' → candidates: [Marina Gate, Dubai Marina]
-    """
-    if not USE_GEMINI_RESOLVER_DISAMBIGUATE:
         return None
+    return sorted(candidates, key=_candidate_sort_key, reverse=True)[0]
 
-    options = "\n".join(
-        f"  {i+1}. {c.canonical} (confidence={c.confidence:.2f})"
-        for i, c in enumerate(candidates[:4])
-    )
-    prompt = (
-        "You are a Dubai real estate location expert.\n"
-        f"A broker wrote: '{raw_input}'\n\n"
-        "Which of these Dubai areas did they most likely mean?\n"
-        f"{options}\n\n"
-        "Reply with EXACTLY the name as written above, or UNKNOWN if none fit.\n"
-        "No explanation. No punctuation. Just the name or UNKNOWN."
-    )
-    try:
-        resp = _gemini.generate_content(prompt)
-        answer = resp.text.strip()
-    except Exception:
+
+def _pick_deepest(candidates: list[Candidate]) -> Candidate | None:
+    filtered = [c for c in candidates if c.confidence >= MIN_CONFIDENCE]
+    if not filtered:
         return None
-
-    if answer == "UNKNOWN":
-        return None
-
-    # Validate answer is one of the candidates we offered
-    for c in candidates[:4]:
-        if c.canonical.lower() == answer.lower():
-            print(f"[Resolver] Gemini disambiguated: '{raw_input}' → '{c.canonical}'")
-            return c.canonical
-
-    # Gemini returned something not in our list — try alias map
-    answer_norm = normalize_key(answer)
-    if answer_norm in _alias_map:
-        resolved = _alias_map[answer_norm]
-        print(f"[Resolver] Gemini disambiguate (alias fallback): '{raw_input}' → '{resolved}'")
-        return resolved
-
-    return None
+    return sorted(
+        filtered,
+        key=lambda c: (_LEVEL_RANK.get(c.level, 0), c.confidence),
+        reverse=True,
+    )[0]
 
 
-def _gemini_confirm(raw_input: str, candidate: _Candidate) -> str | None:
-    """
-    Mode B: We have one medium-confidence candidate. Ask Gemini to confirm or correct.
-    """
-    if not USE_GEMINI_RESOLVER_CONFIRM:
-        return None
+def _compute_candidates_for_level(
+    hint_value: str,
+    level: str,
+    canonical_map: dict[str, dict[str, Any]],
+    alias_map: dict[str, list[dict[str, Any]]],
+    level_sets: dict[str, set[str]],
+) -> list[Candidate]:
+    if not hint_value:
+        return []
 
-    canonical_list_text = "\n".join(_canonical_list)
-    prompt = (
-        "You are a Dubai real estate location expert.\n"
-        f"A broker wrote: '{raw_input}'\n\n"
-        f"I think this refers to: '{candidate.canonical}' "
-        f"(confidence={candidate.confidence:.2f})\n\n"
-        "Is this correct? If yes, reply with that exact name.\n"
-        "If not, reply with the correct name from this list, or UNKNOWN:\n"
-        f"{canonical_list_text}\n\n"
-        "Reply with EXACTLY one name from the list, or UNKNOWN.\n"
-        "No explanation. No punctuation."
-    )
-    try:
-        resp = _gemini.generate_content(prompt)
-        answer = resp.text.strip()
-    except Exception:
-        return None
+    hint_norm = normalize_key(hint_value)
+    hint_base, hint_phase = split_phase(hint_norm)
 
-    if answer == "UNKNOWN":
-        return None
+    candidates: dict[str, Candidate] = {}
 
-    if answer in _canonical_set:
-        print(f"[Resolver] Gemini confirmed/corrected: '{raw_input}' → '{answer}'")
-        return answer
+    for candidate in _exact_candidates(hint_norm, level, canonical_map, alias_map):
+        _add_candidate(candidates, candidate)
 
-    answer_norm = normalize_key(answer)
-    if answer_norm in _alias_map:
-        resolved = _alias_map[answer_norm]
-        print(f"[Resolver] Gemini confirm (alias fallback): '{raw_input}' → '{resolved}'")
-        return resolved
+    for candidate in _fuzzy_candidates(hint_norm, hint_base, hint_phase, level, canonical_map, alias_map, level_sets):
+        _add_candidate(candidates, candidate)
 
-    return None
+    return list(candidates.values())
 
 
-def _gemini_cold(raw_input: str) -> str | None:
-    """
-    Mode C: Low confidence, no useful candidates. Original two-step Gemini behavior.
-    Step A: open-ended → Step B: constrained to canonical list.
-    """
-    if not USE_GEMINI_RESOLVER_COLD_STEP_A:
-        return None
+def _hierarchy_validation(
+    location_raw: str,
+    subcommunity_candidates: list[Candidate],
+    community_candidate: Candidate | None,
+) -> None:
+    if not subcommunity_candidates or not community_candidate:
+        return
 
-    prompt_a = (
-        "You are a Dubai real estate expert.\n"
-        "What place in Dubai could this refer to? Reply with ONLY the place name, "
-        "or UNKNOWN if you are not sure.\n"
-        "No explanation. No punctuation. Just the name or UNKNOWN.\n"
-        f"Input: {raw_input}"
-    )
-    try:
-        resp_a = _gemini.generate_content(prompt_a)
-        step_a = resp_a.text.strip()
-    except Exception:
-        return None
+    community_norm = normalize_key(community_candidate.canonical)
 
-    if step_a == "UNKNOWN" or not step_a:
-        print(f"[Resolver] Gemini cold Step A: UNKNOWN for '{raw_input}'")
-        return None
+    for sub_candidate in subcommunity_candidates:
+        parent = sub_candidate.node.get("parent")
+        if not parent:
+            continue
 
-    # Check if Step A answer already canonical or in alias map
-    if step_a in _canonical_set:
-        print(f"[Resolver] Gemini cold Step A resolved: '{raw_input}' → '{step_a}'")
-        return step_a
-
-    step_a_norm = normalize_key(step_a)
-    if step_a_norm in _alias_map:
-        resolved = _alias_map[step_a_norm]
-        print(f"[Resolver] Gemini cold Step A (alias): '{raw_input}' → '{resolved}'")
-        return resolved
-
-    if not USE_GEMINI_RESOLVER_COLD_STEP_B:
-        print(f"[Resolver] Gemini cold Step B disabled for '{raw_input}'")
-        return None
-
-    # Step B — constrain to canonical list
-    print(f"[Resolver] Gemini cold Step A '{step_a}' not in list, trying Step B...")
-    canonical_list_text = "\n".join(_canonical_list)
-    prompt_b = (
-        "You are a Dubai real estate location resolver.\n"
-        f"A location was described as: '{step_a}'\n"
-        "Which official Dubai area from the list below best matches this?\n"
-        "Reply with EXACTLY one name from the list, or UNKNOWN if none fits.\n"
-        "No explanation. No punctuation. Just the name or UNKNOWN.\n"
-        f"CANONICAL LIST:\n{canonical_list_text}\n\n"
-        f"Input: {step_a}"
-    )
-    try:
-        resp_b = _gemini.generate_content(prompt_b)
-        step_b = resp_b.text.strip()
-    except Exception:
-        return None
-
-    if step_b == "UNKNOWN" or step_b not in _canonical_set:
-        print(f"[Resolver] Gemini cold Step B failed for '{raw_input}' (got '{step_b}')")
-        return None
-
-    print(f"[Resolver] Gemini cold Step B resolved: '{raw_input}' → '{step_b}'")
-    return step_b
-
-
-# ── Main public API ────────────────────────────────────────────────────────────
-
-def resolve_location(raw: str) -> str | None:
-    """
-    Resolves a raw location string to a canonical Dubai area name.
-    Returns canonical name if resolved, None if unresolved.
-    Caches both successes and failures.
-    """
-    if not raw:
-        return None
-    raw_input = str(raw).strip()
-    if not raw_input:
-        return None
-
-    norm = normalize_key(raw_input)
-
-    # ── L0: Cache ──────────────────────────────────────────────────────────────
-    if norm in _resolution_cache:
-        cached = _resolution_cache[norm]
-        return None if cached == "UNKNOWN" else cached
-
-    # ── L1: Exact alias match ──────────────────────────────────────────────────
-    if norm in _alias_map:
-        resolved = _alias_map[norm]
-        _resolution_cache[norm] = resolved
-        _save_resolution_cache()
-        print(f"[Resolver] Exact match: '{raw_input}' → '{resolved}'")
-        return resolved
-
-    # ── L2: Candidate generation + confidence scoring ──────────────────────────
-    candidates = _generate_candidates(norm)
-
-    if candidates:
-        print(f"[Resolver] Top candidates for '{raw_input}':")
-        for c in candidates[:4]:
-            print(
-                f"  '{c.canonical}' conf={c.confidence:.2f} "
-                f"(fuzzy={c.fuzzy_score:.0f}, tok_cov={c.token_coverage:.2f}, "
-                f"phase={c.phase_score:.2f})"
+        parent_norm = normalize_key(parent)
+        if parent_norm == community_norm:
+            sub_candidate.confidence = min(sub_candidate.confidence + 0.10, 1.0)
+        else:
+            community_candidate.confidence = max(community_candidate.confidence - 0.10, 0.0)
+            message = (
+                f"{_timestamp()}\t{location_raw}\t{community_candidate.canonical}"
+                f"\t{parent}\t{sub_candidate.canonical}"
             )
+            _append_log(HINT_MISMATCH_LOG, message)
 
-    resolved_canonical, decision = _decide_from_candidates(candidates)
 
-    if decision == "direct" and resolved_canonical:
-        print(f"[Resolver] High-confidence direct: '{raw_input}' → '{resolved_canonical}'")
-        _resolution_cache[norm] = resolved_canonical
-        _save_resolution_cache()
-        return resolved_canonical
+def _depth_extension(
+    location_raw: str,
+    community_candidate: Candidate | None,
+    subcommunity_candidates: list[Candidate],
+    canonical_map: dict[str, dict[str, Any]],
+) -> Candidate | None:
+    if not community_candidate or community_candidate.confidence < MIN_CONFIDENCE:
+        return None
 
-    # ── L3: Gemini (targeted) ──────────────────────────────────────────────────
-    gemini_result_str = None
-    resolved = None
+    if any(c.confidence >= MIN_CONFIDENCE for c in subcommunity_candidates):
+        return None
 
-    if decision == "ambiguous":
-        if USE_GEMINI_RESOLVER_DISAMBIGUATE:
-            print(f"[Resolver] Ambiguous candidates for '{raw_input}', escalating to Gemini...")
-            resolved = _gemini_disambiguate(raw_input, candidates)
-            gemini_result_str = resolved or "UNKNOWN"
-        if not resolved and USE_GEMINI_RESOLVER_COLD_STEP_A:
-            print(f"[Resolver] Ambiguous resolution failed, cold Gemini call for '{raw_input}'...")
-            resolved = _gemini_cold(raw_input)
-            gemini_result_str = resolved or "UNKNOWN"
+    children = community_candidate.node.get("children", [])
+    if not children:
+        return None
 
-    elif decision == "confirm":
-        if USE_GEMINI_RESOLVER_CONFIRM:
-            print(f"[Resolver] Medium confidence for '{raw_input}', asking Gemini to confirm...")
-            resolved = _gemini_confirm(raw_input, candidates[0])
-            gemini_result_str = resolved or "UNKNOWN"
-        if not resolved and USE_GEMINI_RESOLVER_COLD_STEP_A:
-            print(f"[Resolver] Confirm failed, cold Gemini call for '{raw_input}'...")
-            resolved = _gemini_cold(raw_input)
-            gemini_result_str = resolved or "UNKNOWN"
+    input_norm = normalize_key(location_raw)
+    input_base, input_phase = split_phase(input_norm)
+    input_tokens = set(input_norm.split())
 
-    else:  # "low"
-        if USE_GEMINI_RESOLVER_COLD_STEP_A:
-            print(f"[Resolver] Low confidence for '{raw_input}', cold Gemini call...")
-            resolved = _gemini_cold(raw_input)
-            gemini_result_str = resolved or "UNKNOWN"
+    candidates: list[Candidate] = []
+    for child in children:
+        node = canonical_map.get(normalize_key(child))
+        if not node:
+            continue
+        candidate_base, candidate_phase = split_phase(node.get("canonical", ""))
+        phase_score, blocked = _phase_score(input_phase, candidate_phase)
+        if blocked:
+            continue
 
-    if gemini_result_str is None:
-        gemini_result_str = "DISABLED"
+        fuzzy_score = fuzz.WRatio(input_base, candidate_base) / 100.0
+        token_score = _token_coverage(input_tokens, node.get("canonical", ""))
+        confidence = (W_FUZZY * fuzzy_score) + (W_TOKEN_COVERAGE * token_score) + (W_PHASE * phase_score)
 
-    if resolved:
-        _resolution_cache[norm] = resolved
-        _save_resolution_cache()
-        return resolved
+        candidates.append(
+            Candidate(
+                canonical=node["canonical"],
+                level="subcommunity",
+                confidence=min(confidence, 1.0),
+                matched_via="depth_extension",
+                node=node,
+                fuzzy_score=fuzzy_score,
+                token_coverage=token_score,
+                phase_score=phase_score,
+            )
+        )
 
-    # ── L4: Unresolved ─────────────────────────────────────────────────────────
-    _log_unresolved(raw_input, candidates, gemini_result_str)
-    _resolution_cache[norm] = "UNKNOWN"
-    _save_resolution_cache()
+    best = _best_candidate(candidates)
+    if best and best.confidence >= MIN_CONFIDENCE:
+        return best
     return None
 
 
-# ── Init ───────────────────────────────────────────────────────────────────────
+def _fallback_candidates(
+    location_raw: str,
+    canonical_map: dict[str, dict[str, Any]],
+    alias_map: dict[str, list[dict[str, Any]]],
+    level_sets: dict[str, set[str]],
+) -> list[Candidate]:
+    input_norm = normalize_key(location_raw)
+    input_base, input_phase = split_phase(input_norm)
+    candidates: dict[str, Candidate] = {}
 
-_load_locations()
-_load_resolution_cache()
+    for level in _LEVEL_ORDER:
+        for candidate in _fuzzy_candidates(input_norm, input_base, input_phase, level, canonical_map, alias_map, level_sets):
+            _add_candidate(candidates, candidate)
+
+    return list(candidates.values())
+
+
+def _maybe_apply_embeddings(location_raw: str, candidates: list[Candidate]) -> list[Candidate]:
+    if not USE_EMBEDDINGS or len(candidates) < 2:
+        return candidates
+
+    top = sorted(candidates, key=_candidate_sort_key, reverse=True)
+    if (top[0].confidence - top[1].confidence) > AMBIGUITY_BAND:
+        return candidates
+
+    try:
+        from sentence_transformers import SentenceTransformer, util
+    except Exception:
+        return candidates
+
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    names = [location_raw, top[0].canonical, top[1].canonical]
+    embeddings = model.encode(names, convert_to_tensor=True)
+    scores = util.cos_sim(embeddings[0], embeddings[1:]).tolist()[0]
+
+    if scores[0] > scores[1]:
+        top[0].confidence = min(top[0].confidence + 0.02, 1.0)
+    elif scores[1] > scores[0]:
+        top[1].confidence = min(top[1].confidence + 0.02, 1.0)
+
+    return candidates
+
+
+# def old_get_gemini_model() -> genai.GenerativeModel: //removed when moved to core.gemini_client, but kept for reference in case we want to re-add a local model instance in the resolver in the future
+#     global _GEMINI_MODEL
+#     if not GEMINI_API_KEY:
+#         raise ValueError("GEMINI_API_KEY is not set.")
+#     if _GEMINI_MODEL is None:
+#         genai.configure(api_key=GEMINI_API_KEY)
+#         _GEMINI_MODEL = genai.GenerativeModel(
+#             GEMINI_MODEL,
+#             system_instruction=(
+#                 "You arbitrate between candidate Dubai/UAE location names. "
+#                 "Return only one candidate name from the list or UNKNOWN."
+#             ),
+#         )
+#     return _GEMINI_MODEL
+
+
+def _gemini_arbitrate(location_raw: str, location_hint: dict[str, Any], candidates: list[Candidate]) -> Candidate | None:
+    if not GEMINI_API_KEY:
+        return None
+    top_candidates = sorted(candidates, key=_candidate_sort_key, reverse=True)[:3]
+    if not top_candidates:
+        return None
+
+    hint_text = ", ".join([f"{k}={v}" for k, v in (location_hint or {}).items() if v])
+    candidate_lines = "\n".join(
+        [f"- {c.canonical} (level={c.level}, score={c.confidence:.2f})" for c in top_candidates]
+    )
+
+    prompt = (
+        "Choose the best match from the candidates below.\n"
+        f"Location raw: {location_raw}\n"
+        f"Location hint: {hint_text or 'none'}\n"
+        "Candidates:\n"
+        f"{candidate_lines}\n\n"
+        "Return exactly one candidate name from the list, or UNKNOWN."
+    )
+
+    try:
+        response = call_gemini(
+            prompt,
+            system_instruction=(
+                "You arbitrate between candidate Dubai/UAE location names. "
+                "Return only one candidate name from the list or UNKNOWN."
+            ),
+        )
+    except Exception as e:
+        print(f"[Resolver] Gemini arbitration failed on all models: {e}")
+        return None
+    text = (response.text or "").strip()
+
+    selected = None
+    for candidate in top_candidates:
+        if normalize_key(candidate.canonical) == normalize_key(text):
+            selected = candidate
+            break
+
+    log_message = (
+        f"{_timestamp()}\t{location_raw}\t{hint_text or 'none'}"
+        f"\t{text}\t{[c.canonical for c in top_candidates]}"
+    )
+    _append_log(GEMINI_ARBITRATION_LOG, log_message)
+
+    return selected
+
+
+def _assemble_result(candidate: Candidate | None, resolution_path: str) -> dict[str, Any]:
+    if not candidate:
+        return {
+            "matched_canonical": None,
+            "matched_level": None,
+            "city": None,
+            "community": None,
+            "subcommunity": None,
+            "property": None,
+            "coords_key": None,
+            "confidence": 0.0,
+            "resolution_path": "unresolved",
+            "location_unresolved": True,
+        }
+
+    node = candidate.node
+    matched_level = candidate.level
+    hierarchy = {"city": None, "community": None, "subcommunity": None, "property": None}
+
+    current = node
+    while current:
+        level = (current.get("level") or "").lower()
+        if level in hierarchy and not hierarchy[level]:
+            hierarchy[level] = current.get("canonical")
+        parent = current.get("parent")
+        if not parent:
+            break
+        _, _, canonical_map, _ = build_or_load_tree()
+        current = canonical_map.get(normalize_key(parent))
+
+    coords = node.get("coords")
+    coords_key = node.get("canonical") if coords else None
+    coords_payload = None
+    if coords:
+        coords_payload = {"lat": coords[0], "lng": coords[1]}
+
+    return {
+        "matched_canonical": node.get("canonical"),
+        "matched_level": matched_level,
+        "city": hierarchy["city"],
+        "community": hierarchy["community"],
+        "subcommunity": hierarchy["subcommunity"],
+        "property": hierarchy["property"],
+        "coords_key": coords_key,
+        "coords": coords_payload,
+        "confidence": round(candidate.confidence, 4),
+        "resolution_path": resolution_path,
+        "location_unresolved": False,
+    }
+
+
+def _log_unresolved(location_raw: str, location_hint: dict[str, Any], candidates: list[Candidate]) -> None:
+    hint_text = ", ".join([f"{k}={v}" for k, v in (location_hint or {}).items() if v])
+    top = sorted(candidates, key=_candidate_sort_key, reverse=True)[:5]
+    candidate_text = ", ".join([
+        f"{c.canonical}:{c.level}:{c.confidence:.2f}" for c in top
+    ])
+    message = f"{_timestamp()}\t{location_raw}\t{hint_text or 'none'}\t{candidate_text}"
+    _append_log(UNRESOLVED_LOG, message)
+
+
+def resolve_location(location_raw: str, location_hint: dict[str, Any] | None = None) -> dict[str, Any]:
+    cache = _load_cache()
+    raw_norm = normalize_key(location_raw)
+    if raw_norm and raw_norm in cache:
+        cached = cache[raw_norm]
+        if isinstance(cached, str):
+            if cached.upper() == "UNKNOWN":
+                return {
+                    "matched_canonical": None,
+                    "matched_level": None,
+                    "city": None,
+                    "community": None,
+                    "subcommunity": None,
+                    "property": None,
+                    "coords_key": None,
+                    "coords": None,
+                    "confidence": 0.0,
+                    "resolution_path": "cache_hit",
+                    "location_unresolved": True,
+                }
+            return {
+                "matched_canonical": cached,
+                "matched_level": None,
+                "city": None,
+                "community": None,
+                "subcommunity": None,
+                "property": None,
+                "coords_key": cached,
+                "coords": None,
+                "confidence": 1.0,
+                "resolution_path": "cache_hit",
+                "location_unresolved": False,
+            }
+
+        if isinstance(cached, dict):
+            cached = {**cached, "resolution_path": "cache_hit"}
+            return cached
+
+    hint = location_hint or {}
+    if not raw_norm and not any(hint.values()):
+        result = _assemble_result(None, "unresolved")
+        if raw_norm:
+            cache[raw_norm] = result
+            _save_cache()
+        return result
+
+    tree, alias_map, canonical_map, level_sets = build_or_load_tree()
+
+    hint_normalized = {key: normalize_key(value) if value else "" for key, value in hint.items()}
+
+    candidates_by_level: dict[str, list[Candidate]] = {level: [] for level in _LEVEL_ORDER}
+
+    for level in _LEVEL_ORDER:
+        hint_value = hint_normalized.get(level) or ""
+        if not hint_value:
+            continue
+        candidates_by_level[level] = _compute_candidates_for_level(
+            hint_value,
+            level,
+            canonical_map,
+            alias_map,
+            level_sets,
+        )
+
+    best_community = _best_candidate(candidates_by_level.get("community", []))
+    _hierarchy_validation(location_raw, candidates_by_level.get("subcommunity", []), best_community)
+
+    depth_extension = _depth_extension(
+        location_raw,
+        best_community,
+        candidates_by_level.get("subcommunity", []),
+        canonical_map,
+    )
+    if depth_extension:
+        candidates_by_level["subcommunity"].append(depth_extension)
+
+    hint_candidates = [c for level in _LEVEL_ORDER for c in candidates_by_level.get(level, [])]
+    hint_candidates = _maybe_apply_embeddings(location_raw, hint_candidates)
+    best_hint = _best_candidate(hint_candidates)
+
+    resolution_path = "unresolved"
+    final_candidate = None
+    candidate_pool: list[Candidate] = []
+
+    if best_hint and best_hint.confidence >= MIN_CONFIDENCE:
+        final_candidate = best_hint
+        candidate_pool = hint_candidates
+        if depth_extension and final_candidate == depth_extension:
+            resolution_path = "hint_depth_extended"
+        elif best_hint.level == "community" and hint_normalized.get("community"):
+            resolution_path = "hint_community_only"
+        elif best_hint.level == "city" and hint_normalized.get("city"):
+            resolution_path = "hint_city_only"
+        else:
+            resolution_path = "hint_validated"
+
+        ordered = sorted(candidate_pool, key=_candidate_sort_key, reverse=True)
+        if len(ordered) > 1 and (ordered[0].confidence - ordered[1].confidence) <= AMBIGUITY_BAND:
+            gemini_choice = _gemini_arbitrate(location_raw, hint, ordered)
+            if gemini_choice is None:
+                # fall through to best candidate by score
+                gemini_choice = ordered[0] if ordered else None
+            if gemini_choice:
+                final_candidate = gemini_choice
+                resolution_path = "gemini_arbitration"
+    else:
+        fallback_candidates = _fallback_candidates(location_raw, canonical_map, alias_map, level_sets)
+        fallback_candidates = _maybe_apply_embeddings(location_raw, fallback_candidates)
+        best_fallback = _pick_deepest(fallback_candidates)
+        if best_fallback and best_fallback.confidence >= MIN_CONFIDENCE:
+            final_candidate = best_fallback
+            resolution_path = "fuzzy_fallback"
+            candidate_pool = hint_candidates + fallback_candidates
+        else:
+            final_candidate = None
+            resolution_path = "unresolved"
+            candidate_pool = hint_candidates + fallback_candidates
+
+        if best_hint and best_fallback:
+            if normalize_key(best_hint.canonical) != normalize_key(best_fallback.canonical):
+                diff = abs(best_hint.confidence - best_fallback.confidence)
+                if diff <= AMBIGUITY_BAND:
+                    final_candidate = _gemini_arbitrate(location_raw, hint, hint_candidates + fallback_candidates)
+                    if final_candidate:
+                        resolution_path = "gemini_arbitration"
+
+        if final_candidate and candidate_pool:
+            ordered = sorted(candidate_pool, key=_candidate_sort_key, reverse=True)
+            if len(ordered) > 1 and (ordered[0].confidence - ordered[1].confidence) <= AMBIGUITY_BAND:
+                gemini_choice = _gemini_arbitrate(location_raw, hint, ordered)
+                if gemini_choice:
+                    final_candidate = gemini_choice
+                    resolution_path = "gemini_arbitration"
+
+    if final_candidate:
+        result = _assemble_result(final_candidate, resolution_path)
+    else:
+        result = _assemble_result(None, "unresolved")
+        _log_unresolved(location_raw, hint, candidate_pool)
+
+    if raw_norm:
+        cache[raw_norm] = result
+        _save_cache()
+
+    return result

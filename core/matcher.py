@@ -17,9 +17,9 @@ from core.config import (
     DELETE_AFTER_MATCH,
     MIN_MATCH_SCORE,
     REQUIRE_PRICE_OR_LOCATION,
+    COLLECTION_SELL,
 )
-from location.geocoder import location_distance_km
-from core.database import get_unmatched, get_unmatched_filtered, record_match, already_matched_pair
+from core.database import get_unmatched, get_unmatched_filtered, record_match, already_matched_pair, get_db
 
 
 # ── Individual field checks ────────────────────────────────────────────────────
@@ -96,25 +96,77 @@ def _sqft_check(buy: dict, sell: dict) -> tuple[bool, bool, str]:
 
 
 def _location_check(buy: dict, sell: dict) -> tuple[bool, bool, str]:
-    # If either listing failed location resolution, skip location check entirely
-    if buy.get("location_unresolved") or sell.get("location_unresolved"):
+    if buy.get("location_unresolved") or not buy.get("location_coords"):
+        return True, True, "location_skipped(no_coords)"
+    if sell.get("location_unresolved"):
         return True, True, "location_skipped(unresolved)"
+
+    dist = sell.get("_distance_km")
+    if dist is None:
+        return True, True, "location_skipped(no_distance)"
 
     b_loc = (buy.get("location") or "").strip()
     s_loc = (sell.get("location") or "").strip()
-    if not b_loc or not s_loc:
-        return True, True, "location_skipped"
-
-    if b_loc.lower() == s_loc.lower():
+    if b_loc and s_loc and b_loc.lower() == s_loc.lower():
         return True, False, f"location_exact_match({b_loc})"
 
-    dist = location_distance_km(b_loc, s_loc)
-    if dist is None:
-        return True, True, f"location_skipped(geocode_failed: {b_loc} / {s_loc})"
     if dist <= DISTANCE_KM_TOLERANCE:
         return True, False, f"location_match(dist={dist:.2f}km ≤ {DISTANCE_KM_TOLERANCE}km)"
 
     return False, False, f"location_mismatch(dist={dist:.2f}km > {DISTANCE_KM_TOLERANCE}km)"
+
+
+def _bhk_bounds(bhk: int | None) -> tuple[int | None, int | None]:
+    if bhk is None:
+        return None, None
+    min_bhk = bhk - BHK_TOLERANCE
+    max_bhk = bhk + BHK_TOLERANCE
+    if min_bhk < 0:
+        min_bhk = 0
+    return min_bhk, max_bhk
+
+
+def _has_valid_coords(listing: dict) -> bool:
+    coords = listing.get("location_coords")
+    if not isinstance(coords, dict):
+        return False
+    coord_list = coords.get("coordinates")
+    return isinstance(coord_list, (list, tuple)) and len(coord_list) == 2
+
+
+def _geo_candidates_for_buy(buy: dict) -> list[dict]:
+    coords = buy.get("location_coords")
+    if not isinstance(coords, dict):
+        return []
+
+    coord_list = coords.get("coordinates")
+    if not isinstance(coord_list, (list, tuple)) or len(coord_list) != 2:
+        return []
+
+    lng, lat = coord_list
+
+    query: dict = {"matched": False}
+    if buy.get("property_type"):
+        query["property_type"] = buy.get("property_type")
+
+    bhk_min, bhk_max = _bhk_bounds(buy.get("bhk"))
+    if bhk_min is not None and bhk_max is not None:
+        query["bhk"] = {"$gte": bhk_min, "$lte": bhk_max}
+
+    pipeline = [
+        {
+            "$geoNear": {
+                "near": {"type": "Point", "coordinates": [lng, lat]},
+                "distanceField": "distance_m",
+                "maxDistance": DISTANCE_KM_TOLERANCE * 1000,
+                "query": query,
+                "spherical": True,
+            }
+        }
+    ]
+
+    db = get_db()
+    return list(db[COLLECTION_SELL].aggregate(pipeline))
 
 
 # ── Scoring ────────────────────────────────────────────────────────────────────
@@ -214,13 +266,22 @@ def run_matching() -> list[dict]:
         if buy_id in matched_buy_ids:
             continue
 
-        # ── Pre-filter sell candidates using MongoDB indexes ──────────────────
-        # Only fetch sells that match property_type and BHK — skips unrelated listings entirely
-        sell_candidates = get_unmatched_filtered(
-            transaction="sell",
-            property_type=buy.get("property_type"),
-            bhk=buy.get("bhk") if BHK_TOLERANCE == 0 else None,  # skip BHK filter if tolerance > 0
-        )
+        use_geo = _has_valid_coords(buy) and not buy.get("location_unresolved")
+
+        if use_geo:
+            sell_candidates = _geo_candidates_for_buy(buy)
+            for sell in sell_candidates:
+                distance_m = sell.get("distance_m")
+                if distance_m is not None:
+                    sell["_distance_km"] = distance_m / 1000.0
+        else:
+            # ── Pre-filter sell candidates using MongoDB indexes ──────────────
+            # Only fetch sells that match property_type and BHK — skips unrelated listings entirely
+            sell_candidates = get_unmatched_filtered(
+                transaction="sell",
+                property_type=buy.get("property_type"),
+                bhk=buy.get("bhk") if BHK_TOLERANCE == 0 else None,  # skip BHK filter if tolerance > 0
+            )
 
         if not sell_candidates:
             continue

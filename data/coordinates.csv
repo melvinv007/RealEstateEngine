@@ -1,31 +1,2116 @@
-canonical_name,lat,lng
-Downtown Dubai,25.1972,55.2744
-Dubai Marina,25.0806,55.1403
-Jumeirah Village Circle,25.0580,55.2090
-Business Bay,25.1872,55.2553
-Palm Jumeirah,25.1124,55.1390
-Jumeirah Beach Residence,25.0760,55.1330
-Dubai Silicon Oasis,25.1175,55.3799
-DIFC,25.2124,55.2813
-Deira,25.2697,55.3095
-Bur Dubai,25.2582,55.2990
-Jumeirah,25.2104,55.2382
-Al Barsha,25.1065,55.1963
-Mirdif,25.2232,55.4186
-Dubai Hills Estate,25.1025,55.2408
-Arabian Ranches,25.0568,55.2680
-Arabian Ranches 2,25.0500,55.2750
-Arabian Ranches 3,25.0450,55.2830
-DAMAC Hills,25.0338,55.2447
-DAMAC Hills 2,24.9827,55.3641
-International City,25.1653,55.4119
-Discovery Gardens,25.0412,55.1390
-Sports City,25.0394,55.2195
-Motor City,25.0448,55.2357
-Jumeirah Village Triangle,25.0623,55.1876
-Al Furjan,25.0228,55.1393
-Tilal Al Ghaf,25.0275,55.2710
-Emaar South,24.9874,55.1606
-Dubai South,24.9964,55.1621
-Town Square,24.9972,55.2517
-Remraam,25.0280,55.2220
+canonical_name,level,lat,lng
+Downtown Dubai,unknown,25.1972,55.2744
+Dubai Marina,unknown,25.0806,55.1403
+Jumeirah Village Circle,unknown,25.0580,55.2090
+Business Bay,unknown,25.1872,55.2553
+Palm Jumeirah,unknown,25.1124,55.1390
+Jumeirah Beach Residence,unknown,25.0760,55.1330
+Dubai Silicon Oasis,unknown,25.1175,55.3799
+DIFC,unknown,25.2124,55.2813
+Deira,unknown,25.2697,55.3095
+Bur Dubai,unknown,25.2582,55.2990
+Jumeirah,unknown,25.2104,55.2382
+Al Barsha,unknown,25.1065,55.1963
+Mirdif,unknown,25.2232,55.4186
+Dubai Hills Estate,unknown,25.1025,55.2408
+Arabian Ranches,unknown,25.0568,55.2680
+Arabian Ranches 2,unknown,25.0500,55.2750
+Arabian Ranches 3,unknown,25.0450,55.2830
+DAMAC Hills,unknown,25.0338,55.2447
+DAMAC Hills 2,unknown,24.9827,55.3641
+International City,unknown,25.1653,55.4119
+Discovery Gardens,unknown,25.0412,55.1390
+Sports City,unknown,25.0394,55.2195
+Motor City,unknown,25.0448,55.2357
+Jumeirah Village Triangle,unknown,25.0623,55.1876
+Al Furjan,unknown,25.0228,55.1393
+Tilal Al Ghaf,unknown,25.0275,55.2710
+Emaar South,unknown,24.9874,55.1606
+Dubai South,unknown,24.9964,55.1621
+Town Square,unknown,24.9972,55.2517
+Remraam,unknown,25.0280,55.2220
+Dubai,city,25.0742823,55.1885387
+Al Aweer,community,25.176036,55.5408265
+Zabeel,community,25.2098336,55.2979659
+Zabeel 1,subcommunity,25.2170094,55.2797628
+One Za'abeel,property,25.227438,55.2914234
+Zabeel 2,subcommunity,25.2312081,55.2915227
+Downtown Views,property,25.202148,55.2806325
+Zabeel Road,subcommunity,25.2170094,55.2797628
+Reem,community,25.0315993,55.2756891
+Mira,subcommunity,25.005315,55.3073624
+Mira 1,property,25.0051451,55.3039622
+Mira 2,property,25.0037225,55.3064297
+Mira 3,property,25.0063822,55.3090785
+Mira 4,property,25.0100248,55.3058025
+Mira 5,property,25.005315,55.3073624
+Mira Oasis,subcommunity,25.0113728,55.3012866
+Wasl Gate,community,25.0258041,55.1075536
+Gardenia Townhomes,subcommunity,25.0241594,55.1115394
+Dragon City,community,25.1732139,55.4134892
+Dubai Outsource Zone,community,25.1246277,55.425024
+Dubai Studio City,community,25.0415641,55.2522587
+Studio 101,subcommunity,25.0418592,55.251791
+Olivara Residences,subcommunity,25.0313591,55.2385326
+The Hills,community,25.0786376,55.1581829
+Vida Residence,subcommunity,25.0772736,55.1605953
+Vida Residence 3,property,25.0779889,55.159344
+Vida Residence 4,property,25.0777262,55.1598905
+Vida Residence 2,property,25.0782119,55.158588
+The Hills C,subcommunity,25.0676631,55.1421864
+Mohammed Bin Rashid City,community,25.1640592,55.2856612
+District One,subcommunity,25.1600468,55.2788652
+District 11,subcommunity,25.17548,55.2808838
+District 7,subcommunity,25.1717978,55.2739075
+Mina Rashid,community,25.2709307,55.265831
+777,subcommunity,25.1226152,55.2751201
+Golf Grove,subcommunity,25.1144509,55.2742836
+Dubai Hills,subcommunity,25.0945408,55.2455416
+Maple at Dubai Hills Estate,subcommunity,25.0993559,55.2531657
+Sidra Villas,subcommunity,25.0919552,55.2509001
+Sidra Villas I,property,25.1003112,55.2459067
+Sidra Villas II,property,25.1003112,55.2459067
+Club Villas at Dubai Hills,subcommunity,25.1214918,55.260668
+Al Mina,community,25.2633934,55.2629323
+wasl port views,subcommunity,25.2468445,55.2751135
+Oud Al Muteena,community,25.274823,55.4453362
+Dubai Design District,community,25.1883375,55.2974839
+The Valley,community,25.0114653,55.4470718
+Vida Residence 1,property,25.0797589,55.1570824
+Al Warsan,community,25.1575113,55.414915
+Al Warsan 1,subcommunity,25.176589,55.413324
+Al Warsan 2,subcommunity,25.1423295,55.4314884
+Al Warsan 3,subcommunity,25.1643972,55.4950719
+Al Warsan 4,subcommunity,25.1483662,55.3777829
+R05,property,25.1423295,55.4314884
+R01,property,25.1423295,55.4314884
+Al Badaa,community,25.212343,55.2734736
+Al Badaa Street,subcommunity,25.1957233,55.2622912
+Wadi Al Amardi,community,25.20929,55.4879092
+Hatta,community,24.7975573,56.1206383
+Emirates Golf Club,community,25.0879718,55.1574826
+Meydan,community,25.1629302,55.3142967
+Meydan Avenue,subcommunity,25.1578699,55.2946868
+Rosebay Living,property,25.1550141,55.2904339
+Residence 1,property,25.1630446,55.3019682
+Injazzat Residence,property,25.1582377,55.2951019
+The Galleries at Meydan Avenue,property,25.1578699,55.2946868
+Manazel Meydan,property,25.1545445,55.292777
+Godolphin Avenue,subcommunity,25.1630132,55.3002799
+Dawson House,subcommunity,25.155496,55.2924783
+Azizi Park Avenue,subcommunity,25.1538101,55.2888711
+Centurion Onyx,subcommunity,25.1648226,55.3054107
+Azizi Riviera 63,subcommunity,25.1733508,55.3142043
+The 100,subcommunity,25.16087,55.304308
+Grand Views,property,25.1456862,55.3001443
+Meydan One,subcommunity,25.1576345,55.3031944
+The Villa,community,25.0843891,55.3611964
+Hacienda,subcommunity,25.0875655,55.3618393
+Ponderosa,subcommunity,25.080506,55.3489599
+The Aldea,subcommunity,25.0832373,55.3585501
+The Centro,subcommunity,25.091289,55.3698995
+Serena,community,25.0353804,55.2859044
+Bawadi,community,25.1394784,55.2170815
+City of Arabia,community,25.0889688,55.3373711
+Wadi Tower,subcommunity,25.0818439,55.3276622
+Avenue 353,subcommunity,25.1069146,55.3722509
+Golf City,community,25.0791728,55.1541829
+Dubai Lifestyle City,community,25.0426027,55.2821628
+Al Barari,community,25.1082771,55.31877
+The Reserve,subcommunity,25.0969287,55.3039868
+wadi al safa,subcommunity,25.1057127,55.3165353
+Ashjar,subcommunity,25.0998565,55.3158181
+The Nest,subcommunity,25.1008078,55.3024613
+Jasmine Leaf,subcommunity,25.0962619,55.3102624
+Desert Leaf,subcommunity,25.100868,55.3100565
+Silk Leaf,subcommunity,25.099053,55.3052255
+Silk Leaf 5,property,25.0976378,55.3059306
+Silk Leaf 3,property,25.0976378,55.3059306
+Silk Leaf 4,property,25.0976378,55.3059306
+Silk Leaf 7,property,25.0976378,55.3059306
+Eye Park,community,24.919576,55.006713
+Majan,community,25.0929388,55.3184835
+Remal Mall,subcommunity,25.0873976,55.3129873
+Madison Residences,subcommunity,25.0945492,55.3186472
+Al Rabia Tower,subcommunity,25.0936739,55.3242167
+Sherena Residence,subcommunity,25.0948711,55.314775
+Emirates Hills 2,community,25.0639869,55.1645849
+Dubai Residence Complex,community,25.0931043,55.380324
+Sondos Orchid,subcommunity,25.0952742,55.3798875
+Sondos Lilac,subcommunity,25.0950028,55.3801795
+Sondos Lily,subcommunity,25.0861211,55.3838446
+Sondos Sage,subcommunity,25.0857134,55.3838012
+Sondos Rosa,subcommunity,25.0866547,55.3829297
+Durar 1,subcommunity,25.0912349,55.3839547
+Tulip Oasis 7,subcommunity,25.0962385,55.3784717
+Solitaire Cascades,subcommunity,25.0884306,55.3817942
+K1,subcommunity,25.0931043,55.380324
+Pacific Village,community,25.0851731,55.3346079
+Vardon,subcommunity,24.9885573,55.376591
+Amazonia,subcommunity,24.9913413,55.3737658
+Amazonia EX,property,24.9913413,55.3737658
+Amargo,subcommunity,24.9852412,55.3777435
+Albizia,subcommunity,24.985175,55.377641
+Expo City,community,24.9634934,55.1460846
+Arjan,community,25.0603309,55.2354858
+Al Dhabi Tower,subcommunity,25.0571985,55.2323439
+Priva Living,subcommunity,25.0639398,55.2488673
+Al Sayyah Residence,subcommunity,25.0646026,55.2390397
+Sunrise Legend,subcommunity,25.067716,55.2380251
+The V Building,subcommunity,25.0616385,55.2410854
+Miracle Hills,subcommunity,25.0643804,55.2468313
+Lincoln Park,subcommunity,25.0607242,55.2373314
+Siraj Tower,subcommunity,25.0567785,55.2363745
+La Fontana,subcommunity,25.0633949,55.2358925
+Platinum One,subcommunity,25.066645,55.2456903
+Syann Park,subcommunity,25.0560067,55.2370979
+Syann Park 1,subcommunity,25.0560067,55.2370979
+Green Diamond,subcommunity,25.0637329,55.2306539
+Green Diamond 3,subcommunity,25.0637329,55.2306539
+The Wings,subcommunity,25.0598399,55.2414145
+Vincitore Palacio,subcommunity,25.0659676,55.2331215
+Falcon City of Wonders,community,25.0955281,55.3393384
+Living Legends,community,25.0850789,55.2981217
+A Villas,subcommunity,25.0855217,55.2979081
+B Villas,subcommunity,25.0847828,55.3000573
+C Villas,subcommunity,25.0857241,55.3010449
+D Villas,subcommunity,25.0906487,55.2979283
+Richmond,subcommunity,25.0218657,55.2624599
+Rockwood,subcommunity,25.0179655,55.2601259
+Rochester,subcommunity,25.0150187,55.2582545
+Topanga,subcommunity,25.0235974,55.2603726
+Bukadra,community,25.1768604,55.3261997
+Al Barsha 1,subcommunity,25.1108462,55.1955345
+Dusseldorf Business Point,property,25.1145062,55.2047828
+Metro Building,property,25.1158564,55.2045836
+Lulu Building,property,25.109795,55.1964016
+Code Business Tower,property,25.1140018,55.202973
+Bahwan Tower Al Barsha,property,25.1151488,55.2044726
+La Residence,property,25.1130652,55.1934556
+Bayti 33,property,25.1064597,55.1847598
+Bayti 20,property,25.110414,55.1885477
+Rabwah 2,property,25.1168148,55.2054751
+Rabwah 1,property,25.1160808,55.206402
+Millennium Al Barsha,property,25.1148218,55.1963044
+Desert Group 2,property,25.1139621,55.2040659
+Sand Dunes,property,25.1134947,55.2024222
+Emerald Barsha 1,property,25.1151753,55.1981937
+Rose 2,property,25.1170384,55.2037469
+Grey Building,property,25.1161416,55.1946637
+1095 Residence,property,25.1092337,55.1938634
+Grand Cosmopolitan Hotel,property,25.1132504,55.1927709
+Manazel Al Barsha,property,25.1133764,55.2007081
+Bayti 40,property,25.1059898,55.1955582
+Blue Waves Residence 2,property,25.1112476,55.1869777
+Residence 363,property,25.1092337,55.1938634
+Hassanicor,property,25.1155304,55.1929659
+Residence 1451,property,25.1092337,55.1938634
+B1 Mall,property,25.1152336,55.1993527
+Al Habbai Building,property,25.1102553,55.1960039
+Al Shaya Building,property,25.1156931,55.2064731
+Horizon Building,property,25.1151039,55.2026396
+Abidos Hotel Apartment,property,25.1132834,55.2044155
+DoubleTree by Hilton Hotel,property,25.114785,55.2008422
+Barsha Valley,property,25.1097851,55.203654
+Rasis Business Centre,property,25.1072178,55.1984553
+Dunes Hotel Apartments,property,25.1146509,55.1994896
+Ivory Grand Hotel Apartments,property,25.1143846,55.2016187
+Barsha Business Square,property,25.1096488,55.1972475
+Al Khoory Hotel Apartments,property,25.1127073,55.192918
+Casablanca 1,property,25.1083216,55.2020256
+Casablanca 2,property,25.1077459,55.2005848
+Casablanca 3,property,25.1083216,55.2020256
+Casablanca 4,property,25.1072254,55.2019335
+Emerald Court,property,25.1161024,55.1974324
+Grand Excelsior Hotel,property,25.1116945,55.2034506
+Al Zarooni Building,property,25.1166136,55.2057948
+Al Adiyat Residence 2,property,25.1132052,55.2054746
+Habib Al Mulla Building,property,25.1148141,55.2033992
+Al Barsha 1 Villas,property,25.1107473,55.1978142
+Marmara Hotel Apartments,property,25.109402,55.2032901
+Saratoga Complex,property,25.1156183,55.1953301
+Al Nasser Compound,property,25.1126065,55.1999209
+R445,property,25.1089706,55.1943089
+Trio Building,property,25.1114319,55.1949025
+Grand Midwest View Hotel Apartments,property,25.1114517,55.1873005
+Al Maha Tower B,property,25.1100148,55.2026764
+Al Maha Tower A,property,25.10897,55.2036943
+Al Barsha 2,subcommunity,25.0875435,55.2108719
+Street 7B,property,25.1029866,55.2240697
+Street 5B,property,25.1017451,55.2179808
+Al Barsha 3,subcommunity,25.0875435,55.2108719
+Al Barsha South,subcommunity,25.0773629,55.2311317
+Bin Shabib Mall,property,25.0589909,55.2238296
+Al Barsha South 5,property,25.0773629,55.2311317
+Al Barsha South 1,property,25.0773629,55.2311317
+Al Barsha South 2,property,25.0718435,55.233746
+Al Barsha South 3,property,25.0773629,55.2311317
+Al Barsha South 4,property,25.0773629,55.2311317
+Villa Lantana,subcommunity,25.074665,55.2368955
+TIME Topaz Hotel Apartments,subcommunity,25.115758,55.203217
+The Sustainable City,community,25.0272475,55.2754891
+Al Qudra 3,subcommunity,25.0018167,55.2887991
+Al Qudra 4,subcommunity,25.0013641,55.2876136
+Reem Townhouses,subcommunity,25.0108148,55.2793087
+SAFI 1A,subcommunity,25.011089,55.2879938
+SAFI 1B,subcommunity,25.0108514,55.2888763
+Zahra Apartments,subcommunity,25.0059711,55.2956311
+Safi,subcommunity,25.0108514,55.2888763
+Zahra Breeze Apartments,subcommunity,25.0059711,55.2956311
+Warda Apartments,subcommunity,25.0044917,55.2930609
+Hayat Boulevard,subcommunity,25.0040358,55.2971494
+Rawda Apartments,subcommunity,25.0030173,55.2912902
+UNA Apartments,subcommunity,25.0041492,55.2862345
+Rukan,community,25.0423484,55.288093
+Wadi Al Safa 5,community,25.0833637,55.3730124
+Freej Residence,subcommunity,25.0322763,55.1486055
+East 40,subcommunity,25.02109,55.1403949
+Topaz Avenue,subcommunity,25.0196822,55.140434
+Grace Residency,subcommunity,25.0250479,55.1585168
+5th Avenue,subcommunity,25.0267099,55.1469903
+Azizi Orchid,subcommunity,25.0317049,55.1493847
+The Fern Heights,subcommunity,25.0329822,55.1413418
+Ecos Hotel,subcommunity,25.020607,55.1531337
+Al Rakayez Building,subcommunity,25.0191488,55.1447462
+Phase 1,subcommunity,25.0221454,55.1442765
+Phase 3,subcommunity,25.0222796,55.1442756
+Phase 2,subcommunity,25.0222097,55.1442755
+Avenue Residence,subcommunity,25.0337309,55.1464715
+Azizi Residence,subcommunity,25.027034,55.1557564
+Starz by Danube,subcommunity,25.0320444,55.1406659
+Glamz,subcommunity,25.0335841,55.1418261
+Murano Residences,subcommunity,25.0285018,55.1403038
+Montrell,subcommunity,25.0180376,55.1295077
+Shaista Azizi,subcommunity,25.0303272,55.1402608
+Victoria Residency,subcommunity,25.0283964,55.153903
+AZIZI Berton,subcommunity,25.0201279,55.1501782
+Al Fouad Building,subcommunity,25.0200402,55.1491181
+Micasa Avenue,subcommunity,25.0226884,55.1564766
+Al Rowaiyah 2,community,25.103491,55.4003986
+Al Garhoud,community,25.2494824,55.3399801
+Manazel Garhoud,subcommunity,25.2307245,55.337429
+Saraya Avenue,subcommunity,25.252713,55.3402414
+Grand Mercure Dubai Airport,subcommunity,25.2508102,55.3434091
+Le Méridien Dubai Hotel & Conference Centre,subcommunity,25.2486191,55.3476525
+Dubai Autism Center,subcommunity,25.2397534,55.3469742
+Al Jaddaf,community,25.2142937,55.324569
+The Pearl,subcommunity,25.228427,55.336338
+Al Waleed Garden,subcommunity,25.2119485,55.3189161
+Orchid Residence,subcommunity,25.2187863,55.3250671
+Lilac Residence,subcommunity,25.2158452,55.3226142
+Ayedh Tower,subcommunity,25.222207,55.331123
+Marbella Holiday Homes,subcommunity,25.2153047,55.325549
+Binghatti Avenue,subcommunity,25.2123409,55.3162157
+Emerald Jadaf Metro,subcommunity,25.2231097,55.3342766
+Romaithi Building,subcommunity,25.217611,55.3218369
+Residence Inn by Marriott,subcommunity,25.2108143,55.3144247
+O10,subcommunity,25.2142937,55.324569
+DoubleTree By Hilton Al Jadaf,subcommunity,25.2224035,55.3317365
+Al Jaddaf Rotana Suite Hotel,subcommunity,25.2206658,55.3294178
+Khansaheb Residence,subcommunity,25.2175475,55.3240971
+Dubai Wharf,subcommunity,25.2262995,55.3395677
+Al Jaddaf Residence,subcommunity,25.2215715,55.3314154
+Al Jafiliya,community,25.2335944,55.2921844
+R342,subcommunity,25.2376311,55.2869367
+Chelsea Plaza Hotel,subcommunity,25.235376,55.279651
+Al Karama,community,25.2482136,55.3050609
+Zabeel Plaza,subcommunity,25.2399323,55.3055537
+Emerald Karama,subcommunity,25.2473325,55.3022659
+Residence  294,subcommunity,25.2458495,55.3000889
+R421,subcommunity,25.2482136,55.3050609
+Al Kifaf Building,subcommunity,25.2514674,55.3039186
+Shaikh Hamdan Colony,subcommunity,25.2488582,55.3051579
+Al Manzel,subcommunity,25.2419788,55.300435
+wasl Duet,subcommunity,25.2406719,55.2990594
+wasl Ruby,subcommunity,25.2491485,55.3113048
+wasl Opal,subcommunity,25.2474299,55.3101167
+Al Khawaneej,community,25.2382523,55.5097961
+Al Khawaneej 1,subcommunity,25.2441518,55.4882254
+Al Khawaneej 2,subcommunity,25.2300758,55.524719
+Al Mizhar,community,25.2452074,55.4416415
+Al Mizhar 3,subcommunity,25.2635292,55.4648198
+Al Mizhar 1,subcommunity,25.2452074,55.4416415
+Al Mizhar 2,subcommunity,25.2431351,55.4607968
+Al Muhaisnah,community,25.2777742,55.3098928
+Al Muhaisnah 1,subcommunity,25.2348682,55.4254992
+Al Muhaisnah 2,subcommunity,25.2348682,55.4254992
+Al Muhaisnah 3,subcommunity,25.2526625,55.4046622
+Al Muhaisnah 4,subcommunity,25.2526625,55.4046622
+Al Nahda,community,25.2732083,55.3694757
+Al Nahda 1,subcommunity,25.290288,55.3641471
+Al Mulla Plaza,property,25.2811497,55.3573283
+Al Nahda Building,property,25.2913737,55.3619476
+Bahwan Tower Al Nahda,property,25.2879957,55.3615119
+Bin Juma 1,property,25.2947886,55.3661165
+Bin Juma 2,property,25.2947886,55.3661165
+Bin Juma 4,property,25.2947886,55.3661165
+AR1,property,25.2883511,55.3631377
+AB Plaza 9,property,25.2923813,55.3694747
+Al Shamsi Building,property,25.292048,55.3688865
+Sama Residence,property,25.2843621,55.3595554
+Canary Building,property,25.2915491,55.3717016
+Emirates Stars Hotel Apartments Dubai,property,25.2889284,55.3684373
+Hessa Tower,property,25.2955294,55.3619517
+Latifa Tower,property,25.2965784,55.3622355
+Al Nahda 2,subcommunity,25.2915335,55.3782384
+Al Hawai Twin Towers,property,25.2970505,55.3802149
+Al Nahda 2 Tower,property,25.2879147,55.3648951
+Mirage Tower,property,25.2960373,55.3827766
+Al Murjan Tower,property,25.2975861,55.3815742
+Al Zumurrud Tower,property,25.2933108,55.3817036
+Damas Al Qusais,property,25.2746226,55.3674616
+Ali Nasser Lootah Building,property,25.2899333,55.3709898
+Al Nahda Tower,property,25.2869187,55.3644261
+Manara Residence,property,25.2935646,55.3790723
+Al Sabah Tower,property,25.2905111,55.3779041
+Al Quoz,community,25.1595803,55.2540203
+Al Quoz 1,subcommunity,25.1626708,55.2536664
+The Courtyard,property,25.14331,55.2233631
+Al Quoz 2,subcommunity,25.1247031,55.2512075
+Al Khail Gate,property,25.1410524,55.2479597
+Al Quoz 3,subcommunity,25.1626708,55.2536664
+The Curve,property,25.1626595,55.2360069
+Al Quoz 4,subcommunity,25.1626708,55.2536664
+AL KHAIL HEIGHTS 1A-1B,property,25.1572497,55.2541129
+Al Khail Heights 6A-6B,property,25.1558602,55.2536875
+AL KHAIL HEIGHTS 8A-8B,property,25.1558602,55.2536875
+AL KHAIL HEIGHTS 3A-3B,property,25.1548145,55.2532417
+Al Khail Heights 9A-9B,property,25.1558602,55.2536875
+Al Khail Heights 5A-5B,property,25.1558602,55.2536875
+Al Khail Heights 7A-7B,property,25.1558602,55.2536875
+Al Quoz Industrial Area,subcommunity,25.1312674,55.2336971
+Al Quoz Industrial Area 1,property,25.1364801,55.2238283
+Al Quoz Industrial Area 2,property,25.1312674,55.2336971
+Al Quoz Industrial Area 3,property,25.124414,55.2122863
+Al Quoz Industrial Area 4,property,25.1126575,55.2279121
+Rawabeh Building,property,25.1437488,55.2229304
+Al Joud Centre,subcommunity,25.1455636,55.2234365
+Al Qusais,community,25.2701436,55.3859389
+Al Qusais Road,subcommunity,25.2748453,55.3745318
+Al Qusais Industrial Area,subcommunity,25.2806161,55.3872945
+Mona Residence,property,25.2855528,55.4070187
+Wasl Village,property,25.2891333,55.4129363
+Al Qusais Industrial Area 1,property,25.2806161,55.3872945
+Al Qusais Industrial Area 2,property,25.2806161,55.3872945
+Al Qusais Industrial Area 3,property,25.2973305,55.3902334
+Al Qusais Industrial Area 4,property,25.2975365,55.3929346
+Al Qusais Industrial Area 5,property,25.2891248,55.4020346
+Al Rashidiya,community,25.2227966,55.3942477
+Al Fareej Courtyard,subcommunity,25.2342543,55.381787
+Al Safa,community,25.15563,55.2285156
+Al Safa 2,subcommunity,25.1597638,55.2263876
+Al Safa 2 Villas,property,25.1063647,55.3764714
+Al Safa 3,subcommunity,25.1774533,55.2389124
+Al Safa 1,subcommunity,25.1774533,55.2389124
+Al Ferdous 1,property,25.1808383,55.2362074
+Al Ferdous 2,property,25.1813726,55.2367843
+Al Ferdous 3,property,25.1808383,55.2362074
+Al Ferdous 4,property,25.1791683,55.2350397
+Splendour Villas,property,25.1712835,55.2347081
+wasl square,subcommunity,25.1854319,55.2390552
+Al Satwa,community,25.2208602,55.2737617
+The Flagship One,subcommunity,25.2204624,55.2716307
+Adaire 2,subcommunity,25.2260678,55.2797131
+Eden House,subcommunity,25.2197819,55.2766247
+Makeen Residence Satwa,subcommunity,25.2229086,55.2751598
+Al Khair 1,subcommunity,25.2173831,55.2730257
+Dubai Insurance Building,subcommunity,25.2222707,55.2781716
+151 Residence,subcommunity,25.2262967,55.2773127
+Solaire 15,subcommunity,25.2217286,55.2765288
+Satwa Road,subcommunity,25.2150358,55.2649741
+Al Sufouh,community,25.1095362,55.1722137
+Acacia Avenues,subcommunity,25.1109034,55.1768869
+Hilliana Tower,property,25.1110228,55.178039
+Abyaar Tower,property,25.1103514,55.1775461
+Al Sufouh 1,subcommunity,25.1225572,55.1864328
+Palma Spring Village,property,25.1071704,55.1752081
+Al Kazim Building,property,25.1104377,55.1792929
+J5,property,25.1089479,55.1776208
+J8,property,25.108667,55.1779448
+Design House,property,25.1094321,55.1780169
+Al Sufouh 2,subcommunity,25.1010194,55.1647716
+6 Falak,property,25.0931006,55.1552767
+Arenco Villas,property,25.10828,55.1679133
+Innovation Hub,property,25.1004654,55.1634297
+Al Sufouh Road,subcommunity,25.178421,55.2473537
+Al Twar,community,25.262435,55.3794855
+Al Twar 4,subcommunity,25.2592789,55.399233
+Al Twar 1,subcommunity,25.2724896,55.3590294
+Al Twar 2,subcommunity,25.262632,55.3816411
+Al Twar 3,subcommunity,25.2495966,55.3954599
+Al Warqa'a,community,25.1890575,55.4094189
+Al Warqa'a 1,subcommunity,25.1837338,55.4095644
+Danat Al Warqa'a,property,25.184281,55.4043608
+MOJ Building,property,25.1953988,55.4032429
+Al Warqa'a 2,subcommunity,25.200975,55.4080479
+Al Warqa'a 3,subcommunity,25.1891587,55.4104283
+Al Warqa'a 4,subcommunity,25.1874542,55.4376597
+Al Warqa'a 5,subcommunity,25.191657,55.4190192
+Al Wasl,community,25.1959326,55.2557371
+Al Wasl  Building,subcommunity,25.1895622,55.2568212
+Safa one,subcommunity,25.2063105,55.2677495
+One Canal,subcommunity,25.1815727,55.2486144
+Al Wasl Road,subcommunity,25.2117397,55.257094
+dar wasl,subcommunity,25.1944692,55.2457949
+Alma,subcommunity,25.0534944,55.2684741
+Alvorada,subcommunity,25.043232,55.2615314
+Alvorada 1,property,25.0429685,55.2575357
+Alvorada 2,property,25.043276,55.2577825
+Alvorada 3,property,25.0430524,55.2573614
+Alvorada 4,property,25.043372,55.2575974
+Al Reem,subcommunity,25.0593992,55.2891561
+Al Reem 1,property,25.0586298,55.2902456
+Al Reem 2,property,25.0574603,55.2873814
+Al Reem 3,property,25.0590024,55.2886179
+Hattan,subcommunity,25.047173,55.2671279
+Mirador La Coleccion,subcommunity,25.045716,55.2568335
+Mirador,subcommunity,25.045716,55.2568335
+Palmera,subcommunity,25.042044,55.2655399
+Saheel,subcommunity,25.0520522,55.2548682
+Savannah,subcommunity,25.0529702,55.271391
+Polo Homes,subcommunity,25.0367452,55.2530326
+La Avenida,subcommunity,25.0517855,55.2705179
+Aseel,subcommunity,25.0466237,55.2726903
+Hyatt Place Dubai Jumeirah,subcommunity,25.246452,55.2770736
+Al Hamriya,subcommunity,25.2560857,55.30325
+Al Hamriya-1,property,25.2563713,55.3103105
+Ahmad Creek Residency,property,25.2581875,55.3058885
+Al Hamriya 431,property,25.2560857,55.30325
+Al Hamriya 640,property,25.2560857,55.30325
+Oud Metha,subcommunity,25.2439301,55.3158939
+Emerald Oud Metha,property,25.2330375,55.316558
+Al Nasr Palace,property,25.2436856,55.3150581
+Al Nasr Plaza,property,25.2435666,55.3138452
+R369,property,25.2456312,55.3151658
+Desert Home Residence,property,25.2443943,55.314267
+Oud Metha Building,property,25.2368932,55.3063708
+Hamad Rashid Hamad Al Khatabi,property,25.232066,55.3141827
+Roda Metha Suites,property,25.2314276,55.3148094
+Spectrum Building,property,25.232643,55.3109814
+Mankhool,subcommunity,25.2640912,55.3012907
+M Square,property,25.2502695,55.3006942
+Al Baha Building,property,25.2529917,55.2982975
+Residence 1003,property,25.252405,55.2929661
+DoubleTree by Hilton Dubai M Square Hotel & Residences,property,25.2502695,55.3006942
+Golden Sands 12,property,25.2518097,55.2932866
+Four Points by Sheraton Downtown Dubai,property,25.2519159,55.2926152
+Mankhool 70,property,25.2506926,55.293471
+Residence 1000,property,25.252405,55.2929661
+Silver Sands 3,property,25.254562,55.2984952
+Style Building,property,25.2533657,55.2958972
+Liwa Building,property,25.2528706,55.2992949
+Afnan Building,property,25.2549186,55.3006473
+M Residences,property,25.2502695,55.3006942
+Jumeirah Star,property,25.2514718,55.2935865
+The Bricks,property,25.2487821,55.2963176
+Al Watan Building,property,25.2500193,55.2947218
+Jamal Al Ghurair Building,property,25.2500698,55.2937531
+Golden Sands 2,property,25.2541827,55.2949993
+Silver Sands 1,property,25.2550014,55.2955174
+Silver Sands 2,property,25.2546334,55.2962443
+Badri Building,property,25.2558898,55.2992568
+Golden Sands 11,property,25.2500661,55.2976299
+Al Bafta Grand,property,25.2522669,55.2987692
+Wahat Al Nakheel,property,25.2517037,55.3000284
+Al Rais Building 6,property,25.250206,55.294383
+Sunshine Building,property,25.2504586,55.2946103
+Golden Sands 4,property,25.2521077,55.295833
+Golden Sands 9,property,25.2509654,55.2949335
+Golden Sands 7,property,25.2518089,55.2956459
+Golden Sands 8,property,25.251501,55.2954579
+Mankhool 455,property,25.249373,55.2887467
+Bait Al Jabal,property,25.253995,55.3005298
+Mina Street,subcommunity,25.2522262,55.2821044
+Al Raffa,subcommunity,25.2626692,55.2898715
+Savoy Central Hotel Apartments,property,25.2573645,55.2892316
+Aghaadir Building,property,25.2524901,55.2893381
+Art Tower,property,25.2587636,55.2852753
+Al Ghubaiba,property,25.2608527,55.2844822
+Shipping Tower,property,25.2584295,55.2853654
+ABC Arabian Suites,property,25.2502903,55.2859053
+Al Souk Al Kabeer,subcommunity,25.2644654,55.3006204
+Building 5,property,25.2614917,55.2924146
+Al Fahidi Street,property,25.2625163,55.2958482
+Al Souk Al Kabeer Street,property,25.2644654,55.3006204
+Khalid Bin Al Waleed Road,subcommunity,25.25499,55.303941
+Meena Bazaar,subcommunity,25.261647,55.2926665
+Al Hamriya Building,subcommunity,25.2570896,55.3032882
+Dolphin Tower,subcommunity,25.1830858,55.2830632
+SLS Dubai Hotel & Residences,subcommunity,25.1845912,55.2922866
+Zada Tower,subcommunity,25.1845833,55.2617201
+Al Batha Tower,subcommunity,25.191528,55.2617224
+Global Bay View,subcommunity,25.1851477,55.2825354
+Residence 110,subcommunity,25.1778945,55.2700054
+Dorchester Collection Dubai,subcommunity,25.188041,55.2882653
+Noor Tower,subcommunity,25.19152,55.285868
+Taj Dubai,subcommunity,25.1922725,55.2673386
+The 9 Tower,subcommunity,25.1865538,55.2722919
+ART XIV,subcommunity,25.1885337,55.283227
+REVIER Business Bay,subcommunity,25.1792268,55.2713419
+Nobles Tower,subcommunity,25.1846238,55.2903297
+Regalia By Deyaar,subcommunity,25.1846547,55.2928334
+Tiara East Tower,subcommunity,25.1888944,55.260078
+Royal Continental Suites,subcommunity,25.1833416,55.2835127
+Binghatti Canal,subcommunity,25.1861089,55.2861562
+The Bay,subcommunity,25.1781877,55.2678486
+Waves Tower,subcommunity,25.1835219,55.284022
+Tiara West Tower,subcommunity,25.1886159,55.2594848
+UPSIDE Living,subcommunity,25.1849212,55.28965
+DG1,subcommunity,25.1894266,55.264819
+Canal Central Hotel,subcommunity,25.1807044,55.2664529
+The Lana,subcommunity,25.188041,55.2882653
+Canal Bay,subcommunity,25.1807044,55.2664529
+B2B Tower,subcommunity,25.1912367,55.2853458
+Bayswater,subcommunity,25.1848325,55.2683433
+Blue Bay Tower,subcommunity,25.1876332,55.2707483
+Boraq Tower,subcommunity,25.1806567,55.2669439
+Business Central,subcommunity,25.1807044,55.2664529
+Business Tower,subcommunity,25.1785648,55.2723745
+Clayton Residency,subcommunity,25.1828564,55.2826217
+Corporate Bay,subcommunity,25.184421,55.259949
+Crystal Tower,subcommunity,25.1942579,55.289353
+DEC Business Tower,subcommunity,25.1785648,55.2723745
+Executive Bay,subcommunity,25.1922535,55.2656745
+Falcon Tower,subcommunity,25.1935101,55.2632443
+Fifty One Tower,subcommunity,25.1900884,55.2844871
+Iris Bay,subcommunity,25.1806319,55.266403
+Iris Crystal,subcommunity,25.1800846,55.2719425
+Iris Ora,subcommunity,25.1806319,55.266403
+Lake Central,subcommunity,25.1861158,55.2728587
+One Business Bay,subcommunity,25.1864903,55.2836193
+Ontario Tower,subcommunity,25.1858918,55.2620934
+Oval Tower,subcommunity,25.1774523,55.2745745
+Park Lane Tower,subcommunity,25.1853604,55.2618728
+15 Northside,subcommunity,25.1865082,55.2863615
+Scala Tower,subcommunity,25.1852267,55.2856386
+Tamani Art Tower,subcommunity,25.1876045,55.2809209
+The Court,subcommunity,25.1846961,55.2586819
+The Metropolis,subcommunity,25.1849593,55.2767844
+The Opus,subcommunity,25.1886072,55.2669473
+The Pad,subcommunity,25.1846764,55.2819688
+Peninsula,subcommunity,25.1847345,55.2662676
+Vision Tower,subcommunity,25.1883659,55.2637989
+Volante,subcommunity,25.18252,55.2716403
+O14,subcommunity,25.1894266,55.264819
+Mayfair Residency,subcommunity,25.1817694,55.2776768
+The Oberoi,subcommunity,25.1857767,55.2638237
+JW Marriott Marquis Hotel,subcommunity,25.1856856,55.2580874
+Oberoi Hotel,subcommunity,25.1857767,55.2638237
+Escape Tower,subcommunity,25.1918858,55.2619532
+Al Shafar Tower,subcommunity,25.1936085,55.2899948
+Bay's Edge,subcommunity,25.1877948,55.2700028
+Manazel Al Safa,subcommunity,25.1938341,55.2637269
+Bay Square,subcommunity,25.185517,55.2805444
+Capital Bay,subcommunity,25.1901929,55.269616
+Churchill Towers,subcommunity,25.1805338,55.2628765
+Empire Heights,subcommunity,25.1919507,55.2846505
+Executive Towers,subcommunity,25.1922535,55.2656745
+Damac Towers,subcommunity,25.1858936,55.2917168
+Millennium Atria Business Bay,subcommunity,25.1801033,55.263813
+Moon Tower,subcommunity,25.1844795,55.2850702
+Boris Becker Business Tower,subcommunity,25.1840196,55.2806172
+DAMAC Maison Canal Views,subcommunity,25.187643,55.2841134
+Symphony Tower,subcommunity,25.1865843,55.2676973
+DAMAC Majestine,subcommunity,25.1864988,55.28198
+Coral Tower,subcommunity,25.1894371,55.2843972
+International Business Tower,subcommunity,25.1781724,55.2671909
+Aykon City,subcommunity,25.1813807,55.2526065
+Damac Maison Cour Jardin,subcommunity,25.1876091,55.2674575
+Marasi Business Bay,subcommunity,25.1824121,55.2707948
+Al Habtoor City,subcommunity,25.1831798,55.2558165
+Marquise Square Tower,subcommunity,25.1852665,55.2762442
+Al Abraj street,subcommunity,25.1843017,55.2633572
+Residence 22,subcommunity,25.1921633,55.2883595
+DAMAC Maison Privé,subcommunity,25.1843705,55.2754526
+J ONE,subcommunity,25.186098,55.2834023
+Vera Residences,subcommunity,25.1870033,55.2827176
+MBK Tower,subcommunity,25.1923641,55.2622479
+Reva Residences,subcommunity,25.1878412,55.2831105
+Bay Avenue Mall,subcommunity,25.1907055,55.2659811
+One by Omniyat,subcommunity,25.1878181,55.2617867
+Marasi Riverside,subcommunity,25.1837533,55.2792321
+Culture Village,community,25.2263324,55.3380978
+Suha Creek Hotel Apartments,subcommunity,25.2287425,55.3364249
+D1 Tower,subcommunity,25.2269537,55.3434702
+Palazzo Versace,subcommunity,25.2274397,55.3419042
+Manazel Al Khor,subcommunity,25.2307245,55.337429
+Riah Towers,subcommunity,25.2241161,55.3398046
+Al Wuheida,subcommunity,25.290389,55.3451341
+Adagio Aparthotel Dubai,subcommunity,25.2769935,55.303278
+Al Khabisi,subcommunity,25.2680638,55.3359972
+Al Bakhit Centre,property,25.2641228,55.3302572
+Abu Baker Al Siddique Road,subcommunity,25.259627,55.3270347
+Maktoum Road,subcommunity,25.2646915,55.3139536
+Al Rigga,subcommunity,25.2672384,55.312186
+Rigga Road,property,25.2681658,55.3108778
+Al Ghurair Center,property,25.2681957,55.3174356
+Baniyas Road,subcommunity,25.2649979,55.3101257
+Twin Tower,property,25.266186,55.3088931
+Best Western Plus Pearl Creek Hotel,property,25.2677773,55.3047509
+Abu Hail,subcommunity,25.2860287,55.328865
+Al Baraha,subcommunity,25.2809884,55.3195255
+Al Mamzar,subcommunity,25.2419836,55.3000353
+Al Muraqqabat,subcommunity,25.2653508,55.3226201
+Al Muraqqabat 596,property,25.2696803,55.3294772
+Al Muraqqabat 133,property,25.2693257,55.3294458
+Al Muraqqabat 131,property,25.2693257,55.3294458
+Al Muteena,subcommunity,25.2741549,55.3225565
+Al Muteena 226,property,25.2740459,55.3225671
+Al Muteena 658,property,25.2737122,55.3221069
+Al Muteena 4428,property,25.2737122,55.3221069
+Al Muteena 1088,property,25.2737122,55.3221069
+Al Ras,subcommunity,25.2691524,55.2965792
+Al Ras Street,property,25.2694174,55.2971128
+Al Buteen,property,25.2699801,55.2981249
+Al Daghaya Street,property,25.2712142,55.2977415
+Al Khor Street,property,25.273177,55.2989901
+Souk Deira Street,property,25.2700589,55.298092
+Corniche Deira,subcommunity,25.2836607,55.3130282
+Hor Al Anz,subcommunity,25.2782987,55.3395005
+Al Shaab,property,25.2762474,55.3379535
+Hor Al Anz Street,property,25.2805161,55.3339459
+Hor Al Anz East,property,25.2769271,55.3376413
+A1 Building,property,25.2782987,55.3395005
+Naif,subcommunity,25.2717632,55.3103167
+Wasl District,property,25.270619,55.3155701
+Hyatt Place Dubai Wasl District,property,25.270619,55.3155701
+Al Burj Street,property,25.2735028,55.3125596
+Naif Road,property,25.2715034,55.3023763
+Port Saeed,subcommunity,25.2533081,55.3318918
+City Gate Building,property,25.2565629,55.3342264
+Al Shoala Building,property,25.2563661,55.331356
+Nouf Tower,property,25.2562874,55.3255224
+Port Saeed 202,property,25.2604609,55.3296278
+Jewel Of Creek,property,25.2526117,55.3261288
+Marriott Marquis Dubai,property,25.2518776,55.3251036
+Hilton Dubai Creek Hotel & Residences,property,25.2520179,55.3244487
+Sapphire Tower,property,25.2609727,55.3326559
+Business Village,property,25.2573555,55.3270778
+Al Wahda Building,property,25.2555705,55.3299571
+Business Point,property,25.2601275,55.3357255
+Riggat Al Buteen,subcommunity,25.2598498,55.3198993
+Al Salemiyah Tower,property,25.2580328,55.3221682
+Al Reem Tower,property,25.2632447,55.3154556
+Marriott Executive Apartments,property,25.2584006,55.323202
+Emaar Towers,subcommunity,25.2577778,55.324696
+Al Murar,subcommunity,25.2765621,55.3088749
+Baniyas Square,subcommunity,25.2691743,55.3076094
+Salah Al Din Street,subcommunity,25.2705631,55.3315093
+Ramada Deira Hotel,property,25.270207,55.3311195
+Dubai Islands,subcommunity,25.2875909,55.2921644
+Al Sabkha,subcommunity,25.2693947,55.3024323
+Al Owais Business Tower,property,25.2681343,55.3029839
+Hyatt Regency Dubai,subcommunity,25.278846,55.3046583
+Hyatt Place Dubai Al Rigga,subcommunity,25.2630326,55.3275364
+Hyatt Place Dubai Baniyas Square,subcommunity,25.268765,55.305323
+Gate Village,subcommunity,25.2136992,55.2828999
+Ritz Carlton,subcommunity,25.2126896,55.279103
+Limestone House,subcommunity,25.2126896,55.279103
+Currency House,subcommunity,25.21244,55.2811784
+Mogul Cluster,subcommunity,25.034641,55.1498464
+Movenpick Hotel Apartments Downtown,subcommunity,25.1941687,55.2836894
+Burj Royale,subcommunity,25.1916441,55.280266
+Grande Signature Residences,subcommunity,25.1948029,55.2716395
+Binghatti Mercedes Benz,subcommunity,25.1884221,55.280002
+W Residences Downtown,subcommunity,25.189476,55.2805863
+Jam Tower,subcommunity,25.1980117,55.2672874
+The Dubai Edition,subcommunity,25.1920855,55.2807117
+The Address Dubai Mall,subcommunity,25.1996523,55.2775723
+Upper Crest,subcommunity,25.193471,55.284588
+Elite Downtown Residence,subcommunity,25.1859076,55.2780574
+Standard Chartered bank,subcommunity,24.9802098,55.0924313
+Sofitel Hotel,subcommunity,25.1998138,55.268716
+Burj Park,subcommunity,25.1941708,55.2733852
+Burj Views,subcommunity,25.1902557,55.2814007
+Emaar Square,subcommunity,25.2010155,55.2722726
+Building 1,property,25.2010155,55.2722726
+Building 2,property,25.2010155,55.2722726
+Building 3,property,25.2010155,55.2722726
+Building 4,property,25.2010155,55.2722726
+Building 6,property,25.2010155,55.2722726
+South Ridge,subcommunity,25.1870396,55.2784034
+The Lofts,subcommunity,25.1974884,55.2699948
+The Residences,subcommunity,25.1924593,55.2738448
+29 Burj Boulevard,subcommunity,25.1941523,55.2858959
+Burj Vista,subcommunity,25.1984084,55.2704686
+BLVD Crescent,subcommunity,25.1915898,55.2706729
+BLVD Heights,subcommunity,25.1926056,55.2699979
+RP Heights,subcommunity,25.1947428,55.2841791
+Forte,subcommunity,25.1954525,55.2692586
+Boulevard Point,subcommunity,25.1934844,55.280974
+Vida Residence Downtown,subcommunity,25.1902967,55.2730849
+Mon Reve,subcommunity,25.1940172,55.2827547
+Imperial Avenue,subcommunity,25.1882476,55.2740503
+Bahwan Tower Downtown,subcommunity,25.1903999,55.2708621
+DT1,subcommunity,25.1947581,55.2780591
+HSBC Tower,subcommunity,25.202065,55.2733029
+DuBiotech,community,25.0748269,55.24251
+Dubai Festival City,community,25.2222672,55.3491775
+Holiday Inn Dubai Festival City,subcommunity,25.2220869,55.35778
+Festival Tower,subcommunity,25.2239221,55.3506013
+Marsa Plaza,subcommunity,25.2318417,55.3470064
+Al Badia Hillside Village,subcommunity,25.2207273,55.3624776
+Dubai Healthcare City,community,25.2309528,55.322619
+Building 40,subcommunity,25.2318195,55.3225039
+Building 26,subcommunity,25.2318195,55.3225039
+Building 27,subcommunity,25.2318195,55.3225039
+Al Khail Heights,community,25.1558602,55.2536875
+Dubai Industrial City,community,24.8399006,55.0662934
+Al Haseen Residences,subcommunity,24.8763547,55.0496142
+Saih Shuaib 2,subcommunity,24.8951033,55.0711597
+Downtown Jebel Ali,community,24.9545176,55.0778298
+The 7,subcommunity,24.9751787,55.0903044
+Celestial Heights,subcommunity,24.9740707,55.0908146
+The Galleries,subcommunity,24.9751787,55.0903044
+The Galleries 1,property,24.982537,55.093407
+The Galleries 2,property,24.981847,55.0931744
+The Galleries 3,property,24.981069,55.0929062
+The Galleries 4,property,24.9803615,55.0926916
+Al Manara,community,25.1448185,55.2144527
+Dubai Land,community,25.0776753,55.3661413
+Villanova,subcommunity,25.0750041,55.3595389
+La Rosa 5,property,25.076862,55.3599575
+Amaranta,property,25.0717837,55.3602742
+Ciel Tower,subcommunity,25.0873687,55.1446505
+LIV Marina,subcommunity,25.0810208,55.1407551
+Marina Living,subcommunity,25.0875891,55.1471081
+W Dubai Mina Seyahi Hotel,subcommunity,25.0915088,55.1466706
+Al Dar tower,subcommunity,25.0836104,55.1421539
+Habtoor Grand Residences,subcommunity,25.0876594,55.1397802
+Trident Marinascape,subcommunity,25.0824852,55.1466668
+Six Senses Residences,subcommunity,25.0893313,55.1503245
+Escan Tower,subcommunity,25.0682526,55.1331614
+23 Marina,subcommunity,25.0897473,55.1507172
+Al Habtoor Tower,subcommunity,25.0832832,55.1475462
+Al Seef Tower,subcommunity,25.090167,55.1499259
+Azure,subcommunity,25.072829,55.1373931
+Bayside Residence,subcommunity,25.0814057,55.1449555
+Botanica Tower,subcommunity,25.0853027,55.1423842
+Dorra Bay,subcommunity,25.0714511,55.1286099
+The Address Dubai Marina,subcommunity,25.0774479,55.1401173
+Elite Residence,subcommunity,25.089519,55.1478965
+Emerald Residence,subcommunity,25.0713217,55.1357449
+Emirates Crown,subcommunity,25.0882601,55.1465068
+Gargash Tower,subcommunity,25.0818678,55.1456042
+Horizon Tower,subcommunity,25.0718475,55.1369178
+Cayan Tower,subcommunity,25.0868457,55.1451708
+Iris Blue,subcommunity,25.085344,55.1448008
+KG Tower,subcommunity,25.0694726,55.127517
+La Residencia Del Mar,subcommunity,25.0715328,55.1310368
+La Riviera,subcommunity,25.0733732,55.1385453
+Le Reve,subcommunity,25.0891378,55.1474642
+MAG 218,subcommunity,25.0881872,55.1490054
+Manchester Tower,subcommunity,25.0679611,55.1320553
+Marina 101,subcommunity,25.078299,55.140882
+Marina 106,subcommunity,25.079077,55.1385075
+Marina Arcade Tower,subcommunity,25.090032,55.1503221
+Marina Heights,subcommunity,25.0872345,55.1484176
+Marina Mansions,subcommunity,25.0736434,55.1386221
+Marina Park,subcommunity,25.0688576,55.1334052
+Marina Pearl,subcommunity,25.0696534,55.1341737
+Marina Pinnacle,subcommunity,25.0886311,55.1482457
+Marina Sail,subcommunity,25.0717778,55.1353659
+Marina Star,subcommunity,25.0686348,55.1314749
+Marina Suites,subcommunity,25.0684397,55.1335875
+Marina Terrace,subcommunity,25.0853319,55.1453181
+Marina Tower,subcommunity,25.0702217,55.1271744
+Panoramic Tower,subcommunity,25.0699999,55.1278527
+Pentominium,subcommunity,25.0893313,55.1503245
+Pier 8,subcommunity,25.0801262,55.1398947
+The Atlantic,subcommunity,25.0785097,55.1403539
+The Point,subcommunity,25.0731976,55.1328932
+Princess Tower,subcommunity,25.0886461,55.1467718
+The Summit,subcommunity,25.0882003,55.1518815
+The Torch,subcommunity,25.0879614,55.1474359
+Westside Marina,subcommunity,25.0698762,55.1334667
+Yacht Bay,subcommunity,25.0714395,55.1368021
+Zumurud Tower,subcommunity,25.0702183,55.1338309
+Marina Crown,subcommunity,25.0899295,55.1483112
+Marina Plaza,subcommunity,25.0753462,55.1400573
+Ocean Heights,subcommunity,25.0906661,55.1487774
+Trident Grand Residence,subcommunity,25.0836788,55.1410811
+Grosvenor House,subcommunity,25.0859575,55.1431872
+Orra Marina,subcommunity,25.0706165,55.1330901
+Al Habtoor Business Tower,subcommunity,25.0855019,55.1419876
+Al Husn Marina,subcommunity,25.0699146,55.1285251
+Ariyana Tower,subcommunity,25.0826415,55.148187
+West Avenue Tower,subcommunity,25.0742823,55.1389269
+Opal Tower Marina,subcommunity,25.0681106,55.1325952
+Wyndham Dubai Marina,subcommunity,25.0721967,55.1296184
+No.9,subcommunity,25.0834312,55.1448255
+Bunyan Tower,subcommunity,25.0821518,55.1475036
+Pier 7,subcommunity,25.0762267,55.1388292
+Jannah Place Dubai Marina,subcommunity,25.0694667,55.1330284
+Trident Waterfront,subcommunity,25.0676418,55.1315206
+Damac Heights,subcommunity,25.0873871,55.1455552
+DEC Towers,subcommunity,25.0687083,55.1300317
+Al Majara,subcommunity,25.0737741,55.1374978
+Al Sahab,subcommunity,25.0756977,55.135101
+Bay Central,subcommunity,25.078524,55.1381126
+Marina Promenade,subcommunity,25.0816695,55.1425353
+Marina Quays,subcommunity,25.0762681,55.136256
+Marina View,subcommunity,25.0793873,55.1441755
+Marina Wharf,subcommunity,25.0722772,55.1324694
+Park Island,subcommunity,25.0820822,55.1419329
+Blakely Tower,property,25.0825605,55.1421842
+Silverene,subcommunity,25.0751584,55.1378181
+The Jewels,subcommunity,25.0713089,55.1302239
+The Waves,subcommunity,25.071238,55.1339408
+Oceanic,subcommunity,25.084261,55.1418242
+Marina Gate,subcommunity,25.0869715,55.147091
+Dubai Marina Walk,subcommunity,25.0855573,55.1476077
+Marina Hotel Apartments,property,25.0697466,55.1291223
+Dream Tower,subcommunity,25.0704265,55.1358446
+Marina Residence,subcommunity,25.0724661,55.1374865
+Signature Hotel Apartments & Spa Marina,subcommunity,25.0686608,55.1310275
+Continental Tower,subcommunity,25.079722,55.1392301
+InterContinental Dubai Marina,subcommunity,25.0791028,55.1380668
+Stella Maris,subcommunity,25.0698757,55.1324309
+Dusit Princess Residence Dubai Marina,subcommunity,25.0829342,55.1445363
+5242,subcommunity,25.0786415,55.1352524
+The One Dubai Marina,subcommunity,25.0950093,55.1503723
+Durrat Al Marsa,subcommunity,25.0714661,55.1293965
+Studio One,subcommunity,25.0685772,55.128802
+LIV Residence,subcommunity,25.0810208,55.1407551
+Pearl Marina Hotel Apartments,subcommunity,25.0697465,55.1291223
+Dubai Media City,community,25.0935245,55.1515716
+Arjaan by Rotana,subcommunity,25.0955683,55.1538047
+Palm View,subcommunity,25.0987809,55.1567688
+Staybridge Suites,subcommunity,25.1017611,55.170938
+Concord Tower,subcommunity,25.097901,55.1561718
+Media one Tower,subcommunity,25.0897789,55.1525559
+Smart Heights,subcommunity,25.0965733,55.1766668
+GBS Building,subcommunity,25.0958574,55.157921
+Zee Tower,subcommunity,25.1020418,55.1678359
+Dubai Pearl,community,25.0987381,55.1599488
+Dubai Promenade,community,25.1845427,55.2646027
+Uniestate Millennium Tower,subcommunity,25.1212926,55.37279
+Binghatti Platinum,subcommunity,25.1134384,55.3875753
+Silicon Park,subcommunity,25.1161922,55.3808319
+Ocean Residencia,subcommunity,25.1183826,55.3940173
+Sapphire Oasis,subcommunity,25.1073843,55.3803433
+MM Towers,subcommunity,25.1110161,55.3841792
+Venezia Residence,subcommunity,25.119733,55.3726348
+Azure Residences,subcommunity,25.1202635,55.3733921
+ART X,subcommunity,25.1126987,55.3879018
+Binghatti Sapphires,subcommunity,25.1165552,55.3726609
+Al Jawhara,subcommunity,25.1124048,55.3875408
+Binghatti Crystals,subcommunity,25.1075301,55.3786992
+Silicon Residence 1,subcommunity,25.1349799,55.3883095
+Silicon Residence 2,subcommunity,25.1357137,55.3880582
+Binghatti Point,subcommunity,25.1216465,55.3732406
+Blue Star,subcommunity,25.1199999,55.3730176
+Dar Munira,subcommunity,25.1169153,55.3923709
+Faraidooni Building,subcommunity,25.110188,55.382599
+Tria By Deyaar,subcommunity,25.1241554,55.3734597
+ADAMAS,subcommunity,25.1162314,55.3785446
+The Eighty Eight,subcommunity,25.1089693,55.3811044
+Mas Tower,subcommunity,25.1205066,55.3980453
+S Residence,subcommunity,25.1164639,55.3887693
+Silicon Star 2,subcommunity,25.1208317,55.3970147
+Tulip Oasis 2,subcommunity,25.1165026,55.3783426
+Radisson Red,subcommunity,25.119027,55.379976
+Al Khair Building,subcommunity,25.1159233,55.3778911
+Cordoba Palace,subcommunity,25.108096,55.3780528
+IT Plaza,subcommunity,25.1212825,55.3983622
+La Vista Residence,subcommunity,25.118661,55.3924042
+Silicon Star,subcommunity,25.1079981,55.3794768
+Apricot,subcommunity,25.112029,55.3844059
+Cedre Villas,subcommunity,25.1197884,55.3945303
+Silicon Arch,subcommunity,25.1100338,55.3837772
+Semmer Villas,subcommunity,25.1154627,55.3841101
+Park Terrace,subcommunity,25.1123118,55.3838588
+Suntech Tower,subcommunity,25.1220261,55.3737841
+SIT Tower,subcommunity,25.1180098,55.3906944
+Silicon Avenue,subcommunity,25.1153132,55.387994
+Al Liwan Building,subcommunity,25.1156959,55.3881937
+Silicon Gates,subcommunity,25.1168834,55.391599
+Coral Residence,subcommunity,25.1089436,55.3796664
+Oasis High Park,subcommunity,25.1145087,55.3871854
+Park Avenue,subcommunity,25.1119324,55.3837941
+Ruby Residence,subcommunity,25.1148394,55.3903883
+Silicon Heights,subcommunity,25.1199405,55.3975886
+Jade Residence,subcommunity,25.1099813,55.381489
+University View,subcommunity,25.1264001,55.405169
+Donna Towers,subcommunity,25.1171374,55.3697059
+Oasis Star,subcommunity,25.1130811,55.3855379
+Le Presidium,subcommunity,25.1108682,55.3768078
+Binghatti Views,subcommunity,25.1230447,55.3762567
+Al Nayli Building,subcommunity,25.1129286,55.3867853
+Zarooni Building,subcommunity,25.1488596,55.3893988
+City Tower 1 DSO,subcommunity,25.109759,55.3794743
+Al Waleed Oasis,subcommunity,25.115607,55.3782598
+City Oasis,subcommunity,25.1233945,55.3767668
+City Oasis 1,property,25.124043,55.403097
+City Oasis 2,property,25.1233382,55.4020197
+City Oasis 3,property,25.1233945,55.3767668
+Sunshine Residence,subcommunity,25.1229439,55.3750162
+Binghatti Gardens,subcommunity,25.1236661,55.3770618
+Binghatti Terraces,subcommunity,25.1251831,55.4015659
+Binghatti Horizons,subcommunity,25.1205926,55.3726826
+Al Asmawi,subcommunity,25.1496862,55.3924704
+Al Falak Residence,subcommunity,25.1191289,55.3964283
+Iliyaa 3,subcommunity,25.1074753,55.3777622
+Al Nasser Building,subcommunity,25.1251184,55.4040695
+Binghatti Pearls,subcommunity,25.1083036,55.3766968
+S-Residence,subcommunity,25.1164639,55.3887693
+Cartel 222,subcommunity,25.1083553,55.3775519
+Palacio Tower,subcommunity,25.1121762,55.3850867
+DHP Residency,subcommunity,25.1156802,55.3892854
+Silicon Building,subcommunity,25.1137837,55.386254
+Al Manal Residence 2,subcommunity,25.1192143,55.3939424
+Al Manal Residence 1,subcommunity,25.1194681,55.3944325
+Nova Tower,subcommunity,25.1114018,55.3767814
+Nibras Oasis 1,subcommunity,25.1152851,55.3899727
+Nibras Oasis 2,subcommunity,25.1172793,55.3936172
+Amna Building,subcommunity,25.1185316,55.3945366
+Binghatti Stars,subcommunity,25.1125363,55.3761017
+Sunrise Building,subcommunity,25.1492842,55.3923078
+Binghatti Diamonds,subcommunity,25.1140295,55.3867142
+Al Hikma Residence,subcommunity,25.1104304,55.3829238
+Polo,subcommunity,25.1081184,55.3802275
+Dubai Sports City,community,25.0321379,55.219353
+MAG 777,subcommunity,25.0321379,55.219353
+Chess Tower,subcommunity,25.0358903,55.2211859
+The Matrix,subcommunity,25.0392014,55.2207445
+Twin Towers,subcommunity,25.0321778,55.2250233
+Bermuda Views,subcommunity,25.0315171,55.2236369
+Giovanni Boutique Suites,subcommunity,25.0319852,55.2229928
+Eagle Heights,subcommunity,25.0365134,55.2209114
+Elite Sports Residence,subcommunity,25.0343678,55.2227622
+Victory Heights,subcommunity,25.0351844,55.2224963
+Park View,subcommunity,25.0329081,55.2240377
+Royal Residence,subcommunity,25.032657,55.2222894
+Rufi Park View,subcommunity,25.0329081,55.2240377
+Hera Tower,subcommunity,25.0404976,55.2224223
+V2,subcommunity,25.0321379,55.219353
+Dubai Waterfront,community,24.9448174,54.998449
+Badrah,subcommunity,24.9501308,55.047649
+Veneto,subcommunity,24.958787,55.0111065
+Emirates Hills,community,25.0639869,55.1645849
+Global Village,community,25.0687531,55.3068329
+Greens,community,25.0907187,55.1708011
+Al Alka,subcommunity,25.091327,55.1747063
+Al Arta,subcommunity,25.0904594,55.1736674
+Al Ghaf,subcommunity,25.0959468,55.1707807
+Al Ghaf 1,property,25.0959468,55.1707807
+Al Ghaf 2,property,25.0961951,55.1708579
+Al Ghaf 3,property,25.0961951,55.1708579
+Al Ghaf 4,property,25.0961951,55.1708579
+Al Ghozlan,subcommunity,25.0915362,55.1744882
+Al Jaz,subcommunity,25.094724,55.1705413
+Al Nakheel,subcommunity,25.0938033,55.1694474
+Al Samar,subcommunity,25.0930614,55.1722045
+Al Sidir,subcommunity,25.0948212,55.1683881
+Al Thayyal,subcommunity,25.0906542,55.173424
+Green Community,community,25.0053336,55.160834
+Garden West Apartments,subcommunity,25.0048915,55.1565241
+Green Community East,subcommunity,25.0053336,55.160834
+Green Community West,subcommunity,24.9968849,55.1644165
+Lake Apartments,subcommunity,25.0037694,55.1607753
+Golden Homes 2,subcommunity,25.1721853,55.4120601
+Al Jawzaa,subcommunity,25.1482874,55.4055273
+Global Green View,subcommunity,25.1638922,55.4070027
+Al Dana,subcommunity,25.1668904,55.4066335
+P14,property,25.1604953,55.4057518
+Greece Cluster,subcommunity,25.1567432,55.4073214
+Morocco Cluster,subcommunity,25.1604302,55.4200772
+Dragon Mart,subcommunity,25.1732139,55.4134892
+Forbidden City,community,25.1613417,55.4119662
+Jebel Ali,community,24.9775987,55.0910742
+Saih Shuaib 1,subcommunity,24.9280948,55.0109429
+MTM & O Gold Refinery,subcommunity,25.0589784,55.1341291
+Jebel Ali Airport,subcommunity,24.9816967,55.0206441
+Jebel Ali Industrial,subcommunity,25.0012905,55.0957087
+Jebel Ali Industrial 2,property,24.9491906,55.1189138
+Jebel Ali Industrial 1,property,25.010001,55.1090516
+Jebel Ali Industrial 3,property,24.9352809,55.0756362
+Jebel Ali Industrial 4,property,24.9608065,55.0945362
+Jebel Ali Village,subcommunity,25.0414343,55.136849
+Tulip Oasis 5,property,25.0388156,55.1400312
+Al Muntazah Complex,property,25.0300859,55.113363
+Al Muntazah,property,25.0300859,55.113363
+Jebel Ali Hills,subcommunity,24.9146428,54.9736314
+Jumeirah 1,subcommunity,25.219343,55.2578183
+wasl 51,property,25.2127176,55.2575979
+Beach Centre,property,25.2248614,55.2589325
+Mandarin Oriental Jumeirah,property,25.217459,55.2498796
+Century Plaza,property,25.2283586,55.2614272
+Wasl Vita,property,25.2100489,55.2556016
+Jumeirah 2,subcommunity,25.2008309,55.2452019
+Jumeirah 3,subcommunity,25.1806855,55.2282258
+Lamar,property,25.1855918,55.2372853
+Sunset Mall,property,25.1841576,55.2260844
+Al Tarad Street,property,25.1882161,55.2371314
+Jumeira Beach Road,subcommunity,25.1738662,55.2187829
+Pearl Jumeirah,subcommunity,25.244474,55.2589597
+Jumeirah Bay Island,subcommunity,25.2155491,55.2361969
+La Mer,subcommunity,25.2270926,55.256325
+La Vie,subcommunity,25.0797349,55.1343655
+Five Luxe JBR,subcommunity,25.0808895,55.1367742
+Al Bateen Residences,subcommunity,25.0725851,55.1288341
+Al Fattan Marine Towers,subcommunity,25.0793633,55.1363427
+Amwaj,subcommunity,25.0739994,55.1310203
+Bahar,subcommunity,25.0779812,55.1353209
+Murjan,subcommunity,25.0821451,55.1396733
+Rimal,subcommunity,25.0764169,55.1339645
+Sadaf,subcommunity,25.0806171,55.1381733
+Sadaf 8,property,25.0808682,55.1390456
+Shams,subcommunity,25.0726055,55.1309095
+The Walk,subcommunity,25.0813157,55.1375564
+Hilton Dubai The Walk,property,25.0781097,55.1349929
+Blue Beach Tower,subcommunity,25.0796215,55.1366073
+1 JBR,subcommunity,25.083879,55.138892
+Jumeirah Golf Estates,community,25.0177925,55.1633352
+Hillside at Jumeirah Golf Estates,subcommunity,25.0165893,55.2011615
+Jumeirah Heights,community,25.0655368,55.14557
+Jumeirah Islands,community,25.0570585,55.1561456
+Jumeirah Lake Towers,community,25.0798234,55.1499296
+JLT Cluster F,subcommunity,25.0720707,55.1422623
+Indigo Icon,property,25.0723128,55.1431359
+JLT Cluster I,subcommunity,25.0720707,55.1422623
+JLT Cluster L,subcommunity,25.0720707,55.1422623
+JLT Cluster O,subcommunity,25.0720707,55.1422623
+Jumeirah Park,community,25.0469412,55.1548178
+Heilbronn Villas,subcommunity,25.051597,55.201086
+District 12V,subcommunity,25.0711638,55.2108894
+The Residence 4,subcommunity,25.0532302,55.1998441
+Las Casas,subcommunity,25.0546307,55.2198298
+District 16,subcommunity,25.0711638,55.2108894
+District 14,subcommunity,25.0505768,55.2019799
+District 18,subcommunity,25.0531701,55.1995097
+Ghalia,property,25.0530084,55.1991096
+District 12H,subcommunity,25.0711638,55.2108894
+District 13,subcommunity,25.0508995,55.2109273
+Emirates Gardens 2,subcommunity,25.050509,55.2056842
+Magnolia 2,property,25.050509,55.2056842
+District 10,subcommunity,25.0640588,55.2054196
+Somerset Mews,subcommunity,25.0634335,55.2074998
+District 12,subcommunity,25.0542489,55.215901
+District 15,subcommunity,25.0589242,55.2012806
+Park Villas,subcommunity,25.0687787,55.2056041
+District 19,subcommunity,25.0559446,55.207465
+Nakheel Villas,subcommunity,25.0565929,55.2093985
+Grand Paradise,subcommunity,25.0569786,55.1983861
+Emirates Gardens 1,subcommunity,25.052079,55.2150025
+Orchid Park,subcommunity,25.0596486,55.1983802
+Goldenwoods Villas,subcommunity,25.0641813,55.2032033
+Marwa Homes 2,subcommunity,25.0526328,55.2189437
+District 4,subcommunity,25.0711638,55.2108894
+Al Amir Residence,subcommunity,25.0603696,55.2136143
+District 6,subcommunity,25.051355,55.1915398
+Lilac Park,subcommunity,25.0516515,55.218289
+Sandhurst House,subcommunity,25.0686935,55.2064094
+Sandoval Lane,subcommunity,25.0534432,55.2042604
+The Residence VI,subcommunity,25.0532302,55.1998441
+Casa Royale,subcommunity,25.058679,55.1990063
+Belgravia,subcommunity,25.0496285,55.2046645
+District 16L,subcommunity,25.0640588,55.2054196
+Regina Tower,subcommunity,25.0569679,55.2123349
+Circle Villas,subcommunity,25.0559446,55.207465
+Jeewar,subcommunity,25.0591776,55.2095107
+Al Sima Tower,subcommunity,25.0675646,55.2112292
+Oakville,subcommunity,25.0638763,55.2111337
+G24,subcommunity,25.0677769,55.2148936
+Binghatti Gate,subcommunity,25.0626362,55.1991357
+Olive Residence,subcommunity,25.0666485,55.2165004
+Mir 5,subcommunity,25.0652433,55.2176057
+Aayah Residences,subcommunity,25.0553807,55.2203703
+Royal Park South,subcommunity,25.0622319,55.214415
+Catch Residences By IGO,subcommunity,25.055743,55.220511
+Grand Heights,subcommunity,25.0533366,55.2002715
+Oxford 212,subcommunity,25.0566193,55.2015221
+Saleh Bin Lahej 401,subcommunity,25.0546616,55.2202586
+Binghatti LUNA,subcommunity,25.0513051,55.2189346
+Binghatti Crest,subcommunity,25.0489411,55.2067517
+Binghatti Heights,subcommunity,25.0647285,55.2019868
+Binghatti Nova,subcommunity,25.0521463,55.2192422
+Binghatti Corner,subcommunity,25.0639449,55.2015429
+AURA by Grovy,subcommunity,25.0503989,55.2061438
+Alpha Green Tower,subcommunity,25.0573824,55.2131411
+Nicholas Residence,subcommunity,25.0551508,55.2114382
+AG Residence,subcommunity,25.0653615,55.2117448
+Bluebell Residence,subcommunity,25.0675509,55.212067
+Binghatti Amber,subcommunity,25.0629755,55.2095879
+Westar Les Castelets,subcommunity,25.0662092,55.2065053
+10 Oxford,subcommunity,25.0566193,55.2015221
+White Rose,subcommunity,25.0527918,55.2112498
+Binghatti Apex,subcommunity,25.0652653,55.2021481
+Casa Luxo,subcommunity,25.0523943,55.2183855
+Park Boulevard,subcommunity,25.0541597,55.2029874
+Marwa Homes 4,subcommunity,25.0526328,55.2189437
+Marwa Homes 3,subcommunity,25.0526328,55.2189437
+Belle Reve by Zimaya,subcommunity,25.0560864,55.2022346
+Le Grand Chateau,subcommunity,25.0643999,55.2067259
+7 West Residences,subcommunity,25.0556292,55.2199409
+Astoria Residence,subcommunity,25.0653615,55.2117448
+Dana Tower,subcommunity,25.0563686,55.2205784
+Fortunato,subcommunity,25.0654817,55.2128395
+Sandoval Gardens,subcommunity,25.0492773,55.1992155
+Sobha Daffodil,subcommunity,25.0471916,55.2064645
+Sunset Gardens,subcommunity,25.0619738,55.2109922
+Tulip Park,subcommunity,25.0588771,55.1982898
+Shamal Terraces,subcommunity,25.0505815,55.1997144
+Alfa Residence,subcommunity,25.0475613,55.2088745
+Mulberry Park,subcommunity,25.059683,55.1991877
+Iris Park,subcommunity,25.0601856,55.2007769
+Lolena residence,subcommunity,25.0572069,55.2138857
+Lotus Park,subcommunity,25.0610019,55.1997618
+Villa Myra,subcommunity,25.0583134,55.1992748
+Erantis,subcommunity,25.0523501,55.2163485
+Les Maisonettes,subcommunity,25.067156,55.2056791
+La Residencia Del Sol,subcommunity,25.0674294,55.2046844
+Les Castelets,subcommunity,25.0662092,55.2065053
+Westar Vista,subcommunity,25.0482869,55.2120102
+Palace Estates,subcommunity,25.0465446,55.2011795
+Artistic Villas,subcommunity,25.0567241,55.201924
+Crystal Residence,subcommunity,25.0664881,55.2149226
+Divine homes,subcommunity,25.0468095,55.2001109
+Tower 108,subcommunity,25.1774523,55.2745745
+Bloom Heights,subcommunity,25.0563797,55.2039644
+Garden Lane Villas,subcommunity,25.0570056,55.2029278
+District 16A,subcommunity,25.0711638,55.2108894
+District 12T,subcommunity,25.0640588,55.2054196
+District 12K,subcommunity,25.0537783,55.2167308
+District 16C,subcommunity,25.0640588,55.2054196
+Bloom Towers,subcommunity,25.0670558,55.2036459
+District 16E,subcommunity,25.0640588,55.2054196
+Platinum Residence,subcommunity,25.0546488,55.2119796
+Eaton Place,subcommunity,25.0604636,55.19993
+District 12X,subcommunity,25.0640588,55.2054196
+Oxford Villas,subcommunity,25.0566193,55.2015221
+Pantheon Boulevard,subcommunity,25.0518568,55.2140791
+District 16J,subcommunity,25.0640588,55.2054196
+District 16M,subcommunity,25.0711638,55.2108894
+O2 Tower,subcommunity,25.0466135,55.2052723
+District 12U,subcommunity,25.0711638,55.2108894
+Park View Tower,subcommunity,25.0541597,55.2029874
+Westar Constellation,subcommunity,25.0621823,55.2156907
+Westar Casablanca,subcommunity,25.0576694,55.217891
+Haven Villas at the Sanctuary,subcommunity,25.064087,55.2054393
+Diamond Views,subcommunity,25.0528943,55.2028826
+Indigo Ville,subcommunity,25.0627639,55.2164398
+District 12S,subcommunity,25.0640588,55.2054196
+District 13H,subcommunity,25.0711638,55.2108894
+La Riviera Estate,subcommunity,25.0632152,55.2023703
+Mirabella,subcommunity,25.0657046,55.2142672
+Al Maali Complex,subcommunity,25.0479021,55.2021319
+District 11D,subcommunity,25.0711638,55.2108894
+Plaza Residences,subcommunity,25.052853,55.2076194
+Seasons Community,subcommunity,25.0589729,55.2022917
+Al Khail Plaza,subcommunity,25.046891,55.1960953
+District 3B,subcommunity,25.0482379,55.1930513
+District 2,subcommunity,25.0482379,55.1930513
+District 8V,subcommunity,25.0482379,55.1930513
+District 9E,subcommunity,25.0482379,55.1930513
+District 4C,subcommunity,25.0482379,55.1930513
+District 1C,subcommunity,25.0482379,55.1930513
+District 2B,subcommunity,25.0482379,55.1930513
+District 2D,subcommunity,25.0482379,55.1930513
+District 3D,subcommunity,25.0482379,55.1930513
+District 4D,subcommunity,25.0482379,55.1930513
+District 5A,subcommunity,25.0482379,55.1930513
+District 5B,subcommunity,25.0482379,55.1930513
+District 5C,subcommunity,25.0482379,55.1930513
+District 5D,subcommunity,25.0482379,55.1930513
+District 6A,subcommunity,25.0482379,55.1930513
+District 7A,subcommunity,25.0482379,55.1930513
+District 7B,subcommunity,25.0482379,55.1930513
+District 8I,subcommunity,25.0482379,55.1930513
+District 8L,subcommunity,25.0482379,55.1930513
+District 8M,subcommunity,25.0482379,55.1930513
+District 8R,subcommunity,25.0482379,55.1930513
+District 8T,subcommunity,25.0482379,55.1930513
+District 8U,subcommunity,25.0482379,55.1930513
+District 9B,subcommunity,25.0482379,55.1930513
+District 9D,subcommunity,25.0482379,55.1930513
+District 9F,subcommunity,25.0482379,55.1930513
+District 9G,subcommunity,25.0482379,55.1930513
+District 9H,subcommunity,25.0482379,55.1930513
+District 9M,subcommunity,25.0482379,55.1930513
+District 1A,subcommunity,25.0482379,55.1930513
+District 1B,subcommunity,25.0482379,55.1930513
+District 1D,subcommunity,25.0482379,55.1930513
+District 1J,subcommunity,25.0482379,55.1930513
+District 2C,subcommunity,25.0482379,55.1930513
+District 2E,subcommunity,25.0482379,55.1930513
+District 2F,subcommunity,25.0482379,55.1930513
+District 2G,subcommunity,25.0482379,55.1930513
+District 3A,subcommunity,25.0482379,55.1930513
+District 3C,subcommunity,25.0482379,55.1930513
+District 4B,subcommunity,25.0482379,55.1930513
+District 4E,subcommunity,25.0482379,55.1930513
+District 4F,subcommunity,25.0482379,55.1930513
+District 4G,subcommunity,25.0482379,55.1930513
+District 4H,subcommunity,25.0482379,55.1930513
+District 5E,subcommunity,25.0482379,55.1930513
+District 5F,subcommunity,25.0482379,55.1930513
+District 5G,subcommunity,25.0482379,55.1930513
+District 7C,subcommunity,25.0482379,55.1930513
+District 7D,subcommunity,25.0482379,55.1930513
+District 7E,subcommunity,25.0482379,55.1930513
+District 7F,subcommunity,25.0482379,55.1930513
+District 7G,subcommunity,25.0482379,55.1930513
+District 8A,subcommunity,25.0482379,55.1930513
+District 8B,subcommunity,25.0482379,55.1930513
+District 8C,subcommunity,25.0482379,55.1930513
+District 8D,subcommunity,25.0482379,55.1930513
+District 8E,subcommunity,25.0482379,55.1930513
+District 8F,subcommunity,25.0482379,55.1930513
+District 8G,subcommunity,25.0482379,55.1930513
+District 8H,subcommunity,25.0482379,55.1930513
+District 8J,subcommunity,25.0482379,55.1930513
+District 8K,subcommunity,25.0482379,55.1930513
+District 8N,subcommunity,25.0482379,55.1930513
+District 8O,subcommunity,25.0482379,55.1930513
+District 8P,subcommunity,25.0482379,55.1930513
+District 8Q,subcommunity,25.0482379,55.1930513
+District 8S,subcommunity,25.0482379,55.1930513
+District 9A,subcommunity,25.0482379,55.1930513
+District 9C,subcommunity,25.0482379,55.1930513
+District 9I,subcommunity,25.0482379,55.1930513
+District 9J,subcommunity,25.0482379,55.1930513
+District 9K,subcommunity,25.0482379,55.1930513
+District 9L,subcommunity,25.0482379,55.1930513
+District 9N,subcommunity,25.0482379,55.1930513
+District 9O,subcommunity,25.0482379,55.1930513
+Taraf 2 Residence,subcommunity,25.0490822,55.1944383
+Maya 4,subcommunity,25.0428423,55.1920161
+Maya 5,subcommunity,25.0428423,55.1920161
+District 1I,subcommunity,25.0482379,55.1930513
+District 4A,subcommunity,25.0482379,55.1930513
+Maritime City,community,25.2548579,55.2756623
+Meadows,community,25.0671417,55.1567914
+Meadows 1,subcommunity,25.0734766,55.1576744
+Meadows 2,subcommunity,25.0680209,55.1546166
+Meadows 3,subcommunity,25.0705791,55.1572211
+Meadows 4,subcommunity,25.0672276,55.1560485
+Meadows 5,subcommunity,25.0597513,55.1634517
+Meadows 6,subcommunity,25.0575039,55.1703667
+Meadows 7,subcommunity,25.0672276,55.1560485
+Meadows 8,subcommunity,25.0680209,55.1546166
+Meadows 9,subcommunity,25.0763873,55.1587894
+Uptown Mirdif,subcommunity,25.2224534,55.4271357
+Shorooq,subcommunity,25.2144954,55.4281852
+Ghoroob,subcommunity,25.2120069,55.4167166
+Mirdif Hills,subcommunity,25.225598,55.441552
+Mushrif Village,subcommunity,25.2313425,55.439984
+Terraced Apartments,property,25.0423076,55.2319163
+Bennett House,subcommunity,25.0458292,55.2458849
+Claverton House,subcommunity,25.0437185,55.2449242
+Dickens Circus,subcommunity,25.0432454,55.2459033
+Foxhill,subcommunity,25.0477433,55.2466942
+Marlowe House,subcommunity,25.0447747,55.2465439
+Norton Court,subcommunity,25.0467198,55.2479822
+Regent House,subcommunity,25.0459731,55.2483927
+Shakespeare Circus,subcommunity,25.0461586,55.2493241
+Sherlock Circus,subcommunity,25.0459142,55.2474372
+Sherlock House,subcommunity,25.0465631,55.246218
+Widcombe House,subcommunity,25.0443945,55.2445308
+New Bridge Hills,subcommunity,25.047963,55.2481091
+Barton House,subcommunity,25.0450149,55.2436634
+Abbey Crescent,subcommunity,25.0442386,55.2481151
+Oia Residence,subcommunity,25.0429955,55.2431651
+Weston Court,subcommunity,25.0451296,55.2488263
+Easton Court,subcommunity,25.0469485,55.2499999
+Mushrif Park,community,25.2159957,55.4607436
+Al Thamam,subcommunity,25.0061583,55.248381
+Al Ramth,subcommunity,25.0031512,55.2559932
+Al Ramth 55,property,25.005164,55.2554954
+Nad Al Sheba,community,25.1456302,55.364275
+Nad Al Sheba 1,subcommunity,25.1558403,55.3128322
+Bahwan Residence,property,25.1553853,55.2927823
+Jude Residence,property,25.1645152,55.3054032
+Nad Al Sheba 2,subcommunity,25.156015,55.3324945
+Nad Al Sheba 3,subcommunity,25.156015,55.3324945
+Nad Al Sheba Villas,property,25.159705,55.3701442
+Nad Al Sheba 4,subcommunity,25.156015,55.3324945
+Mudon,community,25.0204108,55.2679936
+Rahat,subcommunity,25.0206896,55.2732963
+Arabella Townhouses,subcommunity,25.0130263,55.2665399
+Arabella Townhouses 1,property,25.0167737,55.2707993
+Arabella Townhouses 2,property,25.0135913,55.2673064
+Arabella Townhouses 3,property,25.0096811,55.2630764
+Naseem,subcommunity,25.0242237,55.2733131
+Al Salam,subcommunity,25.0281989,55.2679494
+Old Town,community,25.1923031,55.2764108
+Kamoon,subcommunity,25.1897907,55.275639
+Miska,subcommunity,25.1886223,55.2756133
+Reehan,subcommunity,25.1892297,55.276964
+Palm Jebel Ali,community,24.9876012,55.0220064
+Sarai Apartments,subcommunity,25.1401546,55.1365739
+Andaz Dubai The Palm,subcommunity,25.1152459,55.1405901
+Adagio Premium The Palm,subcommunity,25.1085905,55.143148
+Atlantis The Palm,subcommunity,25.132955,55.1186685
+Palm Beach Towers,subcommunity,25.1006445,55.1551759
+Signature Villas,subcommunity,25.1143746,55.1207728
+Gateway Towers,subcommunity,25.1007127,55.1552992
+Grandeur Residences,subcommunity,25.0987356,55.1212568
+Oceana,subcommunity,25.1111045,55.1369263
+Shoreline Apartments,subcommunity,25.1084069,55.1490862
+Marina Residences,subcommunity,25.1135977,55.1361888
+Marina Residences 4,property,25.1161888,55.1397115
+Marina Residences 6,property,25.1161888,55.1397115
+Golden Mile,subcommunity,25.1069295,55.1473344
+Tiara Residences,subcommunity,25.1154097,55.1398354
+Amber,property,25.1157615,55.142015
+Aquamarine,property,25.1170306,55.1416934
+Diamond,property,25.1174404,55.1420187
+Emerald,property,25.116211,55.1410429
+Ruby,property,25.1166208,55.1413682
+Sapphire,property,25.1156878,55.1414788
+Tanzanite,property,25.1158332,55.1425313
+The Crescent,subcommunity,25.1278046,55.1535151
+Serenia Living,subcommunity,25.1241377,55.112293
+Kingdom of Sheba,subcommunity,25.1204305,55.110766
+Palma Residences,subcommunity,25.1127644,55.1471695
+Palm Views,subcommunity,25.1165318,55.1365091
+Club Vista Mare,subcommunity,25.1150235,55.1420639
+The Palm Tower,subcommunity,25.1138702,55.1399715
+One at Palm Jumeirah,subcommunity,25.1034109,55.1497757
+Dukes The Palm,subcommunity,25.1127315,55.138117
+Royal Bay,subcommunity,25.1253962,55.1531201
+One Crescent,subcommunity,25.109664,55.1092897
+Como Residences,subcommunity,25.1111743,55.145426
+Cheval Maison The Palm Dubai,subcommunity,25.112395,55.1395828
+Marriott Resort Palm Jumeirah,subcommunity,25.1065989,55.1456538
+NH Collection Dubai The Palm,subcommunity,25.1113458,55.138386
+Azizi Mina,subcommunity,25.1271059,55.1535653
+Hilton Dubai Palm Jumeirah,subcommunity,25.1055436,55.147101
+W Residences,subcommunity,25.1127644,55.1471695
+XXII Carat,subcommunity,25.09887,55.1307693
+FIVE Palm Jumeirah,subcommunity,25.1041065,55.1484715
+Al Lisaili,community,24.930673,55.4732537
+Umm Al Sheif,community,25.1266839,55.2079196
+Bahwan Centre,subcommunity,25.1282637,55.2077306
+Ras Al Khor,community,25.1939625,55.3392449
+Ras Al Khor Industrial,subcommunity,25.1852953,55.3553895
+Samari Residences,property,25.1785719,55.3780599
+Ras Al Khor Industrial 1,property,25.1852953,55.3553895
+Ras Al Khor Industrial 2,property,25.1790137,55.379422
+Ras Al Khor Industrial 3,property,25.1790137,55.379422
+Sheikh Zayed Road,community,25.2295762,55.2897013
+Zabeel Tower,subcommunity,25.2169775,55.2780004
+Gevora Hotel,subcommunity,25.2123737,55.2771473
+Sahara Tower,subcommunity,25.2158895,55.2772652
+Nassima Tower,subcommunity,25.2240106,55.2818951
+Skyline Residence,subcommunity,25.2133747,55.275533
+Blue Building,subcommunity,25.2123177,55.2748177
+Al Kharbash Tower,subcommunity,25.2068984,55.2710961
+Emaar Business Park,subcommunity,25.0956691,55.1676199
+Emirates Towers,subcommunity,25.217231,55.279881
+Number One Tower Suites Dubai,subcommunity,25.21076,55.2729625
+Al Wasl Tower,subcommunity,25.2183792,55.278923
+The Tower,subcommunity,25.2167637,55.2800241
+City Towers,subcommunity,25.1005645,55.1694177
+Shangri-La Hotel,subcommunity,25.2081439,55.2719792
+Al Meraikhi Tower,subcommunity,25.2086974,55.2723243
+Towers Rotana,subcommunity,25.212985,55.2752611
+Burj Azizi,subcommunity,25.2241014,55.2826968
+Gold&Diamond park,subcommunity,25.1261844,55.2086837
+Al Attar Tower,subcommunity,25.212829,55.277399
+Al Attar Business Tower,subcommunity,25.2139196,55.278133
+Capricorn Tower,subcommunity,25.216079,55.2794824
+Oasis Tower,subcommunity,25.2113904,55.2764078
+Emirates Tower,subcommunity,25.2176114,55.2823732
+Fairmont Hotel,subcommunity,25.2263473,55.2840585
+Voco Dubai,subcommunity,25.2234906,55.2822683
+Sama Tower,subcommunity,25.2286809,55.2854947
+Rolex Tower,subcommunity,25.2098433,55.275381
+Ghaya Residence,subcommunity,25.2121004,55.2768804
+Aspin Tower,subcommunity,25.2090436,55.2725776
+Al Safa Tower,subcommunity,25.2173118,55.2782382
+Park Place Tower,subcommunity,25.2244237,55.2832163
+Dusit Hotel,subcommunity,25.2062165,55.2729648
+Ascott Park Place,subcommunity,25.2245333,55.2831942
+Crown Plaza,subcommunity,25.2210743,55.2794436
+Burj Al Salam,subcommunity,25.2297245,55.2864225
+The H Hotel,subcommunity,25.2303048,55.2872219
+Conrad Hotel,subcommunity,25.2262,55.2833686
+Tower Plaza,subcommunity,25.2177432,55.2785044
+Al Yaqoub Tower,subcommunity,25.216403,55.279777
+Al Saqr Business Tower,subcommunity,25.2138574,55.2780663
+Building 2020,subcommunity,25.2311009,55.2913595
+Sheraton Grand Hotel,subcommunity,25.2297245,55.2864225
+Four Points by Sheraton,subcommunity,25.2140852,55.2760056
+Commercial Bank of Dubai,subcommunity,25.2121301,55.2767981
+Al Hawai Tower,subcommunity,25.2119646,55.2745503
+Blue Tower,subcommunity,25.2213528,55.280617
+Sky Tower,subcommunity,25.213163,55.2776054
+Al Shafar Building,subcommunity,25.1523932,55.227821
+API World Tower,subcommunity,25.2252839,55.2836585
+Duja Tower,subcommunity,25.2289599,55.2860015
+DXB Tower,subcommunity,25.2137315,55.2757681
+21st Century Tower,subcommunity,25.2109455,55.2761212
+Camelia,subcommunity,25.0383409,55.2754585
+Camelia 1,property,25.0346543,55.2768761
+Camelia 2,property,25.0383409,55.2754585
+Casa,subcommunity,25.0349923,55.2672942
+Palma,subcommunity,25.0383821,55.2716325
+Rosa,subcommunity,25.0365383,55.2751062
+Lila,subcommunity,25.0387684,55.2735545
+Yasmin,subcommunity,25.0324975,55.2745988
+Rasha,subcommunity,25.0357425,55.2705546
+Samara,subcommunity,25.0327497,55.2691555
+Azalea,subcommunity,25.0309216,55.2734259
+The Springs,community,25.0599713,55.1824048
+Springs 1,subcommunity,25.0600003,55.1604574
+Springs 2,subcommunity,25.0566995,55.1646323
+Springs 3,subcommunity,25.0570891,55.1753991
+Springs 4,subcommunity,25.0603572,55.1817982
+Springs 5,subcommunity,25.0633142,55.187728
+Springs 6,subcommunity,25.0600003,55.1604574
+Springs 7,subcommunity,25.0600003,55.1604574
+Springs 8,subcommunity,25.0602927,55.1603177
+Springs 9,subcommunity,25.0600003,55.1604574
+Springs 10,subcommunity,25.0602927,55.1603177
+Springs 11,subcommunity,25.0605417,55.1603401
+Springs 12,subcommunity,25.0600003,55.1604574
+Springs 13,subcommunity,25.0605417,55.1603401
+Springs 14,subcommunity,25.0509382,55.1744147
+Springs 15,subcommunity,25.0600003,55.1604574
+Academic City,community,25.1325418,55.4354666
+VOGO Grand Hotel,subcommunity,25.1275706,55.423468
+Block 3,subcommunity,25.1528205,55.410399
+Block 5,subcommunity,25.1325418,55.4354666
+Block 6,subcommunity,25.1325418,55.4354666
+Block 7,subcommunity,25.1325418,55.4354666
+Block 8,subcommunity,25.1325418,55.4354666
+Block 9,subcommunity,25.1325418,55.4354666
+Technology Park,community,24.9680639,55.1963997
+Bluewaters,community,25.0795481,55.1217042
+Caesars Bluewaters Dubai,subcommunity,25.0823089,55.1219409
+Bluewaters Residences,subcommunity,25.0805805,55.1216481
+Barsha Heights (Tecom),community,25.100925,55.1732855
+Wind West Home,subcommunity,25.1002524,55.1786515
+Mashael,subcommunity,25.0951238,55.1738044
+Art Heights,subcommunity,25.0983677,55.1769608
+Deema Residence,subcommunity,25.0979332,55.1726219
+API Barsha Heights,subcommunity,25.0971237,55.177579
+Tryp by Wyndham,subcommunity,25.0974296,55.1750053
+East Coast Building,subcommunity,25.0993282,55.1788453
+Al Shaiba Towers,subcommunity,25.0972384,55.1708529
+Madison Residency,subcommunity,25.100309,55.1751101
+Green View,subcommunity,25.0960729,55.1789925
+Stella,subcommunity,25.09673,55.1712855
+National Bonds Plaza,subcommunity,25.0945087,55.1782295
+HOME TO HOME Hotel Apartments,subcommunity,25.1006996,55.1773165
+Arabian Oryx House,subcommunity,25.095693,55.1724094
+Capitol Tower,subcommunity,25.1007288,55.178569
+Yassat Gloria Hotel Apartments,subcommunity,25.100925,55.1732855
+I Rise Tower,subcommunity,25.0969096,55.1806757
+Oasis Residence,subcommunity,25.0957464,55.1736874
+Ramee Guestline Hotel Apartments,subcommunity,25.0968428,55.1797479
+Al Shahed Tower,subcommunity,25.1001186,55.1782599
+Crown Residence,subcommunity,25.0979151,55.1714736
+Icon Tower,subcommunity,25.0977463,55.1740724
+Grosvenor Business Tower,subcommunity,25.0990671,55.1777727
+The One Tower,subcommunity,25.1007408,55.1784865
+The Belvedere Residences,subcommunity,25.0985903,55.172305
+Al Hassani Tower,subcommunity,25.0962013,55.1785974
+Damac Executive Heights,subcommunity,25.0955053,55.1729059
+Euro Residence,subcommunity,25.0931461,55.1749084
+Silicon plaza,subcommunity,25.0988811,55.1726161
+Time Oak Hotel,subcommunity,25.09653,55.1724894
+Art 2,subcommunity,25.095693,55.1724094
+Boutique 7,subcommunity,25.0981764,55.1728964
+Oak Time Residence,subcommunity,25.0979151,55.1714736
+Two Towers,subcommunity,25.0949432,55.1785814
+Elegance House,subcommunity,25.1002562,55.1764791
+Vista Tower,subcommunity,25.0965009,55.1760856
+Art 8,subcommunity,25.0942993,55.174668
+Al Hawai Residence,subcommunity,25.0982375,55.1756999
+Rose 6,subcommunity,25.0963288,55.1716194
+Al Asmawi Building,subcommunity,25.0935798,55.1773597
+Class Hotel Apartments,subcommunity,25.1006719,55.1767063
+The Gardens,community,25.0435023,55.1350461
+Dubai Science Park,community,25.0735423,55.2412462
+The Lakes,community,25.0808626,55.169241
+Deema,subcommunity,25.0767039,55.1711806
+Deema 1,property,25.0763232,55.1678171
+Deema 2,property,25.0767039,55.1711806
+Deema 3,property,25.077023,55.1742729
+Deema 4,property,25.0783406,55.1770585
+Forat,subcommunity,25.078,55.1678705
+Ghadeer,subcommunity,25.0821079,55.1730319
+Ghadeer 1,property,25.0821079,55.1730319
+Ghadeer 2,property,25.0797902,55.1754153
+Maeen,subcommunity,25.0819772,55.1687706
+Maeen 1,property,25.0805452,55.1680862
+Maeen 2,property,25.0820895,55.1680286
+Maeen 3,property,25.0826184,55.1693812
+Maeen 4,property,25.0830347,55.1706478
+Maeen 5,property,25.0822266,55.1706932
+Zulal,subcommunity,25.0794074,55.1706577
+Zulal 1,property,25.0792593,55.1744319
+Zulal 2,property,25.0794074,55.1706577
+Zulal 3,property,25.0793585,55.1742532
+Zulal 4,property,25.0791914,55.1729008
+Hattan 1,property,25.0775262,55.1650287
+Hattan 2,property,25.0820582,55.1666582
+Hattan 3,property,25.0820582,55.1666582
+Dubai Internet City,community,25.1021654,55.1739012
+The Views,community,25.0912501,55.1700566
+Arno,subcommunity,25.0917302,55.1708809
+Mosela,subcommunity,25.0890906,55.1735932
+The Fairways,subcommunity,25.0890369,55.1711132
+The Links,subcommunity,25.0904591,55.1694541
+Travo,subcommunity,25.0903366,55.1722584
+Turia,subcommunity,25.0932562,55.1692525
+Panorama at the Views,subcommunity,25.0880658,55.1728389
+Canal Villas,subcommunity,25.092116,55.1687232
+The Views 2,subcommunity,25.0932032,55.167312
+The Views 1,subcommunity,25.0937617,55.1664622
+The World Islands,community,25.2278839,55.1642418
+City Walk,community,25.2081589,55.2618737
+Rove City Walk,subcommunity,25.2054431,55.2680031
+Building 2A,subcommunity,25.2081589,55.2618737
+Building 2B,subcommunity,25.2081589,55.2618737
+Building 7,subcommunity,25.2081589,55.2618737
+Building 8,subcommunity,25.2081589,55.2618737
+Building 9,subcommunity,25.2081589,55.2618737
+Building 10,subcommunity,25.2081589,55.2618737
+Building 12,subcommunity,25.2081589,55.2618737
+Building 14,subcommunity,25.2081589,55.2618737
+Building 16,subcommunity,25.2081589,55.2618737
+Building 17,subcommunity,25.2081589,55.2618737
+Building 19,subcommunity,25.2081589,55.2618737
+Building 20,subcommunity,25.2081589,55.2618737
+Building 22,subcommunity,25.2081589,55.2618737
+Building 23A,subcommunity,25.2005795,55.2634491
+Building 15,subcommunity,25.202009,55.2622213
+Al Kifaf,community,25.2346273,55.2985973
+Park Gate Residences,subcommunity,25.2336069,55.2945034
+Umm Hurair,community,25.2422117,55.321784
+Umm Hurair 1,subcommunity,25.2374067,55.3213344
+Canopy by Hilton Dubai Al Seef,property,25.2560692,55.3121221
+Hampton by Hilton Dubai Al Seef,property,25.2555269,55.3111412
+Umm Hurair 2,subcommunity,25.2374067,55.3213344
+Sofitel The Obelisk,property,25.2310296,55.3184075
+Raffles Dubai,property,25.2279299,55.3204805
+Dubai Healthcare City 2,community,25.2318195,55.3225039
+Umm Ramool,community,25.2311645,55.3685667
+Dubai Commercity,subcommunity,25.2352345,55.3674678
+Wadi Al Safa 3,community,25.1040563,55.3114257
+Dubai Harbour,community,25.0956188,55.1380009
+Wadi Al Safa 2,community,25.0987935,55.3514017
+Umm Suqeim,community,25.1539087,55.2075004
+Umm Suqeim 1,subcommunity,25.1738662,55.2187829
+Umm Suqeim 2,subcommunity,25.1500937,55.2057455
+Sidra Village,property,25.1536438,55.2079543
+Al Thanya,property,25.1451354,55.1972307
+Umm Suqeim 3,subcommunity,25.1375268,55.1957658
+The Mall,property,25.1404606,55.1918898
+Umm Suqeim Road,subcommunity,25.1738662,55.2187829
+Umm Suqeim 4,subcommunity,25.1500937,55.2057455
+World Trade Center,community,25.2276286,55.2889793
+One Central,subcommunity,25.2194839,55.2839807
+Umm Al Quwain,city,25.5144944,55.718292
+Umm Al Thuoob,community,25.566484,55.6992937
+Green Belt,community,25.5151013,55.5429267
+Umm Al Quwain Marina,community,25.527959,55.6065272
+Emirates Modern Industrial,community,25.5553737,55.7306384
+Al Raas,community,25.5683431,55.5538272
+Al Raas 1,subcommunity,25.5553989,55.5474935
+Al Raas 2,subcommunity,25.561966,55.5491356
+Al Raas 3,subcommunity,25.5620249,55.5491868
+Al Riqqa,community,25.5698328,55.55544
+Falaj Al Moalla,community,25.3669246,55.8541083
+Al Salamah,community,25.4941451,55.5784906
+Al Ramla,community,25.5020956,55.5707402
+Al Maidan,community,25.5509211,55.5414676
+Al Haditha,community,25.5402731,55.5366182
+Al Madar,community,25.5269521,55.5329704
+Al Madar 2,subcommunity,25.5249107,55.5384576
+Old Town Area,community,25.5909105,55.5754566
+Ras Al Khaimah,city,25.7737705,55.938232
+Al Qurm,community,25.9193797,56.0515852
+Khatt,community,25.6347757,55.9883781
+Dafan Al Nakheel,community,25.7976889,55.9697198
+Al Hudaibah,community,25.7969934,55.9851694
+Dafan Al Khor,community,25.7724554,55.9340143
+Al Naeem Twin Tower,subcommunity,25.7823528,55.9414074
+Al Mataf,community,25.8363981,55.9886026
+Sifuni,community,25.1703223,56.0959072
+Al Sharisha,community,25.8301019,55.996499
+Al Mukawwrah,community,25.6368772,55.9223552
+Al Wadi Desert,community,25.5846564,55.834718
+Julfar,community,25.7913102,55.960166
+RAK Central,community,25.7788905,55.9337135
+Al Hamra Village,community,25.6995409,55.7822342
+Royal Breeze,subcommunity,25.7029787,55.7856997
+Falcon Island,subcommunity,25.6916884,55.7839314
+Al Marjan Island,community,25.6810601,55.7432555
+Pacific,subcommunity,25.6862784,55.7325392
+Mina Al Arab,community,25.7221542,55.8390482
+Bermuda,subcommunity,25.7182541,55.8288587
+Yasmin Village,community,25.7423951,55.9851197
+Building 11,subcommunity,25.7423951,55.9851197
+Al Qusaidat,community,25.7554402,55.9890457
+Sheikh Mohammed Bin Zayed Road,community,25.7090114,55.8678112
+Khuzam,community,25.7640773,55.9343224
+Sheikh Muhammad Bin Salem Road,community,25.8033582,55.9504446
+Al Riffa,community,25.7029269,55.8372298
+Al Jazirah Al Hamra,community,25.6840768,55.823078
+Al Seer,community,25.7958922,55.980277
+Al Dhait,community,25.7244469,55.9269331
+Al Dhait South,subcommunity,25.7386823,55.8957489
+Al Dhait North,subcommunity,25.7574196,55.9133496
+Al Kharran,community,25.734344,55.9681318
+Al Rams,community,25.868224,56.0145686
+Dahan,community,25.7759113,55.9259389
+Al Mairid,community,25.8146885,55.9627676
+Seih Al Ghubb,community,25.8007026,56.0080862
+Al Uraibi,community,25.7786773,55.9756422
+Seih Al Uraibi,community,25.7805322,55.9978723
+Sharjah,city,25.3605673,56.3135004
+Al Dhaid,community,25.2806866,55.8780955
+Al Madam,community,24.9120153,55.776299
+Al Bataeh,community,25.2660333,55.7320488
+Emirates Industrial City,community,25.3468662,55.6317272
+Hayyan,community,25.0485605,56.3500459
+Kalba,community,25.0512959,56.3542189
+Kalba Industrial Area,subcommunity,25.0563925,56.3488947
+Al Hamriyah,community,25.4565135,55.5133594
+Al Khan,community,25.3143908,55.3753852
+Future Tower 3,subcommunity,25.3143908,55.3753852
+Rose Tower,subcommunity,25.3246371,55.3761591
+Al Khan Corniche,subcommunity,25.312411,55.3639207
+Al Majaz,community,25.347795,55.3838369
+Golden Tower,subcommunity,25.3416358,55.3857524
+Al Majaz 1,subcommunity,25.3256445,55.3886556
+Al Majaz 2,subcommunity,25.3162667,55.3808957
+Al Majaz 3,subcommunity,25.3256445,55.3886556
+Al Majaz Tower,subcommunity,25.3233792,55.3838968
+Capital Tower,subcommunity,25.3283308,55.3943185
+Sahara Healthcare City,subcommunity,25.2978786,55.3697422
+Ganda Tower,subcommunity,25.3015629,55.3710535
+Tiger Building Al Qadesia,subcommunity,25.3000586,55.3796756
+The Frame Tower,subcommunity,25.3026391,55.3709736
+Al Shaiba 291,subcommunity,25.3009465,55.37313
+Golden Sands Tower,subcommunity,25.3080133,55.3773235
+Al Nada Tower,subcommunity,25.3016128,55.3746346
+Aliya Tower,subcommunity,25.2995239,55.3768506
+Bukhara Street,subcommunity,25.2995302,55.3693885
+Street 20,subcommunity,25.298966,55.3729288
+Street 64,subcommunity,25.3067017,55.3789469
+Al Rayyan Complex,subcommunity,25.3013771,55.3826394
+Al Qasba,community,25.3227619,55.3766856
+Al Qasimia,community,25.3411795,55.395932
+Al Faisal 1,subcommunity,25.3331524,55.392898
+Omran Plaza,subcommunity,25.3449411,55.392745
+Al Yarmouk,subcommunity,25.3459566,55.4023503
+Al Mahatta,subcommunity,25.3450609,55.3949523
+Al Nad,subcommunity,25.3436443,55.3896027
+Al Soor,subcommunity,25.3345609,55.3944544
+Al Manakh,subcommunity,25.3524416,55.3963045
+Mega Mall,subcommunity,25.3448054,55.398684
+Al Wahda,community,25.3306219,55.3950632
+Sharjah Industrial Area,community,25.2945524,55.4322351
+Industrial Area 1,subcommunity,25.3174606,55.4010729
+Industrial Area 2,subcommunity,25.3121009,55.4010201
+Industrial Area 3,subcommunity,25.3396282,55.4084306
+Industrial Area 4,subcommunity,25.3383429,55.4020166
+Industrial Area 5,subcommunity,25.3178618,55.4336671
+Industrial Area 6,subcommunity,25.3213611,55.4226648
+Industrial Area 7,subcommunity,25.3178618,55.4336671
+Industrial Area 8,subcommunity,25.3037694,55.3911608
+Industrial Area 9,subcommunity,25.2833186,55.448172
+Industrial Area 10,subcommunity,25.3178618,55.4336671
+Industrial Area 13,subcommunity,25.3178618,55.4336671
+Maliha,subcommunity,25.3158527,55.4120085
+Industrial Area 15,subcommunity,25.2833186,55.448172
+Industrial Area 14,subcommunity,25.3178618,55.4336671
+Industrial Area 16,subcommunity,25.3178618,55.4336671
+Industrial Area 17,subcommunity,25.3178618,55.4336671
+Industrial Area 18,subcommunity,25.2993973,55.4191083
+Industrial Area 11,subcommunity,25.2945524,55.4322351
+Industrial Area 12,subcommunity,25.3178618,55.4336671
+Al Saja'a,subcommunity,25.2988066,55.4382568
+Umm Khanoor,community,25.3801274,55.4321299
+Abu shagara,community,25.3362481,55.3953969
+Al Sadek 1,subcommunity,25.3405689,55.3950719
+Sama 2,subcommunity,25.3341799,55.3932168
+Zayd Bin Aslam Street,subcommunity,25.3394347,55.3979942
+Al Mamzar - Sharjah,community,25.3085884,55.3671541
+La Plage Tower,subcommunity,25.3079349,55.3567668
+Sunset Tower,property,25.3103005,55.3646874
+Al Mamzar Tower,subcommunity,25.3046235,55.3637565
+Maysaloon,community,25.3611028,55.4022809
+Wasit,community,25.3552965,55.4597731
+Al Yash,subcommunity,25.3417847,55.4639701
+Muwafja,subcommunity,25.3515953,55.4711492
+Al Goaz,subcommunity,25.356213,55.4456385
+Al Ramtha,subcommunity,25.3563353,55.4460034
+Halwan,community,25.3485987,55.4215725
+Dasman,subcommunity,25.3507929,55.4197751
+Al Abar,subcommunity,25.3478819,55.4282614
+Samnan,subcommunity,25.3337477,55.4231009
+Al Taawun,community,25.3082455,55.3731059
+Al Taawun Street,subcommunity,25.3114472,55.3739043
+Al Mamzar Plaza,property,25.3074286,55.3691823
+Manazil Tower 5,property,25.3143496,55.3775384
+Majestic Tower,property,25.3044735,55.3634242
+Al Nouf,community,25.3420683,55.3968629
+Al Nouf 1,subcommunity,25.2892227,55.5000386
+Al Fayha,community,25.3470425,55.3993259
+Al Nabba,community,25.3645883,55.3964815
+Al Gulayaa,community,25.3739754,55.3974611
+Mughaidir,community,25.3332827,55.444144
+Al Rifa'a,subcommunity,25.3331547,55.4577755
+Al Darari,subcommunity,25.3286125,55.4415771
+Al Tala'a,subcommunity,25.3369358,55.447705
+Al Tarfa,subcommunity,25.2988066,55.4382568
+Al Shahba,subcommunity,25.334386,55.4304971
+Al Falaj,subcommunity,25.3570883,55.4347574
+Al Azra,subcommunity,25.3706291,55.445697
+Al Jazzat,subcommunity,25.3633524,55.4270465
+Al Hazana,subcommunity,25.3710131,55.4216631
+Al Qarain,community,25.3137335,55.5439207
+Al Rahmaniya,community,25.3371998,55.5793188
+Al Rahmaniya 1,subcommunity,25.2967006,55.6082524
+Al Rahmaniya 2,subcommunity,25.2967006,55.6082524
+Al Rahmaniya 3,subcommunity,25.2967006,55.6082524
+Al Rahmaniya 4,subcommunity,25.3298586,55.6003527
+Al Rahmaniya 5,subcommunity,25.340862,55.608676
+Al Rahmaniya 6,subcommunity,25.3298586,55.6003527
+Al Rahmaniya 7,subcommunity,25.2967006,55.6082524
+Al Rahmaniya 8,subcommunity,25.2967006,55.6082524
+Al Rahmaniya 9,subcommunity,25.2967006,55.6082524
+Al Rahmaniya 10,subcommunity,25.2967006,55.6082524
+Al Badie,community,25.355073,55.3954368
+Muwaileh Commercial,community,25.3071588,55.4595746
+Al Zahia,subcommunity,25.3173791,55.4549964
+Al Sharq,community,25.3664853,55.4034928
+Bu Tina,subcommunity,25.3710341,55.4018964
+Al Gharb,community,25.3581911,55.3912039
+Al Musalla,subcommunity,25.3567372,55.3981087
+Al Ghuair,subcommunity,25.3595854,55.3914346
+Al Zubair,community,25.3783881,55.634697
+Al Sajaa,community,25.328142,55.3759853
+Muwaileh,community,25.2959236,55.4863092
+Al Mamsha,subcommunity,25.3086798,55.4676118
+Aljada,community,25.3181675,55.4754341
+Ajman,city,25.4064625,55.5555044
+Al Nakhil,community,25.4163383,55.4404449
+Al Nakhil 1,subcommunity,25.4170682,55.4416503
+Al Nakhil 2,subcommunity,25.4086915,55.4428809
+Al Tallah 2,community,25.3734344,55.5080719
+Ain Ajman,community,25.4015781,55.5154929
+Ajman Industrial Area,community,25.3756394,55.4711355
+Al Ameera Village,community,25.3786659,55.5738579
+Al Nuaimiya,community,25.3773208,55.4555519
+Al Zahraa,community,25.3890082,55.5077361
+Ajman Corniche Road,community,25.4227846,55.4424619
+Emirates City,community,25.3920307,55.5731868
+Fortune Residency,subcommunity,25.3899851,55.5728384
+Lavender Tower,subcommunity,25.3902337,55.5716467
+Manama,community,25.3275755,56.013377
+Al Rashidiya 1,subcommunity,25.3950718,55.4510527
+Al Rashidiya 2,subcommunity,25.3950718,55.4510527
+Al Rashidiya 3,subcommunity,25.3969159,55.4472268
+Al Bustan,community,25.4127154,55.4481522
+Garden City,community,25.4037867,55.5070787
+Al Sawan,community,25.3958066,55.43566
+Masfoot,community,25.4082831,55.4449959
+Sheikh Khalifa Bin Zayed Street,community,25.3925261,55.4337798
+The Black Square,subcommunity,25.3893059,55.4623944
+Al Zorah,community,25.4220392,55.4920185
+Al Rawda,community,25.3854439,55.4416202
+Al Hamidiya,community,25.408091,55.5139914
+Al Hamidiya 1,subcommunity,25.4116261,55.517152
+Al Hamidiya 2,subcommunity,25.4116261,55.517152
+Al Helio,community,25.4003287,55.6004333
+Al Helio 1,subcommunity,25.392542,55.5734642
+Al Helio 2,subcommunity,25.392542,55.5734642
+Al Yasmeen,community,25.372646,55.5754565
+Sheikh Maktoum Bin Rashid Street,community,25.3952655,55.5253359
+Abu Dhabi,city,24.4538352,54.3774014
+Dalma Island,community,24.4805099,52.3146298
+Madinat Al Riyad,community,24.3526425,54.7599877
+Al Jubail Island,community,24.5317099,54.4861565
+Marfaa Al Jubail,subcommunity,24.5313789,54.4714511
+Nad Al Dhabi,subcommunity,24.537602,54.474472
+Souk Al Jubail,subcommunity,24.5350143,54.4807906
+Ain Al Maha,subcommunity,24.5218396,54.4906966
+Seef Al Jubail,subcommunity,24.5295351,54.4841819
+Al Mirfa,community,24.1023479,53.4790599
+Al Danah,community,24.4852888,54.3698881
+C40,subcommunity,24.4852888,54.3698881
+Business Avenue Tower,subcommunity,24.4914661,54.3761606
+Millennium Downtown,subcommunity,24.4886596,54.3677436
+Copthorne Downtown,subcommunity,24.4889426,54.3682137
+Al Ajban,community,24.5803742,55.3527145
+Rimah,community,24.1351285,55.3262806
+Bu Krayyah,community,24.4417773,54.6141461
+Ramhan Island,community,24.542926,54.52697
+Rabdan,community,24.4054839,54.5057731
+Seashore,subcommunity,24.3931123,54.4961439
+Airport Road,community,24.4849318,54.3582367
+2nd Street,subcommunity,24.3964507,54.5116538
+Al Nahyan Camp,community,24.4681532,54.3903098
+Al Diar Sawa Hotel Apartments,subcommunity,24.4665344,54.3850752
+Al Bahia,community,24.5140484,54.6630821
+Al Bateen,community,24.4513839,54.3379658
+Al Bateen Plaza,subcommunity,24.4543535,54.338688
+Al Khaleej Al Arabi Street,subcommunity,24.4653348,54.346874
+Al Bateen Park,property,24.4593304,54.3529472
+Al Bateen Wharf,subcommunity,24.4532116,54.336469
+Al Hudayriat Island,community,24.4170639,54.3602656
+Al Dhafrah,community,24.0919219,53.4932119
+Al Dhafrah 4,subcommunity,23.1854662,53.8009999
+Al Dhafrah 1,subcommunity,23.1096063,53.7468583
+Al Dhafrah 2,subcommunity,23.1581906,53.7573561
+Al Falah City,community,24.3627396,54.6277148
+Al Ghadeer,community,24.8426539,55.0275655
+Al Ghadeer 2,subcommunity,24.8432695,55.0275896
+Al Qurm Street,subcommunity,24.4333545,54.3758898
+Al Gurm Resort,subcommunity,24.4183298,54.4050123
+Al Karamah,community,24.4618515,54.3741945
+Al Zaab,community,24.4669334,54.3606234
+Zaab 2,subcommunity,24.4673452,54.3591246
+Al Khalidiya,community,24.47585,54.3474964
+W9,subcommunity,24.4707638,54.3411469
+Crescent Towers,subcommunity,24.4692923,54.3420279
+Khalidiya Street,subcommunity,24.47585,54.3474964
+Montazah Tower,property,24.4684087,54.3407117
+Al Ain Tower,property,24.4683893,54.3399255
+Al Hosn,subcommunity,24.4672225,54.3339526
+Cornich Al Khalidiya,subcommunity,24.466658,54.3332182
+Al Hana Tower,subcommunity,24.4710394,54.3398264
+Amwaj Tower,subcommunity,24.4719458,54.3453019
+Kamala Tower,subcommunity,24.4736737,54.3474813
+Mubarak Bin Mohammed Street,subcommunity,24.4774366,54.3461112
+Zayed the First Street,subcommunity,24.4698753,54.3433291
+Al Shaheen Tower,subcommunity,24.4700334,54.3401243
+Al Manhal,community,24.4623693,54.369416
+Sheikh Fatima Bint Mubarak St,subcommunity,24.452714,54.3628231
+Al Maqtaa,community,24.4345654,54.4543861
+Al Maqtaa village,subcommunity,24.4282625,54.4556297
+Al Markaziyah,community,24.4837617,54.3505695
+Al Markaziyah West,subcommunity,24.4781158,54.3483658
+Al Mushrif,community,24.4410852,54.3842182
+Mushrif Gardens,subcommunity,24.443852,54.3707807
+Al Qubaisat,subcommunity,24.433419,54.4080929
+Al Saada Street,subcommunity,24.4397423,54.3838208
+Al Dhafrah Street,subcommunity,24.4248665,54.4095244
+Al Najda Street,community,24.4912512,54.3696092
+Al Raha Gardens,community,24.438393,54.5882868
+Al Ward,subcommunity,24.4346017,54.5714339
+Al Raha Beach,community,24.4859319,54.6009399
+Al Muneera,subcommunity,24.4495481,54.6054864
+Al Rahba,community,24.6030114,54.6947478
+Al Rawdah,community,24.4179659,54.4478772
+Al Reef,community,24.4664366,54.6568914
+Al Reef Downtown,subcommunity,24.4561141,54.6725539
+Tower 1,property,24.4561141,54.6725539
+Tower 2,property,24.4561141,54.6725539
+Tower 3,property,24.4561141,54.6725539
+Tower 4,property,24.4561141,54.6725539
+Tower 5,property,24.4561142,54.6725539
+Tower 6,property,24.4561141,54.6725539
+Tower 7,property,24.4561142,54.6725539
+Tower 8,property,24.4561141,54.6725539
+Tower 9,property,24.4561141,54.6725539
+Tower 10,property,24.4561141,54.6725539
+Tower 11,property,24.4561142,54.6725539
+Tower 14,property,24.4561141,54.6725539
+Tower 17,property,24.4561141,54.6725539
+Tower 18,property,24.4561141,54.6725539
+Tower 19,property,24.4561141,54.6725539
+Tower 20,property,24.4561141,54.6725539
+Tower 21,property,24.4561141,54.6725539
+Al Reef Villas,subcommunity,24.4589837,54.6710884
+Al Reem Island,community,24.4953701,54.4052431
+Canal Residence,subcommunity,24.495698,54.3931622
+Reem Village,subcommunity,24.4881921,54.4072552
+City Of Lights,subcommunity,24.4996841,54.4030025
+Shams Abu Dhabi,subcommunity,24.5113703,54.4086363
+Marina Square,subcommunity,24.4913018,54.3944203
+Al Maha Tower,property,24.4920457,54.3945883
+Burooj Views,property,24.4922573,54.3940111
+Ocean Terrace,property,24.4926325,54.3925481
+RAK Tower,property,24.4873393,54.3951038
+Tala Tower,property,24.4917428,54.3927249
+Tamouh Tower,property,24.4881818,54.394911
+Bay View Tower,property,24.4912318,54.392532
+MAG 5,property,24.4897697,54.394508
+Marina Heights 2,property,24.4916915,54.3949596
+Tamouh,subcommunity,24.4881818,54.394911
+Marina Rise Tower,subcommunity,24.4971429,54.3946669
+Makers District,subcommunity,24.5053355,54.4163837
+Al Samha,community,24.6774379,54.7531126
+KIZAD,subcommunity,24.6882575,54.7360933
+Al Shahama,community,24.524082,54.6786458
+New Shahama,subcommunity,24.5368528,54.69208
+Al Shamkha,community,24.3866584,54.7074507
+SH- 1,subcommunity,24.3866584,54.7074507
+SH- 2,subcommunity,24.3866584,54.7074507
+SH- 3,subcommunity,24.3866584,54.7074507
+SH- 6,subcommunity,24.3866584,54.7074507
+SH- 12,subcommunity,24.3866584,54.7074507
+SH- 16,subcommunity,24.3866584,54.7074507
+SH- 17,subcommunity,24.3866584,54.7074507
+SH- 19,subcommunity,24.3866584,54.7074507
+SH- 20,subcommunity,24.3866584,54.7074507
+SH- 24,subcommunity,24.3866584,54.7074507
+Al Maryah,community,24.4825137,54.3646882
+Al Wahda Street,subcommunity,24.4703189,54.3726757
+Grand Millennium Al Wahda Hotel,subcommunity,24.4711861,54.3738672
+Al Wathba,community,24.2817033,54.6617001
+Baniyas,community,24.488919,54.3625614
+Baniyas West,subcommunity,24.2819781,54.6427903
+Building Materials City,community,23.6583051,53.7240984
+Corniche Road,community,24.4671981,54.3335717
+Danet Abu Dhabi,community,24.42935,54.4361939
+Desert Village,community,24.4535542,54.6716092
+Eastern Road,community,23.1245025,53.8294919
+Electra Street,community,24.4936076,54.3741365
+Grand Mosque District,community,24.2145901,55.7899726
+Hamdan Street,community,24.4789767,54.3491784
+Hydra Village,community,24.5463942,54.7019723
+Zone 1,subcommunity,24.5463942,54.7019723
+Zone 2,subcommunity,24.5463942,54.7019723
+Zone 3,subcommunity,24.5463942,54.7019723
+Zone 4,subcommunity,24.5463942,54.7019723
+Zone 5,subcommunity,24.5463942,54.7019723
+Zone 6,subcommunity,24.5463942,54.7019723
+Zone 8,subcommunity,24.5463942,54.7019723
+Khalifa City,community,24.4201314,54.5749535
+SE45,subcommunity,24.4317919,54.6203071
+SE39,subcommunity,24.4317919,54.6203071
+Khalifa City A,subcommunity,24.4243961,54.5691674
+C2302,property,24.4317919,54.6203071
+Khalifa City B,subcommunity,24.4172984,54.5657443
+Zayed City (Khalifa City C),subcommunity,24.424841,54.5292566
+Golf Gardens,subcommunity,24.4185714,54.533608
+Complex 14,subcommunity,24.4201314,54.5749535
+Complex 3,subcommunity,24.411737,54.5354309
+Al Rayyana,subcommunity,24.4132606,54.5359393
+Liwa Oasis compound,subcommunity,24.4137781,54.590073
+Al Forsan Village,subcommunity,24.4047296,54.5495063
+Khalifa Street,community,24.4196467,54.7376609
+Emerald Tower,subcommunity,24.4950324,54.3648765
+Lulu Island,community,24.4995815,54.345675
+Madinat Zayed,community,23.6520354,53.7046617
+City Mall,subcommunity,23.6596077,53.7042519
+Masdar City,community,24.4274827,54.6234876
+Plaza,subcommunity,24.4430489,54.6090153
+Leonardo Residences,subcommunity,24.4311118,54.622426
+Mohamed Bin Zayed City,community,24.3403679,54.5516096
+Mazyad Mall,subcommunity,24.3731249,54.5379408
+Mussafah,community,24.373808,54.4879389
+Shabiya,subcommunity,24.3323533,54.5364773
+Nurai Island,community,24.6161618,54.4802589
+Saadiyat Island,community,24.5459724,54.443688
+Saadiyat Noon,subcommunity,24.5216508,54.4323786
+Global Gate,subcommunity,24.5211457,54.4333466
+Marina Al Saadiyat,subcommunity,24.5333099,54.4183094
+Saadiyat Beach,subcommunity,24.5475392,54.4409572
+St. Regis,property,24.5352891,54.4331089
+Saadiyat Beach Residences,property,24.5509207,54.4517868
+Saadiyat Beach Villas,property,24.5485152,54.4494901
+Saadiyat Resort,subcommunity,24.5418672,54.4303436
+Saadiyat Promenade,subcommunity,24.538938,54.4140895
+HIDD Al Saadiyat,subcommunity,24.5700932,54.4638964
+Soho Square,subcommunity,24.5215058,54.4381351
+Jawaher Saadiyat,subcommunity,24.5341662,54.4249019
+Sas Al Nakheel,community,24.4437107,54.5187739
+Tourist Club Area,community,24.4890817,54.3732905
+Yas Island,community,24.486404,54.6090712
+Yas Bay,subcommunity,24.4589419,54.6000145
+Noya,subcommunity,24.496978,54.6247014
+Yas Mall,subcommunity,24.4856715,54.6089447
+DoubleTree by Hilton Abu Dhabi,subcommunity,24.4894479,54.5973625
+West Yas,subcommunity,24.4970791,54.594642
+Ansam,subcommunity,24.4858449,54.597341
+Yas Marina,subcommunity,24.4672287,54.6079026
+Yas Acres,subcommunity,24.5047854,54.6006826
+Zayed Military City,community,24.5193034,54.916426
+Ghantoot,community,24.8647295,54.9008316
+Al Ruwais,community,24.1121412,52.742579
+Al Salam Street,community,24.4776616,54.3885948
+Zayed Sports City,community,24.4177935,54.447876
+Umm Al Nar,community,24.4385876,54.5141837
+Liwa,community,23.1358335,53.7881048
+Hameem,community,22.9685097,54.2463677
+Al Shawamekh,community,24.3584117,54.6573359
+Capital Centre,community,24.4191359,54.4400422
+International Tower,subcommunity,24.4206728,54.4410076
+AD One Tower,subcommunity,24.4201357,54.4430662
+Al Khatim,community,24.1822146,54.9936108
+Al Sila'a,community,24.0965166,51.7520245
+Al Rayhan,community,24.439446,54.4237984
+Mina Zayed,community,24.5279708,54.3760574
+Dana Island,community,24.4441141,54.5755873
+The Marina,community,24.4907386,54.3965741
+Al Maryah Island,community,24.5029805,54.3899732
+Rosewood Abu Dhabi,subcommunity,24.4998346,54.3873542
+Four Seasons Hotel,subcommunity,24.5028399,54.3877365
+Shakhbout City,community,24.3594999,54.6323263
+Rawdhat Abu Dhabi,community,24.4200646,54.4628768
+Sheikh Rashid Bin Saeed Street,subcommunity,24.417155,54.4647816
+C105,property,24.417155,54.4647816
+Al Zahiyah,community,24.4964801,54.3794798
+Ivory Hotel Apartment,subcommunity,24.4936665,54.3775988
+Al Nahyan,community,24.4644619,54.3868389
+C13,subcommunity,24.4644619,54.3868389
+Al Aman,community,24.4319904,54.4265503
+Al Fahid,community,24.4419411,54.4311942
+Fujairah,city,25.4147357,56.2313667
+Sakamkam,community,25.1631581,56.3367241
+Thouban,community,25.3034265,56.0302106
+Al Faseel,community,25.1432116,56.3467661
+Al Bithnah,community,25.1902628,56.2347543
+Al Hayl,community,25.0925302,56.2438916
+Al Bidya,community,25.4380044,56.3426968
+Rul Dhadna,community,25.5543775,56.3451317
+Al Aqah,community,25.5004828,56.3584221
+Qidfa,community,25.3015219,56.362574
+Mirbah,community,25.2760561,56.3605496
+Al Owaid,community,25.1484273,56.3373955
+Al Farfar,community,25.1505598,56.268318
+Ishwais,community,25.1756888,56.3422243
+Corniche Al Fujairah,community,25.1324597,56.356459
+Dibba Al Fujairah,community,25.59933,56.284321
+Sharm,community,25.4688227,56.3433687
+Khor Fakkan,community,25.2654568,56.3612347
+Al Ain,city,24.2248697,55.7452211
+Al Dhahir,community,24.0895366,55.8504226
+Al Rawdah Al Sharqiyah,community,24.1484037,55.6553373
+Al Shuaibah,subcommunity,24.1472671,55.6510393
+Ain Al Faydah,community,24.0777418,55.7115768
+Al Dhahrah,community,23.9677133,55.4776436
+Ni'mah,community,24.1176009,55.7089513
+Shi'bat Al Wutah,community,24.1197585,55.7241568
+Al Qattarah,community,24.2624571,55.7568159
+Al Salamat,community,24.2087276,55.5887895
+Al Noud,community,24.152564,55.8206579
+Al Hayer,community,24.5875561,55.7731816
+Al Hili,community,24.287123,55.7675258
+Al Buraymi,community,24.2384141,55.7501758
+Zakher,community,24.1350075,55.6854345
+Tawam,community,24.1510071,55.6780597
+Al Ain Industrial Area,community,24.1903473,55.7613407
+Al Safrah,subcommunity,24.1750376,55.7600524
+Al Faqa'a,community,24.716533,55.6216238
+Al Maqam,community,24.1856255,55.629405
+Al Sidrah,subcommunity,24.2268758,55.6896427
+Al Markhaniya,community,24.1919625,55.753527
+Al Mutarad,community,24.2215812,55.7415661
+Al Jaheli,community,24.2180236,55.7366504
+Al Oyoun Village,community,24.2041165,55.7647073
+Al Jimi,community,24.2509558,55.7355308
+Al Khrais,subcommunity,24.2477558,55.7527756
+Al Muwaiji,community,24.2114301,55.70755
+Al Murabaa,community,24.2232684,55.7739176
+Asharej,community,24.2017436,55.6710571
+Central District,community,24.2232499,55.7717514
+Al Kuwaitat,subcommunity,24.2327705,55.7740657
+Sweihan,community,24.3825881,55.4677429
+Al Yahar,community,24.2194573,55.5361277
+Falaj Hazzaa,community,24.1870253,55.7250645
+Al Foah,community,24.3595855,55.8167833
+Al Mutawaa,community,24.2079857,55.7601642
+Al Sarooj,community,24.2028972,55.787115
+Al Towayya,community,24.2437109,55.698896

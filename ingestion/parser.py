@@ -17,12 +17,9 @@ import json
 import re
 import base64
 from pathlib import Path
-
-import google.generativeai as genai
+from core.gemini_client import call_gemini
 
 from core.config import (
-    GEMINI_API_KEY,
-    MODEL,
     USE_GEMINI_PARSER_CLASSIFIER,
     USE_GEMINI_PARSER_TEXT_EXTRACTION,
     USE_GEMINI_PARSER_IMAGE_EXTRACTION,
@@ -32,15 +29,6 @@ from core.config import (
 # Gemini Setup
 # ─────────────────────────────────────────────────────────────
 
-genai.configure(api_key=GEMINI_API_KEY)
-
-model = genai.GenerativeModel(
-    model_name=MODEL,
-    generation_config={
-        "temperature": 0.1,
-        "response_mime_type": "application/json",
-    },
-)
 
 # ─────────────────────────────────────────────────────────────
 # System Prompt
@@ -76,7 +64,13 @@ Each listing MUST follow this exact schema:
     "office" |
     "other",
 
-  "location": "<string or null>",
+    "location_raw": "<string or null>",
+    "location_hint": {
+        "city": "<string or null>",
+        "community": "<string or null>",
+        "subcommunity": "<string or null>",
+        "property": "<string or null>"
+    },
 
   "price_aed": <number or null>,
   "price_min_aed": <number or null>,
@@ -155,7 +149,7 @@ IMPORTANT EXTRACTION RULES:
    → price_aed=2900000
 
 8. If location unclear:
-   use the project/community name anyway.
+    still capture the exact text in location_raw and keep location_hint fields null.
 
 9. "Ready", "Vacant", "Ready to move"
    → is_ready=true
@@ -172,16 +166,16 @@ IMPORTANT EXTRACTION RULES:
 
 14. raw_text should contain only the text relevant to THAT listing.
 
-15. LOCATION EXTRACTION:
-    Extract the location string EXACTLY as written in the message.
-    Do NOT interpret, expand, or correct it.
-    "jvc" → "jvc"
-    "dso" → "dso"
-    "bbay" → "bbay"
-    "d.i.f.c" → "d.i.f.c"
-    "al  barsha" → "al  barsha"
-    Abbreviations, typos, and slang are VALID — extract as-is.
-    Resolution happens downstream. Your job is extraction only.
+15. LOCATION FIELDS:
+        location_raw = exact text as written in the message, or null if none.
+        location_hint = best-effort hierarchy, or nulls if unsure.
+        - Extract only what is mentioned or strongly implied in the message.
+        - Do not infer hierarchy levels you are not confident about — use null.
+        - If unsure whether a name is community or subcommunity, put it at subcommunity.
+        - Do not split one location name across multiple levels unless certain.
+        - City can often be inferred from well-known names (Dubai Marina -> Dubai,
+            Yas Island -> Abu Dhabi) but use null if genuinely unclear.
+        - Do not guess. A null is better than a wrong value.
 
 16. Return ONLY JSON ARRAY.
 """
@@ -193,6 +187,7 @@ IMPORTANT EXTRACTION RULES:
 VALIDATION_FIELDS = [
     "transaction",
     "property_type",
+    "location_raw",
     "location",
     "price_aed",
 ]
@@ -226,8 +221,6 @@ def _normalize_listing(listing: dict) -> dict:
     Ensures required structure/types exist.
     """
 
-    from location.resolver import resolve_location
-
     # Transaction normalization
     t = str(listing.get("transaction", "sell")).lower().strip()
 
@@ -241,18 +234,29 @@ def _normalize_listing(listing: dict) -> dict:
     #     resolved = resolve_location(raw_loc)
     #     listing["location"] = resolved if resolved else raw_loc
 
-    raw_loc = listing.get("location")
-    if raw_loc:
-        resolved = resolve_location(raw_loc)
-        if resolved:
-            listing["location"] = resolved
-            listing["location_unresolved"] = False
-        else:
-            listing["location"] = None
-            listing["location_unresolved"] = True
-            listing["location_raw"] = raw_loc
-    else:
-        listing["location_unresolved"] = False
+    raw_loc = listing.get("location_raw")
+    if not raw_loc:
+        raw_loc = listing.get("location")
+    listing["location_raw"] = raw_loc if raw_loc else None
+    listing.pop("location", None)
+
+    hint = listing.get("location_hint")
+    if not isinstance(hint, dict):
+        hint = {}
+
+    def _hint_value(key: str) -> str | None:
+        value = hint.get(key)
+        if value is None:
+            return None
+        value = str(value).strip()
+        return value or None
+
+    listing["location_hint"] = {
+        "city": _hint_value("city"),
+        "community": _hint_value("community"),
+        "subcommunity": _hint_value("subcommunity"),
+        "property": _hint_value("property"),
+    }
 
     # Amenities always list
     if not isinstance(listing.get("amenities"), list):
@@ -345,7 +349,7 @@ def _classify_with_gemini(text: str) -> tuple[bool | None, float | None]:
         f"Message: {text}"
     )
 
-    response = model.generate_content(prompt)
+    response = call_gemini(prompt, generation_config={"temperature": 0.1, "response_mime_type": "application/json"})
     data = _safe_json_loads(response.text.strip())
     if isinstance(data, dict):
         label = data.get("is_real_estate")
@@ -399,11 +403,9 @@ def parse_text_message(message: str) -> list[dict]:
 
     try:
 
-        response = model.generate_content(
-            [
-                SYSTEM_PROMPT,
-                f"\nMESSAGE:\n{message}",
-            ]
+        response = call_gemini(
+            [SYSTEM_PROMPT, f"\nMESSAGE:\n{message}"],
+            generation_config={"temperature": 0.1, "response_mime_type": "application/json"},
         )
 
         raw = _clean_json(response.text)
@@ -463,14 +465,10 @@ def parse_image(image_path: str) -> list[dict]:
 
     try:
 
-        response = model.generate_content(
-            [
-                SYSTEM_PROMPT,
-                {
-                    "inline_data": image_part
-                },
-                "Extract all listings from this image.",
-            ]
+        response = call_gemini(
+            [SYSTEM_PROMPT, "Extract all listings from this image."],
+            generation_config={"temperature": 0.1, "response_mime_type": "application/json"},
+            image_part=image_part,
         )
 
         raw = _clean_json(response.text)

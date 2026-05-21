@@ -30,12 +30,15 @@ Usage:
 
 import argparse
 import json
+import os
 import time
 import re
+from pathlib import Path
 from bson import ObjectId
 from datetime import datetime
 
 from ingestion.parser import parse_input, parse_text_message
+from location.resolver import resolve_location
 from core.database import insert_many_listings, count_listings, get_all_matches, clear_all, dedupe_collection
 from core.matcher import run_matching
 
@@ -45,6 +48,10 @@ _RATE_LIMIT_WAIT = 15
 # Max retries per message before giving up and moving on
 _RATE_LIMIT_MAX_RETRIES = 3
 _MESSAGE_DELAY_SECONDS = 13  # Delay between processing messages to avoid hitting rate limits (e.g. geocoding)
+
+_PROCESSED_CACHE_PATH = Path("data/processed_cache.txt")
+_PARSE_ERROR_LOG = Path("cache/parse_errors.log")
+_MESSAGE_SEPARATOR = "\n---\n"
 
 
 def _serialize(obj):
@@ -139,6 +146,56 @@ def _parse_with_retry(message: str, index: int, total: int) -> list[dict]:
     return []
 
 
+def _apply_location_resolution(listings: list[dict]) -> list[dict]:
+    resolved = []
+    for listing in listings:
+        
+        if not isinstance(listing, dict):
+            continue
+        raw = listing.get("location_raw")
+        if not raw:
+            raw = listing.get("location") or ""
+        listing["location_raw"] = raw
+
+        hint = listing.get("location_hint")
+        if not isinstance(hint, dict):
+            hint = {}
+        listing["location_hint"] = hint
+
+        listing["location_resolution"] = resolve_location(
+            location_raw=raw,
+            location_hint=hint or {},
+        )
+        resolved.append(listing)
+    return resolved
+
+
+def _append_processed_message(message: str) -> None:
+    _PROCESSED_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with _PROCESSED_CACHE_PATH.open("a", encoding="utf-8") as file:
+        file.write(message.rstrip())
+        file.write(_MESSAGE_SEPARATOR)
+
+
+def _write_remaining_messages(filepath: str, remaining: list[str]) -> None:
+    path = Path(filepath)
+    temp_path = Path(str(path) + ".tmp")
+    content = _MESSAGE_SEPARATOR.join(remaining)
+    if content:
+        content = content + "\n"
+    temp_path.write_text(content, encoding="utf-8")
+    os.replace(temp_path, path)
+
+
+def _log_parse_error(index: int, total: int, message: str, error: str) -> None:
+    _PARSE_ERROR_LOG.parent.mkdir(parents=True, exist_ok=True)
+    preview = message.replace("\n", " ")[:120]
+    error_text = error[:200]
+    line = f"{datetime.now().isoformat(timespec='seconds')}\t{index}/{total}\t{error_text}\t{preview}"
+    with _PARSE_ERROR_LOG.open("a", encoding="utf-8") as file:
+        file.write(line + "\n")
+
+
 def _process_text_file(filepath: str) -> None:
     """
     Read messages.txt, split by separator, then for each message:
@@ -163,22 +220,41 @@ def _process_text_file(filepath: str) -> None:
     total_dupes = 0
     total_failed = 0
 
-    for i, message in enumerate(messages, 1):
-        preview = message[:60].replace('\n', ' ')
+    remaining_messages = list(messages)
+    index = 0
 
-        listings = _parse_with_retry(message, i, total)
+    while index < len(remaining_messages):
+        total_current = len(remaining_messages)
+        message = remaining_messages[index]
+        preview = message[:60].replace("\n", " ")
+
+        listings = _parse_with_retry(message, index + 1, total_current)
 
         if not listings:
-            print(f"⚠️  Message {i}/{total} — no listings extracted: {preview}...")
+            print(f"⚠️  Message {index + 1}/{total_current} — no listings extracted: {preview}...")
+            _log_parse_error(index + 1, total_current, message, "no listings extracted")
             total_failed += 1
+            index += 1
         else:
-            total_extracted += len(listings)
-            inserted_ids, dupes = insert_many_listings(listings)
-            total_inserted += len(inserted_ids)
-            total_dupes += dupes
+            try:
+                listings = _apply_location_resolution(listings)
+                total_extracted += len(listings)
+                inserted_ids, dupes = insert_many_listings(listings)
+                total_inserted += len(inserted_ids)
+                total_dupes += dupes
+            except Exception as e:
+                print(f"⚠️  Message {index + 1}/{total_current} — location resolution failed: {e}")
+                _log_parse_error(index + 1, total_current, message, f"resolution error: {e}")
+                total_failed += 1
+                index += 1
+                continue
+
+            _append_processed_message(message)
+            remaining_messages.pop(index)
+            _write_remaining_messages(filepath, remaining_messages)
 
         # Delay between messages to stay under rate limit — skip after last one
-        if i < total:
+        if index < len(remaining_messages):
             time.sleep(_MESSAGE_DELAY_SECONDS)
 
     # ── Run matching once after all messages processed ─────────────────────────
@@ -266,6 +342,7 @@ def main():
         if not listings:
             print("⚠️  No listings extracted from image.")
             return
+        listings = _apply_location_resolution(listings)
         print(f"\n📥 Extracted {len(listings)} listing(s):")
         print_json(listings)
         inserted_ids, dupes = insert_many_listings(listings)
@@ -284,6 +361,7 @@ def main():
         if not listings:
             print("⚠️  No listings extracted from input.")
             return
+        listings = _apply_location_resolution(listings)
         print(f"\n📥 Extracted {len(listings)} listing(s):")
         print_json(listings)
         inserted_ids, dupes = insert_many_listings(listings)

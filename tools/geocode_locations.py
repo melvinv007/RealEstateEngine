@@ -7,10 +7,11 @@ using Nominatim. Adds new entries to data/coordinates.csv — skips if already p
 Excel file is never modified.
 
 Usage:
-    python tools/geocode_locations.py <path_to_excel.xlsx>
+    python tools/geocode_locations.py <path_to_excel.xlsx> --start-row <N> (optional, default 2 to skip header)
 """
 
 import csv
+import json
 import os
 import sys
 import time
@@ -58,8 +59,11 @@ SKIP_DUPLICATE_CANONICALS = True
 # data/coordinates.csv settings
 COORDINATES_CSV_PATH = str(_PROJECT_ROOT / "data" / "coordinates.csv")
 CSV_CANONICAL_COLUMN = "canonical_name"
+CSV_LEVEL_COLUMN     = "level"
 CSV_LAT_COLUMN       = "lat"
 CSV_LNG_COLUMN       = "lng"
+
+UNIQUE_NAMES_CACHE = "cache/unique_names.json"
 
 # Nominatim settings
 NOMINATIM_DELAY_SECONDS = 2.0
@@ -69,6 +73,7 @@ NOMINATIM_USER_AGENT    = "dubai_realestate_geocoder_v1"
 VERBOSE = True      # Print a status line for every row
 DRY_RUN = False     # True = print results but write nothing
 
+TIER3_SKIP = True  # If True, skip geocoding properties marked as tier3 in unique_names.json
 # ──────────────────────────────────────────────────────────────────────────────
 
 
@@ -143,6 +148,29 @@ def _build_canonical(community: str, subcommunity: str, property_: str) -> str |
 
 # ── CSV helpers ────────────────────────────────────────────────────────────────
 
+def _ensure_level_column(csv_path: str) -> None:
+    if not os.path.exists(csv_path) or os.path.getsize(csv_path) == 0:
+        return
+
+    with open(csv_path, "r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        header = reader.fieldnames or []
+        if CSV_LEVEL_COLUMN in header:
+            return
+        rows = list(reader)
+
+    with open(csv_path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([CSV_CANONICAL_COLUMN, CSV_LEVEL_COLUMN, CSV_LAT_COLUMN, CSV_LNG_COLUMN])
+        for row in rows:
+            writer.writerow([
+                row.get(CSV_CANONICAL_COLUMN, ""),
+                "unknown",
+                row.get(CSV_LAT_COLUMN, ""),
+                row.get(CSV_LNG_COLUMN, ""),
+            ])
+
+
 def _load_csv_canonicals(csv_path: str) -> set[str]:
     """Return set of lower-cased canonical names already in coordinates.csv."""
     existing: set[str] = set()
@@ -157,14 +185,14 @@ def _load_csv_canonicals(csv_path: str) -> set[str]:
     return existing
 
 
-def _append_to_csv(csv_path: str, canonical: str, lat: float, lng: float) -> None:
+def _append_to_csv(csv_path: str, canonical: str, level: str, lat: float, lng: float) -> None:
     """Append one row to coordinates.csv, writing the header if file is new."""
     file_exists = os.path.exists(csv_path)
     with open(csv_path, "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow([CSV_CANONICAL_COLUMN, CSV_LAT_COLUMN, CSV_LNG_COLUMN])
-        writer.writerow([canonical, lat, lng])
+            writer.writerow([CSV_CANONICAL_COLUMN, CSV_LEVEL_COLUMN, CSV_LAT_COLUMN, CSV_LNG_COLUMN])
+        writer.writerow([canonical, level, lat, lng])
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -181,9 +209,29 @@ def _cell_str(row: tuple, idx: int) -> str:
     return str(v).strip() if v is not None else ""
 
 
+def _load_tier3_properties(cache_path: str) -> set[str]:
+    if not os.path.exists(cache_path):
+        return set()
+
+    with open(cache_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    tier3: set[str] = set()
+    for entry in data.get("properties", []):
+        if entry.get("tier3"):
+            name = str(entry.get("canonical") or "").strip().lower()
+            if name:
+                tier3.add(name)
+    return tier3
+
+
+def _build_query_parts(parts: list[str]) -> str:
+    return ", ".join([part for part in parts if part])
+
+
 # ── Main ───────────────────────────────────────────────────────────────────────
 
-def geocode_excel(excel_path: str) -> int:
+def old_geocode_excel(excel_path: str) -> int:
     if not os.path.exists(excel_path):
         print(f"[Error] File not found: {excel_path}")
         return 1
@@ -223,21 +271,56 @@ def geocode_excel(excel_path: str) -> int:
     if col_property is None:
         print(f"[Warning] Column '{COL_PROPERTY}' not found — property treated as empty for all rows.")
 
+    _ensure_level_column(COORDINATES_CSV_PATH)
+
     # Load what's already in coordinates.csv
     csv_existing = _load_csv_canonicals(COORDINATES_CSV_PATH)
     print(f"[Setup] {len(csv_existing)} entries already in {COORDINATES_CSV_PATH}")
 
+    cache_path = str(_PROJECT_ROOT / UNIQUE_NAMES_CACHE)
+    cache_exists = os.path.exists(cache_path)
+    tier3_properties = _load_tier3_properties(cache_path)
+    if not cache_exists and VERBOSE:
+        print("[Warning] Tier3 cache not found; property filtering disabled.")
+
     stats = {
-        "already_in_csv":    0,
-        "skipped_no_subcom": 0,
-        "skipped_no_prop":   0,
-        "skipped_duplicate": 0,
-        "geocoded":          0,
-        "failed":            0,
+        "geocoded": {"city": 0, "community": 0, "subcommunity": 0, "property": 0},
+        "failed": {"city": 0, "community": 0, "subcommunity": 0, "property": 0},
+        "skipped": {"city": 0, "community": 0, "subcommunity": 0, "property": 0},
     }
 
-    # Track canonicals seen in this run (to avoid geocoding same name twice)
-    seen_this_run: set[str] = set()
+    def _bump(bucket: str, level: str) -> None:
+        stats[bucket][level] = stats[bucket].get(level, 0) + 1
+
+    def _process(level: str, canonical: str, query: str, row_idx: int) -> None:
+        canonical = canonical.strip()
+        if not canonical:
+            return
+
+        canonical_lower = canonical.lower()
+
+        if canonical_lower in csv_existing:
+            _bump("skipped", level)
+            if VERBOSE:
+                print(f"  Row {row_idx:>4}: SKIP  ({level} already in CSV) — {canonical}")
+            return
+
+        if VERBOSE:
+            print(f"  Row {row_idx:>4}: QUERY [{level}] '{query}' ...", end=" ", flush=True)
+
+        coords = _geocode(query)
+        if coords:
+            lat, lng = coords
+            if VERBOSE:
+                print(f"→ ({lat:.5f}, {lng:.5f})")
+            if not DRY_RUN:
+                _append_to_csv(COORDINATES_CSV_PATH, canonical, level, lat, lng)
+            csv_existing.add(canonical_lower)
+            _bump("geocoded", level)
+        else:
+            if VERBOSE:
+                print("→ FAILED")
+            _bump("failed", level)
 
     for row_idx, row in enumerate(rows[1:], start=2):
         city         = _cell_str(row, col_city)
@@ -245,86 +328,194 @@ def geocode_excel(excel_path: str) -> int:
         subcommunity = _cell_str(row, col_subcommunity)
         property_    = _cell_str(row, col_property) if col_property is not None else ""
 
-        # Skip filters
-        if SKIP_IF_NO_SUBCOMMUNITY and not subcommunity:
-            stats["skipped_no_subcom"] += 1
-            if VERBOSE:
-                print(f"  Row {row_idx:>4}: SKIP  (no subcommunity) — {community}")
-            continue
+        if city:
+            query = _build_query_parts([city, APPEND_SUFFIX])
+            _process("city", city, query, row_idx)
 
-        if SKIP_IF_NO_PROPERTY and not property_:
-            stats["skipped_no_prop"] += 1
-            if VERBOSE:
-                print(f"  Row {row_idx:>4}: SKIP  (no property) — {subcommunity or community}")
-            continue
+        if community:
+            query = _build_query_parts([community, city, APPEND_SUFFIX])
+            _process("community", community, query, row_idx)
 
-        # Build canonical name
-        canonical = _build_canonical(community, subcommunity, property_)
-        if not canonical:
-            if VERBOSE:
-                print(f"  Row {row_idx:>4}: SKIP  (no canonical could be built)")
-            continue
+        if subcommunity:
+            query = _build_query_parts([subcommunity, community, city, APPEND_SUFFIX])
+            _process("subcommunity", subcommunity, query, row_idx)
 
-        canonical_lower = canonical.strip().lower()
+        if property_:
+            is_tier3 = property_.strip().lower() in tier3_properties
+            if TIER3_SKIP and is_tier3:
+                if VERBOSE:
+                    print(f"  Row {row_idx:>4}: SKIP  (property tier3) — {property_}")
+            else:
+                query = _build_query_parts([property_, subcommunity, community, city, APPEND_SUFFIX])
+                _process("property", property_, query, row_idx)
 
-        # Already in coordinates.csv
-        if canonical_lower in csv_existing:
-            stats["already_in_csv"] += 1
-            if VERBOSE:
-                print(f"  Row {row_idx:>4}: SKIP  (already in CSV) — {canonical}")
-            continue
-
-        # Already geocoded in this run (same canonical from a different row)
-        if SKIP_DUPLICATE_CANONICALS and canonical_lower in seen_this_run:
-            stats["skipped_duplicate"] += 1
-            if VERBOSE:
-                print(f"  Row {row_idx:>4}: SKIP  (duplicate in run) — {canonical}")
-            continue
-
-        seen_this_run.add(canonical_lower)
-
-        # Geocode
-        query = _build_query(city, community, subcommunity, property_)
-        if VERBOSE:
-            print(f"  Row {row_idx:>4}: QUERY '{query}' ...", end=" ", flush=True)
-
-        coords = _geocode(query)
-
-        if coords:
-            lat, lng = coords
-            if VERBOSE:
-                print(f"→ ({lat:.5f}, {lng:.5f})")
-
-            if not DRY_RUN:
-                _append_to_csv(COORDINATES_CSV_PATH, canonical, lat, lng)
-                csv_existing.add(canonical_lower)
-
-            stats["geocoded"] += 1
-        else:
-            if VERBOSE:
-                print("→ FAILED")
-            stats["failed"] += 1
-
-    print(
-        f"\n[Done]"
-        f"\n  Geocoded:            {stats['geocoded']}"
-        f"\n  Failed:              {stats['failed']}"
-        f"\n  Already in CSV:      {stats['already_in_csv']}"
-        f"\n  Duplicate (run):     {stats['skipped_duplicate']}"
-        f"\n  Skipped (no subcom): {stats['skipped_no_subcom']}"
-        f"\n  Skipped (no prop):   {stats['skipped_no_prop']}"
-    )
+    print("\n[Done]")
+    for label, bucket in (
+        ("Geocoded", "geocoded"),
+        ("Failed", "failed"),
+        ("Skipped (already existed)", "skipped"),
+    ):
+        print(f"  {label}:")
+        for level in ("city", "community", "subcommunity", "property"):
+            print(f"    {level:12s}: {stats[bucket].get(level, 0)}")
     if DRY_RUN:
         print("  [Dry Run] Nothing written.")
 
     return 0
 
+def geocode_excel(excel_path: str, start_row: int = 2) -> int:
+    if not os.path.exists(excel_path):
+        print(f"[Error] File not found: {excel_path}")
+        return 1
+
+    wb = load_workbook(excel_path)
+    ws = wb.active
+    rows = list(ws.iter_rows(values_only=True))
+
+    if not rows:
+        print("[Error] Excel sheet is empty.")
+        return 1
+
+    header_norm = [_normalize_header(cell) for cell in rows[0]]
+
+    def _col(name: str) -> int | None:
+        key = _normalize_header(name)
+        return header_norm.index(key) if key in header_norm else None
+
+    col_city         = _col(COL_CITY)
+    col_community    = _col(COL_COMMUNITY)
+    col_subcommunity = _col(COL_SUBCOMMUNITY)
+    col_property     = _col(COL_PROPERTY)
+
+    missing = [
+        name for name, idx in [
+            (COL_CITY, col_city),
+            (COL_COMMUNITY, col_community),
+            (COL_SUBCOMMUNITY, col_subcommunity),
+        ] if idx is None
+    ]
+    if missing:
+        print(f"[Error] Missing required columns: {missing}")
+        print(f"  Found headers: {[c for c in rows[0] if c]}")
+        return 1
+
+    if col_property is None:
+        print(f"[Warning] Column '{COL_PROPERTY}' not found — property treated as empty for all rows.")
+
+    _ensure_level_column(COORDINATES_CSV_PATH)
+
+    csv_existing = _load_csv_canonicals(COORDINATES_CSV_PATH)
+    print(f"[Setup] {len(csv_existing)} entries already in {COORDINATES_CSV_PATH}")
+
+    cache_path = str(_PROJECT_ROOT / UNIQUE_NAMES_CACHE)
+    cache_exists = os.path.exists(cache_path)
+    tier3_properties = _load_tier3_properties(cache_path)
+    if not cache_exists and VERBOSE:
+        print("[Warning] Tier3 cache not found; property filtering disabled.")
+
+    if start_row > 2:
+        print(f"[Setup] Skipping rows 2–{start_row - 1} (--start-row {start_row})")
+
+    stats = {
+        "geocoded": {"city": 0, "community": 0, "subcommunity": 0, "property": 0},
+        "failed":   {"city": 0, "community": 0, "subcommunity": 0, "property": 0},
+        "skipped":  {"city": 0, "community": 0, "subcommunity": 0, "property": 0},
+    }
+
+    def _bump(bucket: str, level: str) -> None:
+        stats[bucket][level] = stats[bucket].get(level, 0) + 1
+
+    def _process(level: str, canonical: str, query: str, row_idx: int) -> None:
+        canonical = canonical.strip()
+        if not canonical:
+            return
+
+        canonical_lower = canonical.lower()
+
+        if canonical_lower in csv_existing:
+            _bump("skipped", level)
+            if VERBOSE:
+                print(f"  Row {row_idx:>4}: SKIP  ({level} already in CSV) — {canonical}")
+            return
+
+        if VERBOSE:
+            print(f"  Row {row_idx:>4}: QUERY [{level}] '{query}' ...", end=" ", flush=True)
+
+        coords = _geocode(query)
+        if coords:
+            lat, lng = coords
+            if VERBOSE:
+                print(f"→ ({lat:.5f}, {lng:.5f})")
+            if not DRY_RUN:
+                _append_to_csv(COORDINATES_CSV_PATH, canonical, level, lat, lng)
+            csv_existing.add(canonical_lower)
+            _bump("geocoded", level)
+        else:
+            if VERBOSE:
+                print("→ FAILED")
+            _bump("failed", level)
+
+    for row_idx, row in enumerate(rows[1:], start=2):
+        if row_idx < start_row:
+            continue
+
+        city         = _cell_str(row, col_city)
+        community    = _cell_str(row, col_community)
+        subcommunity = _cell_str(row, col_subcommunity)
+        property_    = _cell_str(row, col_property) if col_property is not None else ""
+
+        if city:
+            query = _build_query_parts([city, APPEND_SUFFIX])
+            _process("city", city, query, row_idx)
+
+        if community:
+            query = _build_query_parts([community, city, APPEND_SUFFIX])
+            _process("community", community, query, row_idx)
+
+        if subcommunity:
+            query = _build_query_parts([subcommunity, community, city, APPEND_SUFFIX])
+            _process("subcommunity", subcommunity, query, row_idx)
+
+        if property_:
+            is_tier3 = property_.strip().lower() in tier3_properties
+            if TIER3_SKIP and is_tier3:
+                if VERBOSE:
+                    print(f"  Row {row_idx:>4}: SKIP  (property tier3) — {property_}")
+            else:
+                query = _build_query_parts([property_, subcommunity, community, city, APPEND_SUFFIX])
+                _process("property", property_, query, row_idx)
+
+    print("\n[Done]")
+    for label, bucket in (
+        ("Geocoded", "geocoded"),
+        ("Failed", "failed"),
+        ("Skipped (already existed)", "skipped"),
+    ):
+        print(f"  {label}:")
+        for level in ("city", "community", "subcommunity", "property"):
+            print(f"    {level:12s}: {stats[bucket].get(level, 0)}")
+    if DRY_RUN:
+        print("  [Dry Run] Nothing written.")
+
+    return 0
 
 def main() -> None:
     if len(sys.argv) < 2:
-        print("Usage: python geocode_locations.py <path_to_locations.xlsx>")
+        print("Usage: python tools/geocode_locations.py <path_to_locations.xlsx> --start-row <N> (default N=2)")
         sys.exit(1)
-    sys.exit(geocode_excel(sys.argv[1]))
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="Geocode locations from Excel into coordinates.csv"
+    )
+    parser.add_argument("excel", help="Path to Excel file")
+    parser.add_argument(
+        "--start-row",
+        type=int,
+        default=2,
+        help="Excel row number to start from (default: 2, i.e. first data row)"
+    )
+    args = parser.parse_args()
+    sys.exit(geocode_excel(args.excel, start_row=args.start_row))
 
 
 if __name__ == "__main__":

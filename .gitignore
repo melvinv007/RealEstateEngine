@@ -2,10 +2,7 @@ __pycache__/
 .env
 .copilot/
 *.png
-messages.txt
-prompt.txt
 .venv/
-CONTEXT.md
 old.*
 cache/*.json
 cache/*.log

@@ -17,6 +17,7 @@ from core.config import API_KEY
 from core.database import insert_many_listings, count_listings, get_all_matches
 from core.matcher import run_matching
 from ingestion.parser import parse_text_message, parse_image, is_real_estate_message
+from location.resolver import resolve_location
 
 app = FastAPI(title="Matcher API")
 
@@ -84,6 +85,29 @@ def _format_matches(match_docs: list[dict]) -> list[dict]:
         })
     return formatted
 
+
+def _apply_location_resolution(listings: list[dict]) -> list[dict]:
+    resolved = []
+    for listing in listings:
+        if not isinstance(listing, dict):
+            continue
+        raw = listing.get("location_raw")
+        if not raw:
+            raw = listing.get("location") or ""
+        listing["location_raw"] = raw
+
+        hint = listing.get("location_hint")
+        if not isinstance(hint, dict):
+            hint = {}
+        listing["location_hint"] = hint
+
+        listing["location_resolution"] = resolve_location(
+            location_raw=raw,
+            location_hint=hint or {},
+        )
+        resolved.append(listing)
+    return resolved
+
 @app.get("/")
 async def root():
     return {"message": "Matcher API is running"}
@@ -94,6 +118,7 @@ async def ingest_text(payload: TextIngestRequest):
         return {"filtered": True, "reason": "not a real estate message"}
 
     listings = parse_text_message(payload.message)
+    listings = _apply_location_resolution(listings)
     inserted_ids, dupes = insert_many_listings(listings)
     matches = run_matching()
 
@@ -119,6 +144,7 @@ async def ingest_image(file: UploadFile = File(...)):
             tmp.write(content)
 
         listings = parse_image(temp_path)
+        listings = _apply_location_resolution(listings)
         inserted_ids, dupes = insert_many_listings(listings)
         matches = run_matching()
 

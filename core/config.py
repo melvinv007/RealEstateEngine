@@ -14,6 +14,8 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 # ── API Keys ──────────────────────────────────────────────────────────────────
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 API_KEY = os.getenv("API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 # GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY"   # for geocoding
 
 # ── API Usage Toggles ─────────────────────────────────────────────────────────
@@ -44,12 +46,29 @@ COLLECTION_SELL = "sell_listings"
 COLLECTION_MATCHES = "matches"
 
 # ── Matching Tolerances ───────────────────────────────────────────────────────
-PRICE_TOLERANCE = 0.1          # ±10% — change this one line to adjust
-DISTANCE_KM_TOLERANCE = 2.0     # ±2 km — change this one line to adjust
-BHK_TOLERANCE = 0               # 0 = exact match; 1 = allow ±1 bedroom
-SQFT_TOLERANCE = 0.15           # ±15% on sqft (set to None to skip sqft matching)
+PRICE_TOLERANCE = 0.15          # ±15% — change this one line to adjust
+DISTANCE_KM_TOLERANCE = 3.0     # ±3 km — change this one line to adjust
+BHK_TOLERANCE = 1               # 0 = exact match; 1 = allow ±1 bedroom
+SQFT_TOLERANCE = 0.20           # ±20% on sqft (set to None to skip sqft matching)
 
-MODEL = "gemini-2.5-flash-lite"
+# MODEL = "gemini-3.1-flash-lite"
+
+GEMINI_MODELS = [
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+    "gemini-3-flash-preview"
+]
+GROQ_MODELS = [
+    "llama-3.3-70b-versatile"
+]
+OPENROUTER_MODELS = [
+    "deepseek/deepseek-v4-flash:free",
+    "google/gemma-4-31b-it:free",
+    "openai/gpt-oss-120b:free"
+]
 
 # ── Geocoding Cache ───────────────────────────────────────────────────────────
 # Avoids re-geocoding the same location repeatedly
@@ -73,6 +92,21 @@ LOCATION_FUZZY_THRESHOLD = 80
 LOCATION_RESOLUTION_CACHE_FILE = str(_PROJECT_ROOT / "cache" / "location_cache.json")
 # Log file for locations that failed all resolution layers
 UNRESOLVED_LOG_FILE = str(_PROJECT_ROOT / "cache" / "unresolved_locations.log")
+
+# Location tree
+LOCATION_TREE_CACHE = str(_PROJECT_ROOT / "cache" / "location_tree.json")
+UNIQUE_NAMES_CACHE = str(_PROJECT_ROOT / "cache" / "unique_names.json")
+FORCE_REBUILD_TREE = False
+
+# Resolver tuning (new)
+LOCATION_MIN_CONFIDENCE = 0.65
+LOCATION_HIGH_CONFIDENCE = 0.82
+LOCATION_AMBIGUITY_BAND = 0.08
+USE_EMBEDDINGS = False
+
+# Alias generator
+ALIAS_GEN_DELAY_SECONDS = 2
+ALIAS_GEN_TIER3_SKIP = True
 
 # ── Match Quality Gate ────────────────────────────────────────────────────────
 # Minimum score (0.0–1.0) for a match to be recorded

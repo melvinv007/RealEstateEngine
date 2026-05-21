@@ -1,85 +1,4001 @@
 {
-  "palm jumeirah": "Palm Jumeirah",
-  "urban oasis business bay": "Business Bay",
-  "nad al sheba gardens phase 2": "Al Barsha",
-  "arabian ranches 3": "Arabian Ranches",
-  "dubai creek harbour": "Dubai Hills Estate",
-  "business bay": "Business Bay",
-  "emaar south | greenway": "Dubai Hills Estate",
-  "jvc": "Jumeirah Village Circle",
-  "dubai hills estate": "Dubai Hills Estate",
-  "damac hills": "Dubai Hills Estate",
-  "mudon al ranim": "Al Barsha",
-  "marina gate": "Dubai Marina",
-  "downtown dubai": "Downtown Dubai",
-  "dubai hills": "Dubai Hills Estate",
-  "sobha hartland": "Meydan",
-  "bluewaters island": "Jumeirah Beach Residence",
-  "meydan": "Meydan",
-  "dubai south": "Dubai Hills Estate",
-  "jlt": "UNKNOWN",
-  "damac lagoons costa brava": "UNKNOWN",
-  "palm jebel ali": "Palm Jumeirah",
-  "creek beach": "Jumeirah Beach Residence",
-  "arjan": "Al Furjan",
-  "al furjan": "Al Furjan",
-  "tilal al ghaf": "Al Nahda",
-  "emaar beachfront": "UNKNOWN",
-  "jumeirah village circle": "Jumeirah Village Circle",
-  "dubai marina": "Dubai Marina",
-  "villanova": "UNKNOWN",
-  "creek harbour": "UNKNOWN",
-  "meydan one": "Meydan",
-  "town square": "Town Square",
-  "jbr": "Jumeirah Beach Residence",
-  "al quoz": "Al Quoz",
-  "nad al sheba": "Al Nahda",
-  "damac hills 2": "UNKNOWN",
-  "arabian ranches 2": "Arabian Ranches",
-  "international city": "International City",
-  "motor city": "Motor City",
-  "mudon": "UNKNOWN",
-  "dubai hills | park heights": "Dubai Hills Estate",
-  "the valley": "UNKNOWN",
-  "jumeirah golf estates": "Palm Jumeirah",
-  "majan": "UNKNOWN",
-  "damac lagoons": "UNKNOWN",
-  "dubai harbour residences": "Dubai Hills Estate",
-  "bluewaters": "UNKNOWN",
-  "al barari": "UNKNOWN",
-  "dubai islands": "DIFC",
-  "creek vista heights": "UNKNOWN",
-  "mira oasis": "Dubai Silicon Oasis",
-  "dubai silicon oasis": "Dubai Silicon Oasis",
-  "address harbour point": "UNKNOWN",
-  "jumeirah islands": "Jumeirah Beach Residence",
-  "dubai industrial city": "Dubai Hills Estate",
-  "arabian ranches 3 | bliss 2": "Arabian Ranches",
-  "downtown": "Downtown Dubai",
-  "damac bay": "UNKNOWN",
-  "nshama town square": "Town Square",
-  "dubai hills grove": "Dubai Hills Estate",
-  "palm beach towers": "Palm Jumeirah",
-  "jumeirah park": "Jumeirah Beach Residence",
-  "expo valley": "UNKNOWN",
-  "marina shores": "Dubai Marina",
-  "majestic vistas | trump estates": "UNKNOWN",
-  "canal heights | business bay": "Business Bay",
-  "serena casa viva": "UNKNOWN",
-  "bussbay": "Business Bay",
-  "furjan": "Al Furjan",
-  "the views": "The Views",
-  "motorcity": "Motor City",
-  "intl city": "International City",
-  "palm island": "Palm Jumeirah",
-  "qusais": "Al Qusais",
-  "townsquare": "Town Square",
-  "dxb marina": "Dubai Marina",
-  "jumeirah beach residence": "Jumeirah Beach Residence",
-  "al barsha": "Al Barsha",
-  "al nahda": "Al Nahda",
-  "financial centre": "DIFC",
-  "dso": "Dubai Silicon Oasis",
-  "mdf": "Dubai Festival City",
-  "marina": "Dubai Marina"
+  "bussbay": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "furjan": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "sobha hartland 2, mbr city, dubai": {
+    "matched_canonical": "Sobha Hartland II",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland II",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "district 11 or nearby mbr": {
+    "matched_canonical": "District 11",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": null,
+    "coords_key": "District 11",
+    "coords": {
+      "lat": 25.17548,
+      "lng": 55.2808838
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "golf grand, dubai hills": {
+    "matched_canonical": "Golf Grand",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Golf Grand",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mira oasis 2, reem, dubai": {
+    "matched_canonical": "Mira Oasis",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Reem",
+    "subcommunity": "Mira Oasis",
+    "property": null,
+    "coords_key": "Mira Oasis",
+    "coords": {
+      "lat": 25.0113728,
+      "lng": 55.3012866
+    },
+    "confidence": 0.74,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dubai design distric or nearby": {
+    "matched_canonical": "Dubai Design District",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Design District",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Design District",
+    "coords": {
+      "lat": 25.1883375,
+      "lng": 55.2974839
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the valley - alana, dubai": {
+    "matched_canonical": "Alana",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": "Alana",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "zabeel area": {
+    "matched_canonical": "Zabeel",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Zabeel",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Zabeel",
+    "coords": {
+      "lat": 25.2098336,
+      "lng": 55.2979659
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "address residences zabeel 3, zabeel, dubai": {
+    "matched_canonical": "Address Residences Zabeel 3",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Zabeel",
+    "subcommunity": "Zabeel 1",
+    "property": "Address Residences Zabeel 3",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "wasl port views": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "reem community, mira or raya": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "dragon towers - dragon city": {
+    "matched_canonical": "Dragon Tower A",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dragon City",
+    "subcommunity": "Dragon Towers",
+    "property": "Dragon Tower A",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.805,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha hartland villas phase 2, mbr area dubai": {
+    "matched_canonical": "Sobha Hartland",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "arabian ranches 3 or valley": {
+    "matched_canonical": "Arabian Ranches 3",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Arabian Ranches 3",
+    "coords": {
+      "lat": 25.045,
+      "lng": 55.283
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "hills business park, dubai hills estate": {
+    "matched_canonical": "Hills Business Park",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Hills Business Park",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha hartland or sobha hartland 2": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "club drive, dubai hills": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "wilton terraces 1, mohammed bin rashid city": {
+    "matched_canonical": "Mohammed Bin Rashid City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mohammed Bin Rashid City",
+    "coords": {
+      "lat": 25.1640592,
+      "lng": 55.2856612
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mina rashid or nearby waterfront": {
+    "matched_canonical": "Mina Rashid",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mina Rashid",
+    "coords": {
+      "lat": 25.2709307,
+      "lng": 55.265831
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "collective 20 tower a, mbr city - mohammed bin rashid": {
+    "matched_canonical": "Collective 2.0 Tower A",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Collective 2.0",
+    "property": "Collective 2.0 Tower A",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sidra villas 1, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dubai hills": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "maple 2, dubai hills estate": {
+    "matched_canonical": "Maple at Dubai Hills Estate",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Maple at Dubai Hills Estate",
+    "property": null,
+    "coords_key": "Maple at Dubai Hills Estate",
+    "coords": {
+      "lat": 25.0993559,
+      "lng": 55.2531657
+    },
+    "confidence": 0.893,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "design quarter - dubai design district": {
+    "matched_canonical": "Design Quarter",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Design District",
+    "subcommunity": "Design Quarter",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the valley or reem": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "ocean point 2, mina rashid, dubai": {
+    "matched_canonical": "Ocean Point 2",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": "Ocean Point",
+    "property": "Ocean Point 2",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "district 7 mbr": {
+    "matched_canonical": "District 7",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 7",
+    "property": null,
+    "coords_key": "District 7",
+    "coords": {
+      "lat": 25.1717978,
+      "lng": 55.2739075
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "golf place 1, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "wasl gate or nearby areas": {
+    "matched_canonical": "Wasl Gate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Wasl Gate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Wasl Gate",
+    "coords": {
+      "lat": 25.0258041,
+      "lng": 55.1075536
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha one tower b, sobha hartland - mbr city": {
+    "matched_canonical": "Sobha One Tower B",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": "Sobha One Tower B",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mira oasis 1 reem dubai": {
+    "matched_canonical": "Mira Oasis",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Reem",
+    "subcommunity": "Mira Oasis",
+    "property": null,
+    "coords_key": "Mira Oasis",
+    "coords": {
+      "lat": 25.0113728,
+      "lng": 55.3012866
+    },
+    "confidence": 0.74,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "district one mansions, mohammed bin rashid city": {
+    "matched_canonical": "District One Mansions",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District One",
+    "property": "District One Mansions",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "lime gardens, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "arabian ranches 3 (valley area or reem community)": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "seagate building 3, mina rashid": {
+    "matched_canonical": "Seagate Building 3",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": "Seagate",
+    "property": "Seagate Building 3",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "kensington waters a, mbr city / sobha hartland area": {
+    "matched_canonical": "Kensington Waters A",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Kensington Waters",
+    "property": "Kensington Waters A",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "reem community dubai, ruba, mira or spring community": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "hillside residences, wasl gate dubai": {
+    "matched_canonical": "Wasl Gate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Wasl Gate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Wasl Gate",
+    "coords": {
+      "lat": 25.0258041,
+      "lng": 55.1075536
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha estates villas, sobha hartland ii - mbr city": {
+    "matched_canonical": "Sobha Estates Villas",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland II",
+    "property": "Sobha Estates Villas",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "vida za'abeel, zabeel - dubai": {
+    "matched_canonical": "Zabeel",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Zabeel",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Zabeel",
+    "coords": {
+      "lat": 25.2098336,
+      "lng": 55.2979659
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the valley - talia, dubai": {
+    "matched_canonical": "Talia",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": "Talia",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "zabeel 1 or zabeel 2": {
+    "matched_canonical": "Zabeel 2",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Zabeel",
+    "subcommunity": "Zabeel 2",
+    "property": null,
+    "coords_key": "Zabeel 2",
+    "coords": {
+      "lat": 25.2312081,
+      "lng": 55.2915227
+    },
+    "confidence": 0.775,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "commercial building 2, al mina dubai": {
+    "matched_canonical": "Al Mina",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Al Mina",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Al Mina",
+    "coords": {
+      "lat": 25.2633934,
+      "lng": 55.2629323
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "hammock park, wasl gate": {
+    "matched_canonical": "Wasl Gate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Wasl Gate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Wasl Gate",
+    "coords": {
+      "lat": 25.0258041,
+      "lng": 55.1075536
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the valley community dubai": {
+    "matched_canonical": "The Valley",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "The Valley",
+    "coords": {
+      "lat": 25.0114653,
+      "lng": 55.4470718
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "park ridge, dubai hills estate": {
+    "matched_canonical": "Park Ridge",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Park Ridge",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "wilton park residences, mbr city - mohammed bin rashid": {
+    "matched_canonical": "Mohammed Bin Rashid City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mohammed Bin Rashid City",
+    "coords": {
+      "lat": 25.1640592,
+      "lng": 55.2856612
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "reem community dubai": {
+    "matched_canonical": "Reem",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Reem",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Reem",
+    "coords": {
+      "lat": 25.0315993,
+      "lng": 55.2756891
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "nara, the valley, dubai": {
+    "matched_canonical": "Nara",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": "Nara",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "executive residences 1, dubai hills estate": {
+    "matched_canonical": "Executive Residences 1",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Executive Residences",
+    "property": "Executive Residences 1",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "park heights 2, dubai hills estate": {
+    "matched_canonical": "Park Heights 2",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Park Heights",
+    "property": "Park Heights 2",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "bayline, mina rashid": {
+    "matched_canonical": "Bayline",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": "Bayline",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mina rashid area": {
+    "matched_canonical": "Mina Rashid",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mina Rashid",
+    "coords": {
+      "lat": 25.2709307,
+      "lng": 55.265831
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mag 960, mohammed bin rashid city": {
+    "matched_canonical": "Mohammed Bin Rashid City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mohammed Bin Rashid City",
+    "coords": {
+      "lat": 25.1640592,
+      "lng": 55.2856612
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the nook 1, wasl gate dubai": {
+    "matched_canonical": "The Nook 1",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Wasl Gate",
+    "subcommunity": "The Nook",
+    "property": "The Nook 1",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "arabian ranches 3 or reem dubai": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "palm hills, dubai hills estate": {
+    "matched_canonical": "Palm Hills",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Palm Hills",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "glitz 1, dubai studio city": {
+    "matched_canonical": "Glitz 1",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": "Glitz",
+    "property": "Glitz 1",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dubai studio city": {
+    "matched_canonical": "Dubai Studio City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Studio City",
+    "coords": {
+      "lat": 25.0415641,
+      "lng": 55.2522587
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha creek vistas reserve, sobha hartland - mohammed bin rashid city": {
+    "matched_canonical": "Sobha Creek Vistas Reserve",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": "Sobha Creek Vistas Reserve",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "joy, the valley dubai": {
+    "matched_canonical": "Joy",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Joy",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "golf grand or golf place - dubai hills": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "olivara residences 3, the valley": {
+    "matched_canonical": "Olivara Residences 3",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": "Olivara Residences",
+    "property": "Olivara Residences 3",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "al aweer village, al aweer, dubai": {
+    "matched_canonical": "Al Aweer Village",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Al Aweer",
+    "subcommunity": "Al Aweer Village",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mbr city (mohammed bin rashid)": {
+    "matched_canonical": "Mohammed Bin Rashid City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mohammed Bin Rashid City",
+    "coords": {
+      "lat": 25.1640592,
+      "lng": 55.2856612
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "one za'abeel, zabeel dubai": {
+    "matched_canonical": "One Za'abeel",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Zabeel",
+    "subcommunity": "Zabeel 1",
+    "property": "One Za'abeel",
+    "coords_key": "One Za'abeel",
+    "coords": {
+      "lat": 25.227438,
+      "lng": 55.2914234
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "murqquab area": {
+    "matched_canonical": "Murqquab",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Murqquab",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "address residences dubai hills estate, dubai hills estate": {
+    "matched_canonical": "Address Residences Dubai Hills Estate",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Address Residences Dubai Hills Estate",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.8917,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "farm gardens 2, the valley dubai": {
+    "matched_canonical": "Farm Gardens 2",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": "Farm Gardens 2",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "design quarter tower b, d3 dubai design district": {
+    "matched_canonical": "Design Quarter Tower B",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Design District",
+    "subcommunity": "Design Quarter",
+    "property": "Design Quarter Tower B",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "crest grande tower a, sobha hartland mbr city": {
+    "matched_canonical": "Crest Grande Tower A",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": "Crest Grande Tower A",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "bliss 2, arabian ranches 3": {
+    "matched_canonical": "Bliss 2",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Bliss 2",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mbr city - sobha hartland or district one area": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "residences 11, district one - mbr city": {
+    "matched_canonical": "Residences 11",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District One",
+    "property": "Residences 11",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the hive, dubai studio city": {
+    "matched_canonical": "Dubai Studio City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Studio City",
+    "coords": {
+      "lat": 25.0415641,
+      "lng": 55.2522587
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mira community reem dubai, mira 1, 2, 3, 4 or 5": {
+    "matched_canonical": "Mira",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Reem",
+    "subcommunity": "Mira",
+    "property": null,
+    "coords_key": "Mira",
+    "coords": {
+      "lat": 25.005315,
+      "lng": 55.3073624
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "parkland, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "399 hills park, dubai hills": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the valley": {
+    "matched_canonical": "The Valley",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "The Valley",
+    "coords": {
+      "lat": 25.0114653,
+      "lng": 55.4470718
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "nima, the valley dubai": {
+    "matched_canonical": "Nima",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": "Nima",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "khafajy building, zabeel 2, zabeel area": {
+    "matched_canonical": "Khafajy Building",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Zabeel",
+    "subcommunity": "Zabeel 2",
+    "property": "Khafajy Building",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dubai design district or d3": {
+    "matched_canonical": "Dubai Design District",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Design District",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Design District",
+    "coords": {
+      "lat": 25.1883375,
+      "lng": 55.2974839
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "creek vistas heights, sobha hartland - mbr city": {
+    "matched_canonical": "Creek Vistas Heights",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": "Creek Vistas Heights",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "reem area, mira oasis, raya, spring or ruba": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "ocean star, mina rashid": {
+    "matched_canonical": "Mina Rashid",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mina Rashid",
+    "coords": {
+      "lat": 25.2709307,
+      "lng": 55.265831
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mbr city - sobha hartland ii": {
+    "matched_canonical": "Sobha Hartland II",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland II",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "raya, reem community, dubai": {
+    "matched_canonical": "Raya",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Raya",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "socio by emaar, dubai hills": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "golf area dubai hills, golf grand or golf place or golfville": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "crest grande tower c, sobha hartland, mbr": {
+    "matched_canonical": "Crest Grande Tower C",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": "Crest Grande Tower C",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "gardenia residence, dubai studio city": {
+    "matched_canonical": "Gardenia",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Zabeel",
+    "subcommunity": "Al Murooj Complex",
+    "property": "Gardenia",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.775,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "azizi beach oasis 2, dubai studio city": {
+    "matched_canonical": "Dubai Studio City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Studio City",
+    "coords": {
+      "lat": 25.0415641,
+      "lng": 55.2522587
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dubai hills, golf suites or club drive or park lane area": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "hartland greens, sobha hartland, mohammed bin rashid city": {
+    "matched_canonical": "Hartland Greens",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": "Hartland Greens",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "elie saab, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mbr city, mag community, wilton area, district 7": {
+    "matched_canonical": "District 7",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 7",
+    "property": null,
+    "coords_key": "District 7",
+    "coords": {
+      "lat": 25.1717978,
+      "lng": 55.2739075
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "summer, the valley dubai": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "spring, reem community": {
+    "matched_canonical": "Spring",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Spring",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "al hudaiba award building, al mina dubai": {
+    "matched_canonical": "Al Hudaiba Award Building",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Al Mina",
+    "subcommunity": "Al Hudaiba Award Building",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.775,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "glitz 3, dubai studio city": {
+    "matched_canonical": "Glitz 3",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": "Glitz",
+    "property": "Glitz 3",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mag 980, mohammed bin rashid city": {
+    "matched_canonical": "Mohammed Bin Rashid City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mohammed Bin Rashid City",
+    "coords": {
+      "lat": 25.1640592,
+      "lng": 55.2856612
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mira 3 - reem community dubai": {
+    "matched_canonical": "Mira",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Reem",
+    "subcommunity": "Mira",
+    "property": null,
+    "coords_key": "Mira",
+    "coords": {
+      "lat": 25.005315,
+      "lng": 55.3073624
+    },
+    "confidence": 0.6583,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "claydon house, mbr city": {
+    "matched_canonical": "Mohammed Bin Rashid City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mohammed Bin Rashid City",
+    "coords": {
+      "lat": 25.1640592,
+      "lng": 55.2856612
+    },
+    "confidence": 0.93,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dubai marina": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "dubai design district (d3), mbr city, mohammed bin rashid": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "the valley, eden, talia, nara, orania": {
+    "matched_canonical": "Orania",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": "Orania",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.7875,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "gardenia townhomes, wasl gate dubai": {
+    "matched_canonical": "Wasl Gate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Wasl Gate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Wasl Gate",
+    "coords": {
+      "lat": 25.0258041,
+      "lng": 55.1075536
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mag 930, mbr city": {
+    "matched_canonical": "Mohammed Bin Rashid City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mohammed Bin Rashid City",
+    "coords": {
+      "lat": 25.1640592,
+      "lng": 55.2856612
+    },
+    "confidence": 0.93,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mbrmc area (district 7 or district 11)": {
+    "matched_canonical": "District 11",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": null,
+    "coords_key": "District 11",
+    "coords": {
+      "lat": 25.17548,
+      "lng": 55.2808838
+    },
+    "confidence": 0.875,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "marina views tower 2, mina rashid": {
+    "matched_canonical": "Marina Views Tower 2",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": "Marina Views",
+    "property": "Marina Views Tower 2",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "avonlea, the valley": {
+    "matched_canonical": "Avonlea",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": "Avonlea",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "zabeel, address zabeel, vida zabeel, one zabeel": {
+    "matched_canonical": "Address Residences Zabeel",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Zabeel",
+    "subcommunity": "Zabeel 1",
+    "property": "Address Residences Zabeel",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.74,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "pinnacle, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha one tower c, mohammed bin rashid city": {
+    "matched_canonical": "Sobha One Tower C",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": "Sobha One Tower C",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "wasl gate community, gardenia townhomes, the nook, hammock park": {
+    "matched_canonical": "Gardenia",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Zabeel",
+    "subcommunity": "Al Murooj Complex",
+    "property": "Gardenia",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.775,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "vida residence 2 - vida residences, dubai hills estate": {
+    "matched_canonical": "Vida Residence 2",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "The Hills",
+    "subcommunity": "Vida Residence",
+    "property": "Vida Residence 2",
+    "coords_key": "Vida Residence 2",
+    "coords": {
+      "lat": 25.0782119,
+      "lng": 55.158588
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mira oasis community, reem dubai": {
+    "matched_canonical": "Mira Oasis",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Reem",
+    "subcommunity": "Mira Oasis",
+    "property": null,
+    "coords_key": "Mira Oasis",
+    "coords": {
+      "lat": 25.0113728,
+      "lng": 55.3012866
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "club villas at dubai hills, dubai hills": {
+    "matched_canonical": "Club Villas at Dubai Hills",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Club Villas at Dubai Hills",
+    "property": null,
+    "coords_key": "Club Villas at Dubai Hills",
+    "coords": {
+      "lat": 25.1214918,
+      "lng": 55.260668
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "collective tower 2, mohammed bin rashid city": {
+    "matched_canonical": "Collective Tower 2",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Collective",
+    "property": "Collective Tower 2",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "caya 2, arabian ranches 3": {
+    "matched_canonical": "Caya 2",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Caya 2",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "arabian ranches 3 (caya or caya 2)": {
+    "matched_canonical": "Caya",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Caya",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "warsan estate, al aweer dubai": {
+    "matched_canonical": "Warsan Estate",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Al Aweer",
+    "subcommunity": "Warsan Estate",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "ellington house iii, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha hartland 2 or wilton terraces": {
+    "matched_canonical": "Sobha Hartland II",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland II",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.93,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "majestic vistas, the valley": {
+    "matched_canonical": "Majestic Vistas",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Majestic Vistas",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "socio tower 1, dubai hills estate": {
+    "matched_canonical": "Socio Tower 1",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Socio Tower",
+    "property": "Socio Tower 1",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "wasl gate, wasl port views, or mina rashid": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "mbr area or near district 7 or district 11 or sobha hartland": {
+    "matched_canonical": "Mohammed Bin Rashid City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mohammed Bin Rashid City",
+    "coords": {
+      "lat": 25.1640592,
+      "lng": 55.2856612
+    },
+    "confidence": 0.93,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "park field tower 1, dubai hills estate": {
+    "matched_canonical": "Park Field Tower 1",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Park Field",
+    "property": "Park Field Tower 1",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "azizi beach oasis, dubai studio city": {
+    "matched_canonical": "Azizi Beach Oasis",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": "Azizi Beach Oasis",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.7167,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "elora, the valley dubai": {
+    "matched_canonical": "Elora",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": "Elora",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mag 900, mbr city mohammed bin rashid": {
+    "matched_canonical": "MAG 900",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "MAG 900",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "seascape, mina rashid": {
+    "matched_canonical": "Seascape",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": "Seascape",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "elie saab ii, dubai hills estate": {
+    "matched_canonical": "Elie Saab II",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Elie Saab II",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "orania, the valley dubai": {
+    "matched_canonical": "Orania",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": "Orania",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mira 4, reem dubai": {
+    "matched_canonical": "Mira",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Reem",
+    "subcommunity": "Mira",
+    "property": null,
+    "coords_key": "Mira",
+    "coords": {
+      "lat": 25.005315,
+      "lng": 55.3073624
+    },
+    "confidence": 0.6875,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "glitz 2, dubai studio city": {
+    "matched_canonical": "Glitz 2",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": "Glitz",
+    "property": "Glitz 2",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "rivana, the valley": {
+    "matched_canonical": "Rivana",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": "Rivana",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "golf hillside, dubai hills estate": {
+    "matched_canonical": "Golf Hillside",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Golf Hillside",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "bliss, arabian ranches 3": {
+    "matched_canonical": "Bliss",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Bliss",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "ocean cove, mina rashid": {
+    "matched_canonical": "Mina Rashid",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mina Rashid",
+    "coords": {
+      "lat": 25.2709307,
+      "lng": 55.265831
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the hills a, the hills dubai": {
+    "matched_canonical": "The Hills",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "The Hills",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "The Hills",
+    "coords": {
+      "lat": 25.0786376,
+      "lng": 55.1581829
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "eden, the valley": {
+    "matched_canonical": "Eden",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": "Eden",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "seagate building 1, mina rashid": {
+    "matched_canonical": "Seagate Building 1",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": "Seagate",
+    "property": "Seagate Building 1",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "clearpoint, mina rashid dubai": {
+    "matched_canonical": "Mina Rashid",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mina Rashid",
+    "coords": {
+      "lat": 25.2709307,
+      "lng": 55.265831
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dragon tower a, dragon city dubai": {
+    "matched_canonical": "Dragon Tower A",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dragon City",
+    "subcommunity": "Dragon Towers",
+    "property": "Dragon Tower A",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "anya, arabian ranches 3": {
+    "matched_canonical": "Anya",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Anya",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "kensington waters b, mbr city": {
+    "matched_canonical": "Kensington Waters B",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Kensington Waters",
+    "property": "Kensington Waters B",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mira 5, reem community dubai": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "park gate, dubai hills estate": {
+    "matched_canonical": "Park Gate",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Park Gate",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "berkeley place, mbr city": {
+    "matched_canonical": "Mohammed Bin Rashid City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mohammed Bin Rashid City",
+    "coords": {
+      "lat": 25.1640592,
+      "lng": 55.2856612
+    },
+    "confidence": 0.93,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "samana santorini, dubai studio city": {
+    "matched_canonical": "Samana Santorini",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": "Samana Santorini",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.67,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "zaytouna residence studio city, dubai studio city": {
+    "matched_canonical": "Zaytouna Residence Studio City",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": "Zaytouna Residence Studio City",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.8333,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sunridge by emaar, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the waterway by prestige one, mbr city": {
+    "matched_canonical": "The Waterway by Prestige One",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "The Waterway by Prestige One",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.7885,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "waverly at dubai hills (park heights), dubai hills estate": {
+    "matched_canonical": "Park Heights",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Park Heights",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "farm gardens, the valley dubai": {
+    "matched_canonical": "Farm Gardens",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": "Farm Gardens",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the highbury, mbr city": {
+    "matched_canonical": "Mohammed Bin Rashid City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mohammed Bin Rashid City",
+    "coords": {
+      "lat": 25.1640592,
+      "lng": 55.2856612
+    },
+    "confidence": 0.93,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "seagate building 4, mina rashid": {
+    "matched_canonical": "Seagate Building 4",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": "Seagate",
+    "property": "Seagate Building 4",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "samana golf avenue, dubai studio city": {
+    "matched_canonical": "Samana Golf Avenue",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": "Samana Golf Avenue",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.7167,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "anya 2, arabian ranches 3": {
+    "matched_canonical": "Anya 2",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Anya 2",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "park lane, dubai hills estate": {
+    "matched_canonical": "Park Lane",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Park Lane",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sway residences, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "palace residences, mbr city dubai": {
+    "matched_canonical": "Mohammed Bin Rashid City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mohammed Bin Rashid City",
+    "coords": {
+      "lat": 25.1640592,
+      "lng": 55.2856612
+    },
+    "confidence": 0.93,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "marina views tower 3, mina rashid": {
+    "matched_canonical": "Marina Views Tower 3",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": "Marina Views",
+    "property": "Marina Views Tower 3",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "samana mykonos, dubai studio city": {
+    "matched_canonical": "Samana Mykonos",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": "Samana Mykonos",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.67,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sirdhana, mina rashid": {
+    "matched_canonical": "Mina Rashid",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mina Rashid",
+    "coords": {
+      "lat": 25.2709307,
+      "lng": 55.265831
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "reem dubai": {
+    "matched_canonical": "Reem",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Reem",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Reem",
+    "coords": {
+      "lat": 25.0315993,
+      "lng": 55.2756891
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "golf grove, dubai hills estate": {
+    "matched_canonical": "Golf Grove",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Golf Grove",
+    "property": null,
+    "coords_key": "Golf Grove",
+    "coords": {
+      "lat": 25.1144509,
+      "lng": 55.2742836
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "ellington house ii, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "laya heights, dubai studio city": {
+    "matched_canonical": "Dubai Studio City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Studio City",
+    "coords": {
+      "lat": 25.0415641,
+      "lng": 55.2522587
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "celia residence, dubai studio city": {
+    "matched_canonical": "Dubai Studio City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Studio City",
+    "coords": {
+      "lat": 25.0415641,
+      "lng": 55.2522587
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "olivara residences 1, the valley": {
+    "matched_canonical": "Olivara Residences 1",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": "Olivara Residences",
+    "property": "Olivara Residences 1",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "golf place 2, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "talia, the valley": {
+    "matched_canonical": "Talia",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "The Valley",
+    "subcommunity": "Talia",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "club place, dubai hills estate": {
+    "matched_canonical": "Club Place",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Club Place",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "al murooj complex, zabeel dubai": {
+    "matched_canonical": "Al Murooj Rotana Hotel",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Zabeel",
+    "subcommunity": "Al Murooj Complex",
+    "property": "Al Murooj Rotana Hotel",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.93,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "socio tower 2, dubai hills estate": {
+    "matched_canonical": "Socio Tower 2",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Socio Tower",
+    "property": "Socio Tower 2",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "arabic villas, mbr city": {
+    "matched_canonical": "Arabic Villas",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Arabic Villas",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mallside residence, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sun, reem dubai": {
+    "matched_canonical": "Sun",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Sun",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "emerald hills, dubai hills estate": {
+    "matched_canonical": "Emerald Hills",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Emerald Hills",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "vida hotel, the hills dubai": {
+    "matched_canonical": "The Hills",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "The Hills",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "The Hills",
+    "coords": {
+      "lat": 25.0786376,
+      "lng": 55.1581829
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "caya, arabian ranches 3": {
+    "matched_canonical": "Arabian Ranches 3",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Arabian Ranches 3",
+    "coords": {
+      "lat": 25.045,
+      "lng": 55.283
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "park point building a, dubai hills estate": {
+    "matched_canonical": "Park Point Building A",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Park Point",
+    "property": "Park Point Building A",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "prive residence, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "wilton terraces 2, mbr city": {
+    "matched_canonical": "Mohammed Bin Rashid City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mohammed Bin Rashid City",
+    "coords": {
+      "lat": 25.1640592,
+      "lng": 55.2856612
+    },
+    "confidence": 0.93,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha hartland villas phase 3, mbr city dubai": {
+    "matched_canonical": "Sobha Hartland",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "park point building c, dubai hills estate": {
+    "matched_canonical": "Park Point Building C",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Park Point",
+    "property": "Park Point Building C",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "lamborghini mansions, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "clearpoint mina rashid": {
+    "matched_canonical": "Mina Rashid",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mina Rashid",
+    "coords": {
+      "lat": 25.2709307,
+      "lng": 55.265831
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "district 11, mbr city": {
+    "matched_canonical": "District 11",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": null,
+    "coords_key": "District 11",
+    "coords": {
+      "lat": 25.17548,
+      "lng": 55.2808838
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the terraces, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "golfville, dubai hills": {
+    "matched_canonical": "Golfville",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Golfville",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "naya at district one, mbr city": {
+    "matched_canonical": "District One",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District One",
+    "property": null,
+    "coords_key": "District One",
+    "coords": {
+      "lat": 25.1600468,
+      "lng": 55.2788652
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the golf residence, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "avonlea, mina rashid dubai": {
+    "matched_canonical": "Avonlea",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": "Avonlea",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "ruba, reem community": {
+    "matched_canonical": "Ruba",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Ruba",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "district one phase iii, district one mbr city": {
+    "matched_canonical": "District One",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District One",
+    "property": null,
+    "coords_key": "District One",
+    "coords": {
+      "lat": 25.1600468,
+      "lng": 55.2788652
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "hills park, dubai hills estate": {
+    "matched_canonical": "Hills Park",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Hills Park",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha one tower a, mbr city sobha hartland": {
+    "matched_canonical": "Sobha one Tower A",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": "Sobha one Tower A",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "olivara residences 4, the valley": {
+    "matched_canonical": "Olivara Residences 4",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": "Olivara Residences",
+    "property": "Olivara Residences 4",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha hartland ii, mbr dubai": {
+    "matched_canonical": "Sobha Hartland II",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland II",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dubai hills, golf area": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "dxb hlls": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "silicon oasis dubai": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "sobha hartlnd 2, mbr cty dubai": {
+    "matched_canonical": "Sobha Hartland II",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland II",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "golf grand dubai hills": {
+    "matched_canonical": "Golf Grand",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Golf Grand",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "same area": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "hartland greens": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "sobha h2 mbrc": {
+    "matched_canonical": "Sobha Hartland II",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland II",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mira oasis, reem": {
+    "matched_canonical": "Mira Oasis",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Reem",
+    "subcommunity": "Mira Oasis",
+    "property": null,
+    "coords_key": "Mira Oasis",
+    "coords": {
+      "lat": 25.0113728,
+      "lng": 55.3012866
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "district 11, mbr": {
+    "matched_canonical": "District 11",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": null,
+    "coords_key": "District 11",
+    "coords": {
+      "lat": 25.17548,
+      "lng": 55.2808838
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dubai hills golf area": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "miraoasis townhouse, reem dubai": {
+    "matched_canonical": "Mira Oasis",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Reem",
+    "subcommunity": "Mira Oasis",
+    "property": null,
+    "coords_key": "Mira Oasis",
+    "coords": {
+      "lat": 25.0113728,
+      "lng": 55.3012866
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "d3": {
+    "matched_canonical": "Dubai Design District",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Design District",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Design District",
+    "coords": {
+      "lat": 25.1883375,
+      "lng": 55.2974839
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "bliss 3 arabian ranches": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "340 riverside crescent, mbr city": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "mohammed bin rashid city area, district one": {
+    "matched_canonical": "District One",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District One",
+    "property": null,
+    "coords_key": "District One",
+    "coords": {
+      "lat": 25.1600468,
+      "lng": 55.2788652
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dubai": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "arabian ranches 3 - caya": {
+    "matched_canonical": "Caya",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Arabian Ranches 3",
+    "subcommunity": "Caya",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha hartland 2": {
+    "matched_canonical": "Sobha Hartland II",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland II",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.93,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "waslgate dubai": {
+    "matched_canonical": "Wasl Gate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Wasl Gate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Wasl Gate",
+    "coords": {
+      "lat": 25.0258041,
+      "lng": 55.1075536
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the hills dubai": {
+    "matched_canonical": "The Hills",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "The Hills",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "The Hills",
+    "coords": {
+      "lat": 25.0786376,
+      "lng": 55.1581829
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "district 7, mbr city area": {
+    "matched_canonical": "District 7",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 7",
+    "property": null,
+    "coords_key": "District 7",
+    "coords": {
+      "lat": 25.1717978,
+      "lng": 55.2739075
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "al aweer": {
+    "matched_canonical": "Al Aweer",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Al Aweer",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Al Aweer",
+    "coords": {
+      "lat": 25.176036,
+      "lng": 55.5408265
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "oud al muteena dubai": {
+    "matched_canonical": "Oud Al Muteena",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Oud Al Muteena",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Oud Al Muteena",
+    "coords": {
+      "lat": 25.274823,
+      "lng": 55.4453362
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "murqquab dubai": {
+    "matched_canonical": "Murqquab",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Murqquab",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mina rashid dubai": {
+    "matched_canonical": "Mina Rashid",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Mina Rashid",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Mina Rashid",
+    "coords": {
+      "lat": 25.2709307,
+      "lng": 55.265831
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "any area": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "s0bha hartland m0hamm3d b1n rash1d c1ty": {
+    "matched_canonical": "Sobha Hartland",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "lago vista, business bay dubai": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "district 11 mbr city": {
+    "matched_canonical": "District 11",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": null,
+    "coords_key": "District 11",
+    "coords": {
+      "lat": 25.17548,
+      "lng": 55.2808838
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "mira oasis 3, reem, dubai": {
+    "matched_canonical": "Mira Oasis",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Reem",
+    "subcommunity": "Mira Oasis",
+    "property": null,
+    "coords_key": "Mira Oasis",
+    "coords": {
+      "lat": 25.0113728,
+      "lng": 55.3012866
+    },
+    "confidence": 0.74,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "design quarter tower c, dubai design district": {
+    "matched_canonical": "Design Quarter Tower C",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Design District",
+    "subcommunity": "Design Quarter",
+    "property": "Design Quarter Tower C",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "emaar grand polo club, dubai polo & equestrian club area": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "park heights": {
+    "matched_canonical": "Park Heights",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Park Heights",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "olivara residences 2, the valley dubai": {
+    "matched_canonical": "Olivara Residences 2",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": "Olivara Residences",
+    "property": "Olivara Residences 2",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the grove by iman, dubai studio city": {
+    "matched_canonical": "Dubai Studio City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Studio City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Studio City",
+    "coords": {
+      "lat": 25.0415641,
+      "lng": 55.2522587
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "ellington house, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "golf suites, dubai hills estate": {
+    "matched_canonical": "Golf Suites",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Dubai Hills",
+    "property": "Golf Suites",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "parkside hills, dubai hills estate": {
+    "matched_canonical": "Parkside Hills",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Parkside Hills",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "parkside views, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Estate",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Hills Estate",
+    "coords": {
+      "lat": 25.1025,
+      "lng": 55.2408
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "park horizon, dubai hills estate": {
+    "matched_canonical": "Park Horizon",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Park Horizon",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dubai hills grove, dubai hills estate": {
+    "matched_canonical": "Dubai Hills Grove",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Dubai Hills Grove",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "dubai hills view, dubai hills": {
+    "matched_canonical": "Dubai Hills View",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Dubai Hills View",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the residences at district one, mbr city district one": {
+    "matched_canonical": "The Residences at District One",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "The Residences at District One",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "address hillcrest, dubai hills estate": {
+    "matched_canonical": "Address Hillcrest",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Address Hillcrest",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "wadi villas by arista, the valley": {
+    "matched_canonical": "Wadi Villas by Arista",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": "Wadi Villas by Arista",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the spark by esnaad, mbr city": {
+    "matched_canonical": "The Spark By Esnaad",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": "The Spark By Esnaad",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "nineteen riviera lagoon, mbr city": {
+    "matched_canonical": "Nineteen Riviera Lagoon",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": "Nineteen Riviera Lagoon",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "lua residences, mbr city": {
+    "matched_canonical": "Lua Residences",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": "Lua Residences",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "hyde residences, dubai hills estate": {
+    "matched_canonical": "Hyde Residences",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Dubai Hills",
+    "property": "Hyde Residences",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "senses at the fields, district 11 mbr city": {
+    "matched_canonical": "Senses at the Fields",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": "Senses at the Fields",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "viridian at the fields, district 11 mbr city": {
+    "matched_canonical": "Viridian at the Fields",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": "Viridian at the Fields",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "cassia at the fields, district 11 mbr city": {
+    "matched_canonical": "Cassia at the Fields",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": "Cassia at the Fields",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the lakeshore villas by ellington, dubai hills estate": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "jade at the fields, district 11 mbr city": {
+    "matched_canonical": "Jade at the Fields",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": "Jade at the Fields",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "fairway vistas, dubai hills estate": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "greenside residence, dubai hills estate": {
+    "matched_canonical": "Greenside Residence",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Dubai Hills",
+    "property": "Greenside Residence",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "grenland residence, dubai hills estate": {
+    "matched_canonical": "Grenland Residence",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": "Grenland Residence",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the woodland residences, dubai hills estate": {
+    "matched_canonical": "The Woodland Residences",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District 11",
+    "property": "The Woodland Residences",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "the parkway at dubai hills, dubai hills estate": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "waves grande, sobha hartland, mbr city": {
+    "matched_canonical": "Waves Grande",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": "Waves Grande",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha creek vistas grande, sobha hartland mbr": {
+    "matched_canonical": "Sobha Creek Vistas Grande",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": "Sobha Creek Vistas Grande",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha creek vista heights, mbr city sobha hartland": {
+    "matched_canonical": "Sobha Creek Vista Heights",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": "Sobha Creek Vista Heights",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha hartland estates townhouses, sobha hartland mbr city": {
+    "matched_canonical": "Sobha Hartland",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "sobha creek vistas tower b, sobha hartland mbr city": {
+    "matched_canonical": "Sobha Creek Vistas Tower B",
+    "matched_level": "property",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "Sobha Hartland",
+    "property": "Sobha Creek Vistas Tower B",
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "al reef villas": {
+    "matched_canonical": "Al Reef",
+    "matched_level": "community",
+    "city": null,
+    "community": "Al Reef",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Al Reef",
+    "coords": {
+      "lat": 24.4664366,
+      "lng": 54.6568914
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "international city, dubai": {
+    "matched_canonical": "International City",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "International City",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "International City",
+    "coords": {
+      "lat": 25.1653,
+      "lng": 55.4119
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "business bay, dubai": {
+    "matched_canonical": "Business Bay",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Business Bay",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Business Bay",
+    "coords": {
+      "lat": 25.1872,
+      "lng": 55.2553
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "jumeirah, dubai": {
+    "matched_canonical": "Jumeirah",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Jumeirah",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Jumeirah",
+    "coords": {
+      "lat": 25.2104,
+      "lng": 55.2382
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "downtown dubai": {
+    "matched_canonical": "Downtown Dubai",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Downtown Dubai",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Downtown Dubai",
+    "coords": {
+      "lat": 25.1972,
+      "lng": 55.2744
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "jvc, dubai": {
+    "matched_canonical": "Jumeirah Village Circle",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Jumeirah Village Circle",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Jumeirah Village Circle",
+    "coords": {
+      "lat": 25.058,
+      "lng": 55.209
+    },
+    "confidence": 0.93,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  }
 }

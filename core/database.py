@@ -44,6 +44,7 @@ def _ensure_indexes(db):
         coll.create_index([("bhk", ASCENDING), ("matched", ASCENDING)])
         coll.create_index([("price_aed", ASCENDING), ("matched", ASCENDING)])
         coll.create_index([("fingerprint", ASCENDING)], unique=False)
+        coll.create_index([("location_coords", "2dsphere")])
 
     db[COLLECTION_MATCHES].create_index([("buy_id", ASCENDING)])
     db[COLLECTION_MATCHES].create_index([("sell_id", ASCENDING)])
@@ -52,6 +53,45 @@ def _ensure_indexes(db):
 
 def _collection(name: str):
     return get_db()[name]
+
+
+def _has_geojson_point(value: object) -> bool:
+    if not isinstance(value, dict):
+        return False
+    if value.get("type") != "Point":
+        return False
+    coords = value.get("coordinates")
+    return isinstance(coords, (list, tuple)) and len(coords) == 2
+
+
+def _apply_location_metadata(listing: dict) -> None:
+    resolver = None
+    if isinstance(listing.get("location_resolution"), dict):
+        resolver = listing.get("location_resolution")
+    elif isinstance(listing.get("location_result"), dict):
+        resolver = listing.get("location_result")
+
+    if resolver:
+        listing["location"] = resolver.get("matched_canonical")
+        listing["location_level"] = resolver.get("matched_level")
+        listing["location_city"] = resolver.get("city")
+        listing["location_community"] = resolver.get("community")
+        listing["location_subcommunity"] = resolver.get("subcommunity")
+        listing["location_property"] = resolver.get("property")
+        listing["location_confidence"] = resolver.get("confidence")
+        listing["location_resolution_path"] = resolver.get("resolution_path")
+        listing["location_unresolved"] = resolver.get("location_unresolved")
+
+    coords_payload = listing.get("location_coords") if _has_geojson_point(listing.get("location_coords")) else None
+
+    if coords_payload is None and resolver:
+        coords = resolver.get("coords")
+        if coords and coords.get("lat") is not None and coords.get("lng") is not None:
+            coords_payload = {
+                "type": "Point",
+                "coordinates": [coords["lng"], coords["lat"]],
+            }
+            listing["location_coords"] = coords_payload
 
 
 # ── Fingerprint / Duplicate Detection ─────────────────────────────────────────
@@ -99,6 +139,7 @@ def insert_listing(listing: dict) -> ObjectId | None:
     Returns None if duplicate detected.
     """
     listing = listing.copy()
+    _apply_location_metadata(listing)
     listing["created_at"] = datetime.now(timezone.utc)
     listing["matched"] = False
     listing["match_id"] = None
