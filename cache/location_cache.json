@@ -3997,5 +3997,143 @@
     "confidence": 0.93,
     "resolution_path": "gemini_arbitration",
     "location_unresolved": false
+  },
+  "urban oasis business bay": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "nad al sheba gardens phase 2": {
+    "matched_canonical": "Phase 2",
+    "matched_level": "subcommunity",
+    "city": null,
+    "community": null,
+    "subcommunity": "Phase 2",
+    "property": null,
+    "coords_key": "Phase 2",
+    "coords": {
+      "lat": 25.0222097,
+      "lng": 55.1442755
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "damac lagoons, costa brava": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "opal gardens": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "equity homes al furjan": {
+    "matched_canonical": "Al Furjan",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Al Furjan",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Al Furjan",
+    "coords": {
+      "lat": 25.0228,
+      "lng": 55.1393
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "palace residence creek harbour": {
+    "matched_canonical": "Dubai Creek Harbour (The Lagoons), Dubai",
+    "matched_level": "community",
+    "city": null,
+    "community": "Dubai Creek Harbour (The Lagoons), Dubai",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.95,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "elie saab the fields": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "d1w p1": {
+    "matched_canonical": "Phase 1",
+    "matched_level": "subcommunity",
+    "city": null,
+    "community": null,
+    "subcommunity": "Phase 1",
+    "property": null,
+    "coords_key": "Phase 1",
+    "coords": {
+      "lat": 25.0221454,
+      "lng": 55.1442765
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "address dubai opera t2": {
+    "matched_canonical": "Downtown Dubai, Dubai",
+    "matched_level": "community",
+    "city": null,
+    "community": "Downtown Dubai, Dubai",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 0.95,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
   }
 }

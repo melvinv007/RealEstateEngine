@@ -3,6 +3,7 @@ gemini_client.py
 Centralised AI caller with Gemini primary + Groq fallback.
 
 Features:
+- Uses google.genai (new SDK) for Gemini calls
 - Tries each Gemini model in GEMINI_MODELS in order
 - When all Gemini models exhausted → falls through to Groq models
 - Daily quota exhausted → skip model immediately, blacklist for session
@@ -15,13 +16,15 @@ Features:
 - JSON mode: Gemini uses response_mime_type, Groq uses response_format
 """
 
+import base64
 import re
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from core.config import (
     GEMINI_API_KEY,
@@ -32,7 +35,14 @@ from core.config import (
     OPENROUTER_MODELS,
 )
 
-genai.configure(api_key=GEMINI_API_KEY)
+_GEMINI_CLIENT = None
+
+
+def _get_gemini_client() -> genai.Client | None:
+    global _GEMINI_CLIENT
+    if _GEMINI_CLIENT is None and GEMINI_API_KEY:
+        _GEMINI_CLIENT = genai.Client(api_key=GEMINI_API_KEY)
+    return _GEMINI_CLIENT
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 RETRY_MAX          = 3      # max attempts per model for transient errors
@@ -95,6 +105,26 @@ def _prompt_to_string(prompt: Any) -> str:
                     parts.append(str(p))
         return "\n".join(parts)
     return str(prompt)
+
+
+def _normalize_contents(prompt: Any, image_part: dict | None) -> list[Any]:
+    contents: list[Any] = []
+
+    if isinstance(prompt, list):
+        contents.extend(prompt)
+    else:
+        contents.append(prompt)
+
+    if image_part:
+        image_bytes = base64.b64decode(image_part["data"])
+        contents.append(
+            types.Part.from_bytes(
+                data=image_bytes,
+                mime_type=image_part["mime_type"],
+            )
+        )
+
+    return contents
 
 
 def _set_current_model(model_name: str) -> None:
@@ -228,19 +258,24 @@ def _call_gemini_models(
         if system_instruction:
             kwargs["system_instruction"] = system_instruction
 
-        model = genai.GenerativeModel(
-            model_name=model_name,
-            generation_config=generation_config or {},
-            **kwargs,
-        )
+        config_kwargs: dict[str, Any] = dict(generation_config or {})
+        if system_instruction:
+            config_kwargs["system_instruction"] = system_instruction
+        config = types.GenerateContentConfig(**config_kwargs)
+
+        contents = _normalize_contents(prompt, image_part)
+        client = _get_gemini_client()
+        if client is None:
+            return None
 
         for attempt in range(1, RETRY_MAX + 1):
             t_start = time.time()
             try:
-                if image_part:
-                    response = model.generate_content(prompt + [{"inline_data": image_part}])
-                else:
-                    response = model.generate_content(prompt)
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=contents,
+                    config=config,
+                )
 
                 latency = time.time() - t_start
                 _log_call(model_name, True, latency)

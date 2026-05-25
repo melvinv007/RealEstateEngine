@@ -4,7 +4,4 @@ __pycache__/
 *.png
 .venv/
 old.*
-cache/*.json
-cache/*.log
 md_files/
-inputs/
