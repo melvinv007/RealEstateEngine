@@ -36,6 +36,41 @@ USE_GEMINI_RESOLVER_COLD_STEP_B = True
 # location/geocoder.py — Nominatim geocoding in _geocode_raw()
 USE_NOMINATIM_GEOCODING = True
 
+# ── WhatsApp Ingest Settings ─────────────────────────────────────────────────
+WA_FIELD_RAW_MESSAGE = "raw_message"
+WA_FIELD_MESSAGE_ID = "message_id"
+WA_FIELD_PHONE_NUMBER = "phone_number"
+WA_TIMESTAMP_FIELD = "received_at"
+
+WA_STORED_MESSAGE_ID = "wa_message_id"
+WA_STORED_PHONE_NUMBER = "wa_phone_number"
+WA_STORED_RECEIVED_AT = "wa_received_at"
+
+WA_NOTIFY_BOTH_SIDES = False
+
+WA_BUY_MATCH_MESSAGE = (
+    "✅ Match found for your requirement!\n"
+    "📍 Location: {location}\n"
+    "💰 Price: AED {price:,}\n"
+    "🛏 {bhk}BR {property_type}\n"
+    "👤 Seller Broker: {broker_name} | {broker_phone}\n"
+    "🎯 Match Score: {score:.0%}"
+)
+
+WA_SELL_MATCH_MESSAGE = (
+    "✅ Buyer found for your listing!\n"
+    "📍 Looking in: {location}\n"
+    "💰 Budget: AED {budget:,}\n"
+    "🛏 {bhk}BR {property_type}\n"
+    "👤 Buyer Broker: {broker_name} | {broker_phone}\n"
+    "🎯 Match Score: {score:.0%}"
+)
+
+WA_NO_MATCH_MESSAGE = (
+    "No matching listing found at this time. "
+    "Your requirement has been saved and you will be notified when a match is found."
+)
+
 # ── MongoDB ───────────────────────────────────────────────────────────────────
 # MONGO_URI = "mongodb://localhost:27017"             # or Atlas URI
 # MONGO_URI = "mongodb+srv://fonot94264_db_user:3xp9bBPec8jkTFQS@cluster0.rkuyemc.mongodb.net/?appName=Cluster0"             # or Atlas URI
@@ -54,8 +89,8 @@ SQFT_TOLERANCE = 0.20           # ±20% on sqft (set to None to skip sqft matchi
 # MODEL = "gemini-3.1-flash-lite"
 
 GEMINI_MODELS = [
-    "gemini-3.1-flash-lite",
     "gemini-3.5-flash",
+    "gemini-3.1-flash-lite",
     "gemini-2.5-flash-lite",
     "gemini-2.5-flash",
     "gemini-2.5-pro",

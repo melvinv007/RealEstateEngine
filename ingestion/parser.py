@@ -47,6 +47,10 @@ NO comments.
 
 Return a JSON ARRAY.
 
+The input may contain multiple listings with no clear separator.
+You MUST return a JSON array, one object per listing.
+Even if there is only one listing, return a JSON array.
+
 Each listing MUST follow this exact schema:
 
 {
