@@ -117,3 +117,340 @@
 2026-05-25T21:58:26	gemini-3.1-flash-lite	OK	1.80s	
 2026-05-25T21:59:05	gemini-3.1-flash-lite	OK	2.98s	
 2026-05-25T22:13:35	gemini-3.1-flash-lite	OK	7.75s	
+2026-05-27T05:40:34	gemini-3.5-flash	OK	5.11s	
+2026-05-27T05:40:35	gemini-3.5-flash	OK	5.35s	
+2026-05-27T05:40:41	gemini-3.5-flash	OK	5.04s	
+2026-05-27T05:40:43	gemini-3.5-flash	OK	6.00s	
+2026-05-27T05:40:48	gemini-3.5-flash	OK	5.09s	
+2026-05-27T05:40:50	gemini-3.5-flash	OK	4.15s	
+2026-05-27T05:40:52	gemini-3.5-flash	FAIL	0.24s	rate_limit_attempt1
+2026-05-27T05:40:55	gemini-3.5-flash	OK	5.52s	
+2026-05-27T05:40:57	gemini-3.5-flash	FAIL	0.33s	rate_limit_attempt2
+2026-05-27T05:40:58	gemini-3.5-flash	FAIL	0.23s	rate_limit_attempt1
+2026-05-27T05:41:02	gemini-3.5-flash	FAIL	0.31s	rate_limit_attempt3
+2026-05-27T05:41:03	gemini-3.5-flash	FAIL	0.27s	rate_limit_attempt2
+2026-05-27T05:41:08	gemini-3.5-flash	FAIL	0.28s	rate_limit_attempt3
+2026-05-27T05:41:10	gemini-3.1-flash-lite	OK	2.24s	
+2026-05-27T05:41:12	gemini-3.1-flash-lite	OK	9.27s	
+2026-05-27T05:41:13	gemini-3.5-flash	FAIL	0.19s	rate_limit_attempt1
+2026-05-27T05:41:14	gemini-3.5-flash	FAIL	0.23s	rate_limit_attempt1
+2026-05-27T05:41:18	gemini-3.5-flash	FAIL	0.31s	rate_limit_attempt2
+2026-05-27T05:41:19	gemini-3.5-flash	FAIL	0.28s	rate_limit_attempt2
+2026-05-27T05:41:23	gemini-3.5-flash	FAIL	0.34s	rate_limit_attempt3
+2026-05-27T05:41:24	gemini-3.5-flash	FAIL	0.25s	rate_limit_attempt3
+2026-05-27T05:41:25	gemini-3.1-flash-lite	OK	1.42s	
+2026-05-27T05:41:26	gemini-3.1-flash-lite	OK	1.64s	
+2026-05-27T05:41:27	gemini-3.5-flash	FAIL	0.20s	rate_limit_attempt1
+2026-05-27T05:41:28	gemini-3.5-flash	FAIL	0.22s	rate_limit_attempt1
+2026-05-27T05:41:38	gemini-3.5-flash	OK	5.88s	
+2026-05-27T05:41:38	gemini-3.5-flash	OK	4.75s	
+2026-05-27T05:41:47	gemini-3.5-flash	OK	6.53s	
+2026-05-27T05:41:47	gemini-3.5-flash	OK	7.12s	
+2026-05-27T05:41:54	gemini-3.5-flash	OK	5.43s	
+2026-05-27T05:41:55	gemini-3.5-flash	OK	6.73s	
+2026-05-27T05:41:57	gemini-3.5-flash	FAIL	0.18s	rate_limit_attempt1
+2026-05-27T05:41:58	gemini-3.5-flash	FAIL	0.22s	rate_limit_attempt1
+2026-05-27T05:42:02	gemini-3.5-flash	FAIL	0.17s	rate_limit_attempt2
+2026-05-27T05:42:03	gemini-3.5-flash	FAIL	0.44s	rate_limit_attempt2
+2026-05-27T05:42:07	gemini-3.5-flash	FAIL	0.18s	rate_limit_attempt3
+2026-05-27T05:42:08	gemini-3.5-flash	FAIL	0.31s	rate_limit_attempt3
+2026-05-27T05:42:11	gemini-3.1-flash-lite	OK	2.25s	
+2026-05-27T05:42:13	gemini-3.5-flash	FAIL	0.20s	rate_limit_attempt1
+2026-05-27T05:42:17	gemini-3.1-flash-lite	OK	10.16s	
+2026-05-27T05:42:19	gemini-3.5-flash	FAIL	0.60s	rate_limit_attempt2
+2026-05-27T05:42:19	gemini-3.5-flash	FAIL	0.20s	rate_limit_attempt1
+2026-05-27T05:42:24	gemini-3.5-flash	FAIL	0.32s	rate_limit_attempt3
+2026-05-27T05:42:25	gemini-3.5-flash	FAIL	0.32s	rate_limit_attempt2
+2026-05-27T05:42:27	gemini-3.1-flash-lite	OK	3.21s	
+2026-05-27T05:42:35	gemini-3.5-flash	OK	5.30s	
+2026-05-27T05:42:37	gemini-3.5-flash	OK	6.61s	
+2026-05-27T05:42:42	gemini-3.5-flash	OK	5.74s	
+2026-05-27T05:42:46	gemini-3.5-flash	OK	6.98s	
+2026-05-27T05:42:51	gemini-3.5-flash	OK	6.06s	
+2026-05-27T05:42:53	gemini-3.5-flash	FAIL	0.19s	rate_limit_attempt1
+2026-05-27T05:42:53	gemini-3.5-flash	OK	5.43s	
+2026-05-27T05:42:55	gemini-3.5-flash	FAIL	0.17s	rate_limit_attempt1
+2026-05-27T05:42:58	gemini-3.5-flash	FAIL	0.32s	rate_limit_attempt2
+2026-05-27T05:43:01	gemini-3.5-flash	FAIL	0.33s	rate_limit_attempt2
+2026-05-27T05:43:03	gemini-3.5-flash	FAIL	0.28s	rate_limit_attempt3
+2026-05-27T05:43:05	gemini-3.1-flash-lite	OK	1.58s	
+2026-05-27T05:43:06	gemini-3.5-flash	FAIL	0.32s	rate_limit_attempt3
+2026-05-27T05:43:07	gemini-3.1-flash-lite	OK	1.08s	
+2026-05-27T05:43:07	gemini-3.5-flash	FAIL	0.16s	rate_limit_attempt1
+2026-05-27T05:43:09	gemini-3.5-flash	FAIL	0.21s	rate_limit_attempt1
+2026-05-27T05:43:12	gemini-3.5-flash	FAIL	0.28s	rate_limit_attempt2
+2026-05-27T05:43:14	gemini-3.5-flash	FAIL	0.15s	rate_limit_attempt2
+2026-05-27T05:43:18	gemini-3.5-flash	FAIL	0.15s	rate_limit_attempt3
+2026-05-27T05:43:20	gemini-3.5-flash	FAIL	0.31s	rate_limit_attempt3
+2026-05-27T05:43:20	gemini-3.1-flash-lite	OK	0.83s	
+2026-05-27T05:43:23	gemini-3.5-flash	FAIL	0.17s	rate_limit_attempt1
+2026-05-27T05:43:27	gemini-3.1-flash-lite	OK	9.59s	
+2026-05-27T05:43:28	gemini-3.5-flash	FAIL	0.28s	rate_limit_attempt2
+2026-05-27T05:43:33	gemini-3.5-flash	FAIL	0.18s	daily_quota
+2026-05-27T05:43:33	gemini-3.5-flash	OK	3.98s	
+2026-05-27T05:43:35	gemini-3.1-flash-lite	OK	1.51s	
+2026-05-27T05:43:35	gemini-3.5-flash	FAIL	0.20s	daily_quota
+2026-05-27T05:43:37	gemini-3.1-flash-lite	OK	1.70s	
+2026-05-27T05:43:38	gemini-3.1-flash-lite	OK	1.29s	
+2026-05-27T05:43:41	gemini-3.1-flash-lite	OK	1.66s	
+2026-05-27T05:43:53	gemini-3.1-flash-lite	OK	13.57s	
+2026-05-27T05:43:56	gemini-3.1-flash-lite	OK	13.62s	
+2026-05-27T05:43:57	gemini-3.1-flash-lite	OK	1.38s	
+2026-05-27T05:44:00	gemini-3.1-flash-lite	OK	1.51s	
+2026-05-27T05:44:00	gemini-3.1-flash-lite	OK	1.33s	
+2026-05-27T05:44:04	gemini-3.1-flash-lite	OK	1.36s	
+2026-05-27T05:44:07	gemini-3.1-flash-lite	OK	1.35s	
+2026-05-27T05:44:10	gemini-3.1-flash-lite	OK	1.49s	
+2026-05-27T05:44:13	gemini-3.1-flash-lite	OK	1.00s	
+2026-05-27T05:44:15	gemini-3.1-flash-lite	OK	13.67s	
+2026-05-27T05:44:17	gemini-3.1-flash-lite	OK	1.26s	
+2026-05-27T05:44:19	gemini-3.1-flash-lite	OK	1.31s	
+2026-05-27T05:44:20	gemini-3.1-flash-lite	OK	1.18s	
+2026-05-27T05:44:23	gemini-3.1-flash-lite	OK	2.11s	
+2026-05-27T05:44:24	gemini-3.1-flash-lite	OK	1.81s	
+2026-05-27T05:44:27	gemini-3.1-flash-lite	OK	1.59s	
+2026-05-27T05:44:27	gemini-3.1-flash-lite	OK	1.69s	
+2026-05-27T05:44:31	gemini-3.1-flash-lite	OK	1.35s	
+2026-05-27T05:44:36	gemini-3.1-flash-lite	OK	7.16s	
+2026-05-27T05:44:39	gemini-3.1-flash-lite	OK	6.20s	
+2026-05-27T05:44:39	gemini-3.1-flash-lite	OK	1.55s	
+2026-05-27T05:44:41	gemini-3.1-flash-lite	FAIL	0.19s	rate_limit_attempt1
+2026-05-27T05:44:42	gemini-3.1-flash-lite	OK	1.44s	
+2026-05-27T05:44:45	gemini-3.1-flash-lite	FAIL	0.23s	rate_limit_attempt1
+2026-05-27T05:44:47	gemini-3.1-flash-lite	FAIL	0.42s	rate_limit_attempt2
+2026-05-27T05:44:50	gemini-3.1-flash-lite	FAIL	0.20s	rate_limit_attempt2
+2026-05-27T05:44:52	gemini-3.1-flash-lite	FAIL	0.30s	rate_limit_attempt3
+2026-05-27T05:44:54	gemini-2.5-flash-lite	OK	1.79s	
+2026-05-27T05:44:55	gemini-3.1-flash-lite	FAIL	0.36s	rate_limit_attempt3
+2026-05-27T05:44:56	gemini-3.1-flash-lite	FAIL	0.22s	rate_limit_attempt1
+2026-05-27T05:44:57	gemini-2.5-flash-lite	OK	1.76s	
+2026-05-27T05:44:59	gemini-3.1-flash-lite	FAIL	0.22s	rate_limit_attempt1
+2026-05-27T05:45:01	gemini-3.1-flash-lite	FAIL	0.28s	rate_limit_attempt2
+2026-05-27T05:45:06	gemini-3.1-flash-lite	OK	1.40s	
+2026-05-27T05:45:09	gemini-3.1-flash-lite	OK	2.19s	
+2026-05-27T05:45:11	gemini-3.1-flash-lite	OK	3.21s	
+2026-05-27T05:45:13	gemini-3.1-flash-lite	OK	2.69s	
+2026-05-27T05:45:15	gemini-3.1-flash-lite	OK	2.31s	
+2026-05-27T05:45:17	gemini-3.1-flash-lite	OK	1.70s	
+2026-05-27T05:45:18	gemini-3.1-flash-lite	OK	1.20s	
+2026-05-27T05:45:20	gemini-3.1-flash-lite	OK	1.06s	
+2026-05-27T05:45:31	gemini-3.1-flash-lite	OK	10.28s	
+2026-05-27T05:45:35	gemini-3.1-flash-lite	OK	13.07s	
+2026-05-27T05:45:38	gemini-3.1-flash-lite	OK	1.11s	
+2026-05-27T05:45:42	gemini-3.1-flash-lite	OK	1.55s	
+2026-05-27T05:45:44	gemini-3.1-flash-lite	OK	11.02s	
+2026-05-27T05:45:49	gemini-3.1-flash-lite	OK	5.28s	
+2026-05-27T05:45:56	gemini-3.1-flash-lite	OK	4.55s	
+2026-05-27T05:45:57	gemini-3.1-flash-lite	OK	11.44s	
+2026-05-27T05:45:58	gemini-3.1-flash-lite	FAIL	0.24s	rate_limit_attempt1
+2026-05-27T05:45:59	gemini-3.1-flash-lite	FAIL	0.19s	rate_limit_attempt1
+2026-05-27T05:46:04	gemini-3.1-flash-lite	OK	1.06s	
+2026-05-27T05:46:06	gemini-3.1-flash-lite	OK	1.34s	
+2026-05-27T05:46:07	gemini-3.1-flash-lite	OK	1.10s	
+2026-05-27T05:46:11	gemini-3.1-flash-lite	OK	1.78s	
+2026-05-27T05:46:15	gemini-3.1-flash-lite	OK	1.94s	
+2026-05-27T05:46:24	gemini-3.1-flash-lite	OK	16.56s	
+2026-05-27T05:46:27	gemini-3.1-flash-lite	OK	0.92s	
+2026-05-27T05:46:30	gemini-3.1-flash-lite	OK	13.13s	
+2026-05-27T05:46:35	gemini-3.1-flash-lite	OK	2.59s	
+2026-05-27T05:46:42	gemini-3.1-flash-lite	OK	12.91s	
+2026-05-27T05:46:43	gemini-3.1-flash-lite	OK	6.41s	
+2026-05-27T05:46:52	gemini-3.1-flash-lite	OK	6.53s	
+2026-05-27T05:46:55	gemini-3.1-flash-lite	OK	1.74s	
+2026-05-27T05:46:56	gemini-3.1-flash-lite	OK	11.75s	
+2026-05-27T05:46:59	gemini-3.1-flash-lite	OK	1.85s	
+2026-05-27T05:46:59	gemini-3.1-flash-lite	OK	1.28s	
+2026-05-27T05:47:01	gemini-3.1-flash-lite	FAIL	0.17s	rate_limit_attempt1
+2026-05-27T05:47:01	gemini-3.1-flash-lite	FAIL	0.19s	rate_limit_attempt1
+2026-05-27T05:47:08	gemini-3.1-flash-lite	OK	1.15s	
+2026-05-27T05:47:10	gemini-3.1-flash-lite	OK	3.49s	
+2026-05-27T05:47:14	gemini-3.1-flash-lite	OK	2.35s	
+2026-05-27T05:47:18	gemini-3.1-flash-lite	OK	1.32s	
+2026-05-27T05:47:20	gemini-3.1-flash-lite	OK	10.69s	
+2026-05-27T05:47:21	gemini-3.1-flash-lite	OK	1.05s	
+2026-05-27T05:47:24	gemini-3.1-flash-lite	OK	1.36s	
+2026-05-27T05:47:27	gemini-3.1-flash-lite	OK	1.68s	
+2026-05-27T05:47:27	gemini-3.1-flash-lite	OK	1.78s	
+2026-05-27T05:47:30	gemini-3.1-flash-lite	OK	1.08s	
+2026-05-27T05:47:34	gemini-3.1-flash-lite	OK	2.02s	
+2026-05-27T05:47:37	gemini-3.1-flash-lite	OK	7.88s	
+2026-05-27T05:47:38	gemini-3.1-flash-lite	OK	1.08s	
+2026-05-27T05:47:41	gemini-3.1-flash-lite	OK	1.37s	
+2026-05-27T05:47:41	gemini-3.1-flash-lite	OK	1.28s	
+2026-05-27T05:47:43	gemini-3.1-flash-lite	FAIL	0.25s	rate_limit_attempt1
+2026-05-27T05:47:43	gemini-3.1-flash-lite	FAIL	0.17s	rate_limit_attempt1
+2026-05-27T05:47:48	gemini-3.1-flash-lite	FAIL	0.25s	rate_limit_attempt2
+2026-05-27T05:47:48	gemini-3.1-flash-lite	FAIL	0.29s	rate_limit_attempt2
+2026-05-27T05:47:53	gemini-3.1-flash-lite	FAIL	0.17s	rate_limit_attempt3
+2026-05-27T05:47:54	gemini-3.1-flash-lite	FAIL	0.32s	rate_limit_attempt3
+2026-05-27T05:47:54	gemini-2.5-flash-lite	FAIL	0.76s	unknown: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently exp
+2026-05-27T05:47:55	gemini-2.5-flash-lite	OK	1.45s	
+2026-05-27T05:47:56	gemini-3.1-flash-lite	FAIL	0.16s	rate_limit_attempt1
+2026-05-27T05:47:57	gemini-3.1-flash-lite	FAIL	0.16s	rate_limit_attempt1
+2026-05-27T05:48:01	gemini-3.1-flash-lite	FAIL	0.19s	rate_limit_attempt2
+2026-05-27T05:48:08	gemini-3.1-flash-lite	OK	1.24s	
+2026-05-27T05:48:11	gemini-3.1-flash-lite	OK	1.43s	
+2026-05-27T05:48:11	gemini-3.1-flash-lite	OK	9.13s	
+2026-05-27T05:48:14	gemini-3.1-flash-lite	OK	1.20s	
+2026-05-27T05:48:15	gemini-3.1-flash-lite	OK	1.29s	
+2026-05-27T05:48:18	gemini-3.1-flash-lite	OK	1.33s	
+2026-05-27T05:48:21	gemini-3.1-flash-lite	OK	1.28s	
+2026-05-27T05:48:24	gemini-3.1-flash-lite	OK	1.07s	
+2026-05-27T05:48:25	gemini-3.1-flash-lite	OK	9.29s	
+2026-05-27T05:48:29	gemini-3.1-flash-lite	OK	1.13s	
+2026-05-27T05:48:31	gemini-3.1-flash-lite	OK	4.26s	
+2026-05-27T05:48:32	gemini-3.1-flash-lite	OK	1.70s	
+2026-05-27T05:48:34	gemini-3.1-flash-lite	OK	1.11s	
+2026-05-27T05:48:36	gemini-3.1-flash-lite	OK	1.37s	
+2026-05-27T05:48:38	gemini-3.1-flash-lite	FAIL	0.20s	rate_limit_attempt1
+2026-05-27T05:48:43	gemini-3.1-flash-lite	FAIL	0.30s	rate_limit_attempt2
+2026-05-27T05:48:46	gemini-3.1-flash-lite	OK	10.14s	
+2026-05-27T05:48:48	gemini-3.1-flash-lite	FAIL	0.21s	rate_limit_attempt1
+2026-05-27T05:48:48	gemini-3.1-flash-lite	FAIL	0.18s	rate_limit_attempt3
+2026-05-27T05:48:50	gemini-2.5-flash-lite	OK	1.61s	
+2026-05-27T05:48:52	gemini-3.1-flash-lite	FAIL	0.21s	rate_limit_attempt1
+2026-05-27T05:48:53	gemini-3.1-flash-lite	FAIL	0.18s	rate_limit_attempt2
+2026-05-27T05:48:57	gemini-3.1-flash-lite	FAIL	0.24s	rate_limit_attempt2
+2026-05-27T05:48:59	gemini-3.1-flash-lite	FAIL	0.27s	rate_limit_attempt3
+2026-05-27T05:49:00	gemini-2.5-flash-lite	OK	1.06s	
+2026-05-27T05:49:02	gemini-3.1-flash-lite	FAIL	0.19s	rate_limit_attempt1
+2026-05-27T05:49:03	gemini-3.1-flash-lite	OK	0.87s	
+2026-05-27T05:49:06	gemini-3.1-flash-lite	OK	1.00s	
+2026-05-27T05:49:08	gemini-3.1-flash-lite	OK	1.36s	
+2026-05-27T05:49:10	gemini-3.1-flash-lite	OK	1.59s	
+2026-05-27T05:49:13	gemini-3.1-flash-lite	OK	1.03s	
+2026-05-27T05:49:22	gemini-3.1-flash-lite	OK	6.96s	
+2026-05-27T05:49:26	gemini-3.1-flash-lite	OK	1.82s	
+2026-05-27T05:49:26	gemini-3.1-flash-lite	OK	15.99s	
+2026-05-27T05:49:29	gemini-3.1-flash-lite	OK	1.53s	
+2026-05-27T05:49:33	gemini-3.1-flash-lite	OK	1.20s	
+2026-05-27T05:49:34	gemini-3.1-flash-lite	OK	5.75s	
+2026-05-27T05:49:41	gemini-3.1-flash-lite	OK	6.94s	
+2026-05-27T05:49:52	gemini-3.1-flash-lite	OK	15.60s	
+2026-05-27T05:49:58	gemini-3.1-flash-lite	OK	14.12s	
+2026-05-27T05:50:06	gemini-3.1-flash-lite	OK	6.88s	
+2026-05-27T05:50:08	gemini-3.1-flash-lite	OK	14.63s	
+2026-05-27T05:50:12	gemini-3.1-flash-lite	OK	2.29s	
+2026-05-27T05:50:16	gemini-3.1-flash-lite	OK	7.91s	
+2026-05-27T05:50:17	gemini-3.1-flash-lite	OK	2.29s	
+2026-05-27T05:50:25	gemini-3.1-flash-lite	OK	6.39s	
+2026-05-27T05:50:29	gemini-3.1-flash-lite	OK	1.70s	
+2026-05-27T05:50:31	gemini-3.1-flash-lite	OK	11.92s	
+2026-05-27T05:50:33	gemini-3.1-flash-lite	OK	2.52s	
+2026-05-27T05:50:34	gemini-3.1-flash-lite	OK	1.26s	
+2026-05-27T05:50:47	gemini-3.1-flash-lite	OK	11.55s	
+2026-05-27T05:50:48	gemini-3.1-flash-lite	OK	11.90s	
+2026-05-27T05:50:51	gemini-3.1-flash-lite	OK	1.37s	
+2026-05-27T05:50:55	gemini-3.1-flash-lite	OK	1.50s	
+2026-05-27T05:51:05	gemini-3.1-flash-lite	OK	16.23s	
+2026-05-27T05:51:06	gemini-3.1-flash-lite	OK	8.88s	
+2026-05-27T05:51:08	gemini-3.1-flash-lite	OK	1.03s	
+2026-05-27T05:51:09	gemini-3.1-flash-lite	OK	1.67s	
+2026-05-27T05:51:11	gemini-3.1-flash-lite	OK	0.95s	
+2026-05-27T05:51:13	gemini-3.1-flash-lite	OK	1.51s	
+2026-05-27T05:51:14	gemini-3.1-flash-lite	OK	1.23s	
+2026-05-27T05:51:16	gemini-3.1-flash-lite	OK	1.20s	
+2026-05-27T05:51:21	gemini-3.1-flash-lite	OK	2.79s	
+2026-05-27T05:51:21	gemini-3.1-flash-lite	OK	5.23s	
+2026-05-27T05:51:24	gemini-3.1-flash-lite	OK	0.98s	
+2026-05-27T05:51:27	gemini-3.1-flash-lite	OK	1.02s	
+2026-05-27T05:51:28	gemini-3.1-flash-lite	OK	4.88s	
+2026-05-27T05:51:31	gemini-3.1-flash-lite	OK	1.20s	
+2026-05-27T05:51:33	gemini-3.1-flash-lite	OK	4.16s	
+2026-05-27T05:51:34	gemini-3.1-flash-lite	OK	1.36s	
+2026-05-27T05:51:37	gemini-3.1-flash-lite	OK	1.03s	
+2026-05-27T05:51:39	gemini-3.1-flash-lite	FAIL	0.19s	rate_limit_attempt1
+2026-05-27T05:51:40	gemini-3.1-flash-lite	OK	3.59s	
+2026-05-27T05:51:42	gemini-3.1-flash-lite	FAIL	0.19s	rate_limit_attempt1
+2026-05-27T05:51:44	gemini-3.1-flash-lite	FAIL	0.36s	rate_limit_attempt2
+2026-05-27T05:51:47	gemini-3.1-flash-lite	FAIL	0.34s	rate_limit_attempt2
+2026-05-27T05:51:49	gemini-3.1-flash-lite	FAIL	0.21s	rate_limit_attempt3
+2026-05-27T05:51:51	gemini-2.5-flash-lite	OK	1.29s	
+2026-05-27T05:51:53	gemini-3.1-flash-lite	FAIL	0.24s	rate_limit_attempt3
+2026-05-27T05:51:53	gemini-3.1-flash-lite	FAIL	0.17s	rate_limit_attempt1
+2026-05-27T05:51:54	gemini-2.5-flash-lite	OK	1.68s	
+2026-05-27T05:51:57	gemini-3.1-flash-lite	FAIL	0.32s	rate_limit_attempt1
+2026-05-27T05:51:58	gemini-3.1-flash-lite	FAIL	0.35s	rate_limit_attempt2
+2026-05-27T05:52:02	gemini-3.1-flash-lite	FAIL	0.29s	rate_limit_attempt2
+2026-05-27T05:52:10	gemini-3.1-flash-lite	OK	7.02s	
+2026-05-27T05:52:11	gemini-3.1-flash-lite	OK	4.44s	
+2026-05-27T05:52:13	gemini-3.1-flash-lite	OK	1.01s	
+2026-05-27T05:52:25	gemini-3.1-flash-lite	OK	11.51s	
+2026-05-27T05:52:27	gemini-3.1-flash-lite	OK	11.75s	
+2026-05-27T05:52:29	gemini-3.1-flash-lite	OK	1.76s	
+2026-05-27T05:52:30	gemini-3.1-flash-lite	OK	1.04s	
+2026-05-27T05:52:32	gemini-3.1-flash-lite	OK	1.67s	
+2026-05-27T05:52:33	gemini-3.1-flash-lite	OK	1.05s	
+2026-05-27T05:52:38	gemini-3.1-flash-lite	OK	3.58s	
+2026-05-27T05:52:42	gemini-3.1-flash-lite	OK	1.95s	
+2026-05-27T05:52:43	gemini-3.1-flash-lite	OK	7.75s	
+2026-05-27T05:52:46	gemini-3.1-flash-lite	OK	1.01s	
+2026-05-27T05:52:50	gemini-3.1-flash-lite	OK	1.86s	
+2026-05-27T05:52:58	gemini-3.1-flash-lite	OK	13.71s	
+2026-05-27T05:53:00	gemini-3.1-flash-lite	FAIL	0.23s	rate_limit_attempt1
+2026-05-27T05:53:07	gemini-3.1-flash-lite	OK	1.87s	
+2026-05-27T05:53:07	gemini-3.1-flash-lite	OK	15.60s	
+2026-05-27T05:53:10	gemini-3.1-flash-lite	OK	0.87s	
+2026-05-27T05:53:11	gemini-3.1-flash-lite	OK	1.67s	
+2026-05-27T05:53:17	gemini-3.1-flash-lite	OK	5.04s	
+2026-05-27T05:53:20	gemini-3.1-flash-lite	OK	7.11s	
+2026-05-27T05:53:22	gemini-3.1-flash-lite	OK	3.27s	
+2026-05-27T05:53:23	gemini-3.1-flash-lite	OK	1.36s	
+2026-05-27T05:53:26	gemini-3.1-flash-lite	OK	2.00s	
+2026-05-27T05:53:29	gemini-3.1-flash-lite	OK	1.14s	
+2026-05-27T05:53:32	gemini-3.1-flash-lite	OK	0.93s	
+2026-05-27T05:53:35	gemini-3.1-flash-lite	OK	9.12s	
+2026-05-27T05:53:36	gemini-3.1-flash-lite	OK	1.72s	
+2026-05-27T05:53:38	gemini-3.1-flash-lite	OK	1.17s	
+2026-05-27T05:53:39	gemini-3.1-flash-lite	OK	1.47s	
+2026-05-27T05:53:42	gemini-3.1-flash-lite	OK	2.50s	
+2026-05-27T05:53:44	gemini-3.1-flash-lite	FAIL	0.16s	rate_limit_attempt1
+2026-05-27T05:53:49	gemini-3.1-flash-lite	OK	7.26s	
+2026-05-27T05:53:50	gemini-3.1-flash-lite	FAIL	0.37s	rate_limit_attempt2
+2026-05-27T05:53:51	gemini-3.1-flash-lite	FAIL	0.23s	rate_limit_attempt1
+2026-05-27T05:53:55	gemini-3.1-flash-lite	FAIL	0.30s	rate_limit_attempt3
+2026-05-27T05:53:56	gemini-2.5-flash-lite	FAIL	0.87s	unknown: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently exp
+2026-05-27T05:53:56	gemini-3.1-flash-lite	FAIL	0.31s	rate_limit_attempt2
+2026-05-27T05:53:58	gemini-3.1-flash-lite	FAIL	0.20s	rate_limit_attempt1
+2026-05-27T05:54:01	gemini-3.1-flash-lite	FAIL	0.27s	rate_limit_attempt3
+2026-05-27T05:54:03	gemini-2.5-flash-lite	OK	1.24s	
+2026-05-27T05:54:07	gemini-3.1-flash-lite	OK	2.00s	
+2026-05-27T05:54:10	gemini-3.1-flash-lite	OK	1.03s	
+2026-05-27T05:54:16	gemini-3.1-flash-lite	OK	12.60s	
+2026-05-27T05:54:20	gemini-3.1-flash-lite	OK	2.47s	
+2026-05-27T05:54:23	gemini-3.1-flash-lite	OK	1.07s	
+2026-05-27T05:54:24	gemini-3.1-flash-lite	OK	12.24s	
+2026-05-27T05:54:28	gemini-3.1-flash-lite	OK	2.36s	
+2026-05-27T05:54:31	gemini-3.1-flash-lite	OK	1.07s	
+2026-05-27T05:54:34	gemini-3.1-flash-lite	OK	0.94s	
+2026-05-27T05:54:37	gemini-3.1-flash-lite	OK	1.03s	
+2026-05-27T05:54:39	gemini-3.1-flash-lite	OK	14.18s	
+2026-05-27T05:54:41	gemini-3.1-flash-lite	OK	1.69s	
+2026-05-27T05:54:43	gemini-3.1-flash-lite	OK	2.01s	
+2026-05-27T05:54:44	gemini-3.1-flash-lite	OK	1.22s	
+2026-05-27T05:54:46	gemini-3.1-flash-lite	FAIL	0.16s	rate_limit_attempt1
+2026-05-27T05:54:47	gemini-3.1-flash-lite	OK	1.46s	
+2026-05-27T05:54:49	gemini-3.1-flash-lite	FAIL	0.19s	rate_limit_attempt1
+2026-05-27T05:54:52	gemini-3.1-flash-lite	FAIL	0.28s	rate_limit_attempt2
+2026-05-27T05:54:54	gemini-3.1-flash-lite	FAIL	0.31s	rate_limit_attempt2
+2026-05-27T05:54:57	gemini-3.1-flash-lite	FAIL	0.16s	rate_limit_attempt3
+2026-05-27T05:54:59	gemini-2.5-flash-lite	OK	1.83s	
+2026-05-27T05:55:01	gemini-3.1-flash-lite	OK	1.44s	
+2026-05-27T05:55:02	gemini-3.1-flash-lite	OK	1.43s	
+2026-05-27T05:55:04	gemini-3.1-flash-lite	OK	1.54s	
+2026-05-27T05:55:06	gemini-3.1-flash-lite	OK	1.67s	
+2026-05-27T05:55:08	gemini-3.1-flash-lite	OK	1.27s	
+2026-05-27T05:55:09	gemini-3.1-flash-lite	OK	1.04s	
+2026-05-27T05:55:12	gemini-3.1-flash-lite	OK	2.64s	
+2026-05-27T05:55:14	gemini-3.1-flash-lite	OK	2.81s	
+2026-05-27T05:55:18	gemini-3.1-flash-lite	OK	3.91s	
+2026-05-27T05:55:26	gemini-3.1-flash-lite	OK	5.48s	
+2026-05-27T05:55:30	gemini-3.1-flash-lite	OK	14.37s	
+2026-05-27T05:55:34	gemini-3.1-flash-lite	OK	1.61s	
+2026-05-27T05:55:34	gemini-3.1-flash-lite	OK	6.05s	
+2026-05-27T05:55:37	gemini-3.1-flash-lite	OK	1.66s	
+2026-05-27T05:55:41	gemini-3.1-flash-lite	OK	1.35s	
+2026-05-27T05:55:44	gemini-3.1-flash-lite	OK	8.44s	
+2026-05-27T05:55:53	gemini-3.1-flash-lite	OK	10.21s	
+2026-05-27T05:55:55	gemini-3.1-flash-lite	OK	9.00s	
+2026-05-27T05:55:55	gemini-3.1-flash-lite	FAIL	0.17s	rate_limit_attempt1

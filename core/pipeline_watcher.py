@@ -81,13 +81,18 @@ def _file_mtime(path: str) -> float | None:
 
 def _run_subprocess(args: list[str], label: str) -> bool:
     _log(f"[Pipeline] Running {label}: {' '.join(args)}")
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(_PROJECT_ROOT)
+
     try:
         result = subprocess.run(
             args,
             check=True,
             capture_output=True,
             text=True,
-            cwd=_PROJECT_ROOT,
+            cwd=str(_PROJECT_ROOT),
+            env=env,
         )
     except subprocess.CalledProcessError as exc:
         _log(f"[Pipeline] Step failed: {label} (exit {exc.returncode})")
