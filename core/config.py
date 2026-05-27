@@ -46,8 +46,6 @@ WA_STORED_MESSAGE_ID = "wa_message_id"
 WA_STORED_PHONE_NUMBER = "wa_phone_number"
 WA_STORED_RECEIVED_AT = "wa_received_at"
 
-WA_NOTIFY_BOTH_SIDES = False
-
 WA_BUY_MATCH_MESSAGE = (
     "✅ Match found for your requirement!\n"
     "📍 Location: {location}\n"
@@ -71,6 +69,22 @@ WA_NO_MATCH_MESSAGE = (
     "Your requirement has been saved and you will be notified when a match is found."
 )
 
+WA_SELL_ACK_MESSAGE = (
+    "Your listing has been received and stored. "
+    "We will notify you if a matching buyer is found."
+)
+
+WA_BUY_MATCH_HEADER = "We found {n} match(es) for your requirement:"
+WA_BROKER_SELL_TEMPLATE = (
+    "[Broker Sell] {property_type} {bhk}BR at {location} — "
+    "AED {price:,.0f} | Contact: {broker_name} {broker_phone}"
+)
+WA_PROJECT_TEMPLATE = (
+    "[New Project] {project_name} by {developer} in {area} | "
+    "Starting AED {starting_price:,.0f} | {bedrooms} | "
+    "Handover: {handover} | {payment_plan} | PDF: {pdf_link}"
+)
+
 # ── MongoDB ───────────────────────────────────────────────────────────────────
 # MONGO_URI = "mongodb://localhost:27017"             # or Atlas URI
 # MONGO_URI = "mongodb+srv://fonot94264_db_user:3xp9bBPec8jkTFQS@cluster0.rkuyemc.mongodb.net/?appName=Cluster0"             # or Atlas URI
@@ -79,6 +93,14 @@ MONGO_DB_NAME = "realestate"
 COLLECTION_BUY = "buy_listings"
 COLLECTION_SELL = "sell_listings"
 COLLECTION_MATCHES = "matches"
+COLLECTION_PROJECTS = "projects"
+COLLECTION_PROJECT_MATCHES = "project_matches"
+
+PROJECTS_MASTER_EXCEL = "data/projects_master.xlsx"
+LOCATION_MASTER_EXCEL = "data/location_master.xlsx"
+PIPELINE_STATE_FILE = "cache/pipeline_state.json"
+PIPELINE_WATCHER_LOG = "cache/pipeline_watcher.log"
+GEOCODE_FAILURES_FILE = "cache/geocode_failures.json"
 
 # ── Matching Tolerances ───────────────────────────────────────────────────────
 PRICE_TOLERANCE = 0.15          # ±15% — change this one line to adjust

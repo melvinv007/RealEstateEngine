@@ -39,8 +39,15 @@ from datetime import datetime
 
 from ingestion.parser import parse_input, parse_text_message
 from location.resolver import resolve_location
-from core.database import insert_many_listings, count_listings, get_all_matches, clear_all, dedupe_collection
-from core.matcher import run_matching
+from core.database import (
+    insert_many_listings,
+    count_listings,
+    get_all_matches,
+    get_all_project_matches,
+    clear_all,
+    dedupe_collection,
+)
+from core.matcher import run_matching, run_project_matching
 
 # ── Rate limit config ──────────────────────────────────────────────────────────
 # How many seconds to wait when a 429 is hit before retrying
@@ -85,6 +92,38 @@ def print_match_report(matches: list[dict]):
         print(f"  Reasons    :")
         for r in m["reasons"]:
             print(f"    ✔ {r}")
+
+
+def print_project_match_report(matches: list[dict]):
+    if not matches:
+        print("\n✅ No new project matches found.")
+        return
+
+    print(f"\n{'='*60}")
+    print(f"  🏗 {len(matches)} PROJECT MATCH(ES) FOUND")
+    print(f"{'='*60}")
+
+    for i, m in enumerate(matches, 1):
+        print(f"\n── Project Match #{i} ─────────────────────────")
+        print(f"  Score        : {m['score']:.2%}")
+        print(f"  Buy ID       : {m['buy_id']}")
+        print(f"  Project ID   : {m['project_id']}")
+        print(f"  Project Name : {m.get('project_name')}")
+        print(f"  Developer    : {m.get('developer')}")
+        print(f"  Area         : {m.get('area')}")
+        print(f"  Reasons      :")
+        for r in m.get("reasons", []):
+            print(f"    ✔ {r}")
+
+
+def _format_broker(broker: dict | None) -> str:
+    if not broker:
+        return ""
+    name = str(broker.get("name") or "").strip()
+    phone = str(broker.get("phone") or "").strip()
+    company = str(broker.get("company") or "").strip()
+    parts = [part for part in (name, phone, company) if part]
+    return " ".join(parts)
 
 
 def _split_messages(content: str) -> list[str]:
@@ -269,7 +308,9 @@ def _process_text_file(filepath: str) -> None:
 
     print(f"\n🔍 Running matching on all unmatched listings...")
     matches = run_matching()
+    project_matches = run_project_matching()
     print_match_report(matches)
+    print_project_match_report(project_matches)
 
     stats = count_listings()
     print("\n📊 Updated DB Stats:")
@@ -285,6 +326,7 @@ def main():
     group.add_argument("--match-only", action="store_true", help="Run matching without adding new data")
     group.add_argument("--stats", action="store_true", help="Print database statistics")
     group.add_argument("--show-matches", action="store_true", help="Print all recorded matches")
+    group.add_argument("--show-project-matches", action="store_true", help="Print all recorded project matches")
     group.add_argument("--clear", action="store_true", help="⚠️ Clear all data (irreversible)")
     group.add_argument("--dedupe", action="store_true", help="Remove duplicate listings from buy and sell collections")
     args = parser.parse_args()
@@ -302,6 +344,41 @@ def main():
         matches = get_all_matches()
         print(f"\n📋 All Matches ({len(matches)} total):")
         print_json(matches)
+        return
+
+    # ── Show Project Matches ─────────────────────────────────────────────────
+    if args.show_project_matches:
+        matches = get_all_project_matches()
+        print(f"\n📋 All Project Matches ({len(matches)} total):")
+        for match in matches:
+            project_snapshot = match.get("project_snapshot") or {}
+            project_name = (
+                match.get("project_name")
+                or project_snapshot.get("ProjectName")
+                or project_snapshot.get("project_name")
+                or ""
+            )
+            area = (
+                match.get("area")
+                or project_snapshot.get("AreaName")
+                or project_snapshot.get("area")
+                or ""
+            )
+            score_value = match.get("match_score")
+            if score_value is None:
+                score_value = match.get("score")
+            try:
+                score_text = f"{float(score_value):.4f}" if score_value is not None else ""
+            except Exception:
+                score_text = str(score_value or "")
+            reasons = match.get("match_reasons") or match.get("reasons") or []
+            reasons_text = ", ".join(reasons) if isinstance(reasons, list) else str(reasons)
+            broker = match.get("buy_broker") or (match.get("buy_snapshot") or {}).get("broker") or {}
+            broker_text = _format_broker(broker)
+            matched_at = _serialize(match.get("matched_at")) if match.get("matched_at") else ""
+            print(
+                f"{project_name} | {area} | {score_text} | {reasons_text} | {broker_text} | {matched_at}"
+            )
         return
 
     # ── Dedupe ─────────────────────────────────────────────────────────────────
@@ -328,7 +405,9 @@ def main():
     # ── Match Only ─────────────────────────────────────────────────────────────
     if args.match_only:
         matches = run_matching()
+        project_matches = run_project_matching()
         print_match_report(matches)
+        print_project_match_report(project_matches)
         return
 
     # ── Text file — per-message processing ────────────────────────────────────
@@ -348,7 +427,9 @@ def main():
         inserted_ids, dupes = insert_many_listings(listings)
         print(f"\n✅ Inserted {len(inserted_ids)} listing(s). ({dupes} duplicate(s) skipped)")
         matches = run_matching()
+        project_matches = run_project_matching()
         print_match_report(matches)
+        print_project_match_report(project_matches)
         stats = count_listings()
         print("\n📊 Updated DB Stats:")
         for k, v in stats.items():
@@ -367,7 +448,9 @@ def main():
         inserted_ids, dupes = insert_many_listings(listings)
         print(f"\n✅ Inserted {len(inserted_ids)} listing(s). ({dupes} duplicate(s) skipped)")
         matches = run_matching()
+        project_matches = run_project_matching()
         print_match_report(matches)
+        print_project_match_report(project_matches)
         stats = count_listings()
         print("\n📊 Updated DB Stats:")
         for k, v in stats.items():
@@ -378,6 +461,10 @@ def main():
 
 
 if __name__ == "__main__":
+    import threading
+    from core.pipeline_watcher import check_and_run_pipelines
+
+    threading.Thread(target=check_and_run_pipelines, daemon=True).start()
     main()
 
 from ingestion.api import app  # noqa — makes `uvicorn main:app` work

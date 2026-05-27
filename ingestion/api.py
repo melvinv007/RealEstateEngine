@@ -5,6 +5,8 @@ FastAPI server for ingesting and matching real estate messages.
 
 import os
 import tempfile
+import threading
+from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Any
 
@@ -15,15 +17,14 @@ from pydantic import BaseModel, Field
 
 from core.config import (
     API_KEY,
-    COLLECTION_BUY,
-    COLLECTION_SELL,
-    WA_BUY_MATCH_MESSAGE,
+    WA_BUY_MATCH_HEADER,
+    WA_BROKER_SELL_TEMPLATE,
     WA_FIELD_MESSAGE_ID,
     WA_FIELD_PHONE_NUMBER,
     WA_FIELD_RAW_MESSAGE,
     WA_NO_MATCH_MESSAGE,
-    WA_NOTIFY_BOTH_SIDES,
-    WA_SELL_MATCH_MESSAGE,
+    WA_PROJECT_TEMPLATE,
+    WA_SELL_ACK_MESSAGE,
     WA_STORED_MESSAGE_ID,
     WA_STORED_PHONE_NUMBER,
     WA_STORED_RECEIVED_AT,
@@ -34,13 +35,20 @@ from core.database import (
     insert_many_listings,
     count_listings,
     get_all_matches,
-    get_db,
 )
-from core.matcher import run_matching
+from core.pipeline_watcher import check_and_run_pipelines
+from core.matcher import run_matching, run_project_matching
 from ingestion.parser import parse_text_message, parse_image, is_real_estate_message
 from location.resolver import resolve_location
 
-app = FastAPI(title="Matcher API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    threading.Thread(target=check_and_run_pipelines, daemon=True).start()
+    yield
+
+
+app = FastAPI(title="Matcher API", lifespan=lifespan)
 
 
 @app.middleware("http")
@@ -101,27 +109,45 @@ def _collect_match_docs(match_ids: list[ObjectId]) -> list[dict]:
     return [m for m in get_all_matches() if m.get("_id") in match_id_set]
 
 
-def _format_matches(match_docs: list[dict]) -> list[dict]:
+def _format_broker_sell_matches(match_docs: list[dict]) -> list[dict]:
     formatted = []
     for doc in match_docs:
-        buy_snapshot = doc.get("buy_snapshot") or {}
         sell_snapshot = doc.get("sell_snapshot") or {}
+        broker = sell_snapshot.get("broker") or {}
         formatted.append({
-            "match_id": _serialize(doc.get("_id")),
+            "match_type": "broker_sell",
             "score": doc.get("match_score"),
             "reasons": doc.get("match_reasons") or [],
-            "buy_broker": buy_snapshot.get("broker"),
-            "sell_broker": sell_snapshot.get("broker"),
-            "buy_snapshot": _serialize(buy_snapshot),
-            "sell_snapshot": _serialize(sell_snapshot),
+            "sell_broker": broker,
+            "sell_snapshot": {
+                "property_type": sell_snapshot.get("property_type"),
+                "bhk": sell_snapshot.get("bhk"),
+                "price_aed": sell_snapshot.get("price_aed"),
+                "location": sell_snapshot.get("location"),
+            },
         })
     return formatted
 
 
-def _get_listing_by_id(listing_id: ObjectId, transaction: str) -> dict | None:
-    db = get_db()
-    coll_name = COLLECTION_BUY if transaction == "buy" else COLLECTION_SELL
-    return db[coll_name].find_one({"_id": listing_id})
+def _format_project_matches(project_matches: list[dict]) -> list[dict]:
+    formatted = []
+    for match in project_matches:
+        formatted.append({
+            "match_type": "project",
+            "score": match.get("score"),
+            "reasons": match.get("reasons") or [],
+            "project_name": match.get("project_name"),
+            "developer": match.get("developer"),
+            "area": match.get("area"),
+            "starting_price": match.get("starting_price"),
+            "handover": match.get("handover"),
+            "payment_plan": match.get("payment_plan"),
+            "bedrooms_available": match.get("bedrooms_available"),
+            "youtube_link": match.get("youtube_link"),
+            "image_link": match.get("image_link"),
+            "pdf_link": match.get("pdf_link"),
+        })
+    return formatted
 
 
 def _safe_int(value: object, default: int = 0) -> int:
@@ -140,6 +166,64 @@ def _safe_bhk(value: object) -> str:
         return str(int(value))
     except Exception:
         return str(value)
+
+
+def _format_bedrooms(value: object) -> str:
+    if not value:
+        return "N/A"
+    if isinstance(value, (list, tuple)):
+        labels = []
+        for item in value:
+            if item == 0:
+                labels.append("Studio")
+            else:
+                labels.append(f"{item}BR")
+        return ", ".join(labels) if labels else "N/A"
+    return str(value)
+
+
+def _build_reply_message(matches: list[dict]) -> str:
+    if not matches:
+        return WA_NO_MATCH_MESSAGE
+
+    lines = []
+    for match in matches:
+        if match.get("match_type") == "broker_sell":
+            snapshot = match.get("sell_snapshot") or {}
+            broker = match.get("sell_broker") or {}
+            line = WA_BROKER_SELL_TEMPLATE.format(
+                property_type=snapshot.get("property_type", "N/A"),
+                bhk=_safe_bhk(snapshot.get("bhk")),
+                location=snapshot.get("location", "N/A"),
+                price=_safe_int(snapshot.get("price_aed", 0)),
+                broker_name=broker.get("name", "N/A"),
+                broker_phone=broker.get("phone", "N/A"),
+            )
+            lines.append(line)
+        elif match.get("match_type") == "project":
+            line = WA_PROJECT_TEMPLATE.format(
+                project_name=match.get("project_name", "N/A"),
+                developer=match.get("developer", "N/A"),
+                area=match.get("area", "N/A"),
+                starting_price=_safe_int(match.get("starting_price", 0)),
+                bedrooms=_format_bedrooms(match.get("bedrooms_available")),
+                handover=match.get("handover", "N/A"),
+                payment_plan=match.get("payment_plan", "N/A"),
+                pdf_link=match.get("pdf_link", "N/A"),
+            )
+            lines.append(line)
+
+    header = WA_BUY_MATCH_HEADER.format(n=len(matches))
+    return "\n".join([header] + lines) if lines else WA_NO_MATCH_MESSAGE
+
+
+def _best_broker_phone(matches: list[dict]) -> str | None:
+    broker_matches = [m for m in matches if m.get("match_type") == "broker_sell"]
+    if not broker_matches:
+        return None
+    best = max(broker_matches, key=lambda m: m.get("score") or 0.0)
+    broker = best.get("sell_broker") or {}
+    return broker.get("phone")
 
 
 def _apply_location_resolution(listings: list[dict]) -> list[dict]:
@@ -164,6 +248,7 @@ def _apply_location_resolution(listings: list[dict]) -> list[dict]:
         resolved.append(listing)
     return resolved
 
+
 @app.get("/")
 async def root():
     return {"message": "Matcher API is running"}
@@ -174,18 +259,64 @@ async def ingest_text(payload: TextIngestRequest):
         return {"filtered": True, "reason": "not a real estate message"}
 
     listings = parse_text_message(payload.message)
+    if not listings:
+        return {
+            "filtered": False,
+            WA_FIELD_MESSAGE_ID: None,
+            WA_FIELD_PHONE_NUMBER: None,
+            WA_TIMESTAMP_FIELD: None,
+            "inserted": 0,
+            "duplicates_skipped": 0,
+            "listings": [],
+            "match_found": False,
+            "reply_message": WA_NO_MATCH_MESSAGE,
+            "reply_phone_number": None,
+            "matches": [],
+        }
     listings = _apply_location_resolution(listings)
     inserted_ids, dupes = insert_many_listings(listings)
     matches = run_matching()
+    project_matches = run_project_matching()
 
-    match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
+    transactions = {
+        listing.get("transaction")
+        for listing in listings
+        if isinstance(listing, dict)
+    }
+    has_buy = "buy" in transactions
+
+    combined_matches: list[dict] = []
+    if has_buy and inserted_ids:
+        match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
+        inserted_id_set = set(inserted_ids)
+        relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in inserted_id_set]
+        relevant_projects = [
+            match for match in project_matches
+            if match.get("buy_id") in inserted_id_set
+        ]
+        combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
+        combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
+
+    match_found = bool(combined_matches)
+    if has_buy:
+        reply_message = _build_reply_message(combined_matches)
+        reply_phone_number = _best_broker_phone(combined_matches)
+    else:
+        reply_message = WA_SELL_ACK_MESSAGE
+        reply_phone_number = None
 
     return {
         "filtered": False,
+        WA_FIELD_MESSAGE_ID: None,
+        WA_FIELD_PHONE_NUMBER: None,
+        WA_TIMESTAMP_FIELD: None,
         "inserted": len(inserted_ids),
         "duplicates_skipped": dupes,
         "listings": listings,
-        "matches": _format_matches(match_docs),
+        "match_found": match_found,
+        "reply_message": reply_message,
+        "reply_phone_number": reply_phone_number,
+        "matches": combined_matches,
     }
 
 
@@ -200,18 +331,64 @@ async def ingest_image(file: UploadFile = File(...)):
             tmp.write(content)
 
         listings = parse_image(temp_path)
+        if not listings:
+            return {
+                "filtered": False,
+                WA_FIELD_MESSAGE_ID: None,
+                WA_FIELD_PHONE_NUMBER: None,
+                WA_TIMESTAMP_FIELD: None,
+                "inserted": 0,
+                "duplicates_skipped": 0,
+                "listings": [],
+                "match_found": False,
+                "reply_message": WA_NO_MATCH_MESSAGE,
+                "reply_phone_number": None,
+                "matches": [],
+            }
         listings = _apply_location_resolution(listings)
         inserted_ids, dupes = insert_many_listings(listings)
         matches = run_matching()
+        project_matches = run_project_matching()
 
-        match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
+        transactions = {
+            listing.get("transaction")
+            for listing in listings
+            if isinstance(listing, dict)
+        }
+        has_buy = "buy" in transactions
+
+        combined_matches: list[dict] = []
+        if has_buy and inserted_ids:
+            match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
+            inserted_id_set = set(inserted_ids)
+            relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in inserted_id_set]
+            relevant_projects = [
+                match for match in project_matches
+                if match.get("buy_id") in inserted_id_set
+            ]
+            combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
+            combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
+
+        match_found = bool(combined_matches)
+        if has_buy:
+            reply_message = _build_reply_message(combined_matches)
+            reply_phone_number = _best_broker_phone(combined_matches)
+        else:
+            reply_message = WA_SELL_ACK_MESSAGE
+            reply_phone_number = None
 
         return {
             "filtered": False,
+            WA_FIELD_MESSAGE_ID: None,
+            WA_FIELD_PHONE_NUMBER: None,
+            WA_TIMESTAMP_FIELD: None,
             "inserted": len(inserted_ids),
             "duplicates_skipped": dupes,
             "listings": listings,
-            "matches": _format_matches(match_docs),
+            "match_found": match_found,
+            "reply_message": reply_message,
+            "reply_phone_number": reply_phone_number,
+            "matches": combined_matches,
         }
     finally:
         if temp_path and os.path.exists(temp_path):
@@ -242,9 +419,7 @@ async def ingest_whatsapp(payload: WhatsAppIngestRequest):
                 "match_found": False,
                 "reply_message": WA_NO_MATCH_MESSAGE,
                 "reply_phone_number": None,
-                "reply_listing_date": None,
-                "match_details": None,
-                "second_reply": None,
+                "matches": [],
             }
 
         listings = _apply_location_resolution(listings)
@@ -266,196 +441,47 @@ async def ingest_whatsapp(payload: WhatsAppIngestRequest):
                 dupes += 1
 
         matches = run_matching()
+        project_matches = run_project_matching()
         match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
 
-        inserted_id_set = set(inserted_ids)
-        relevant_matches: list[dict] = []
+        transactions = {
+            listing.get("transaction")
+            for listing in listings
+            if isinstance(listing, dict)
+        }
+        has_buy = "buy" in transactions
 
-        for doc in match_docs:
-            buy_id = doc.get("buy_id")
-            sell_id = doc.get("sell_id")
-            if buy_id not in inserted_id_set and sell_id not in inserted_id_set:
-                continue
+        combined_matches: list[dict] = []
+        if has_buy and inserted_ids:
+            inserted_id_set = set(inserted_ids)
+            relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in inserted_id_set]
+            relevant_projects = [
+                match for match in project_matches
+                if match.get("buy_id") in inserted_id_set
+            ]
+            combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
+            combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
 
-            match_details = {
-                "match_id": _serialize(doc.get("_id")),
-                "score": doc.get("match_score"),
-                "reasons": doc.get("match_reasons") or [],
-                "buy_snapshot": _serialize(doc.get("buy_snapshot") or {}),
-                "sell_snapshot": _serialize(doc.get("sell_snapshot") or {}),
-            }
+        match_found = bool(combined_matches)
+        if has_buy:
+            reply_message = _build_reply_message(combined_matches)
+            reply_phone_number = _best_broker_phone(combined_matches)
+        else:
+            reply_message = WA_SELL_ACK_MESSAGE
+            reply_phone_number = None
 
-            incoming_is_buy = buy_id in inserted_id_set
-            relevant_matches.append({
-                **match_details,
-                "_incoming_is_buy": incoming_is_buy,
-                "_buy_id": buy_id,
-                "_sell_id": sell_id,
-            })
-
-        if not relevant_matches:
-            return {
-                WA_FIELD_MESSAGE_ID: message_id,
-                WA_FIELD_PHONE_NUMBER: phone_number,
-                WA_TIMESTAMP_FIELD: received_at,
-                "inserted": len(inserted_ids),
-                "duplicates_skipped": dupes,
-                "listings_parsed": len(listings),
-                "match_found": False,
-                "reply_message": WA_NO_MATCH_MESSAGE,
-                "reply_phone_number": None,
-                "reply_listing_date": None,
-                "match_details": None,
-                "second_reply": None,
-            }
-
-        def _reply_payload(match_info: dict) -> dict:
-            incoming_is_buy = match_info.get("_incoming_is_buy", True)
-            buy_snapshot = match_info.get("buy_snapshot") or {}
-            sell_snapshot = match_info.get("sell_snapshot") or {}
-            score = match_info.get("score") or 0.0
-
-            if incoming_is_buy:
-                opposite_snapshot = sell_snapshot
-                opposite_doc = _get_listing_by_id(match_info.get("_sell_id"), "sell")
-                location = opposite_snapshot.get("location", "N/A")
-                price = _safe_int(opposite_snapshot.get("price_aed", 0))
-                bhk = _safe_bhk(opposite_snapshot.get("bhk", "N/A"))
-                property_type = opposite_snapshot.get("property_type", "N/A")
-                broker = opposite_snapshot.get("broker", {}) or {}
-                broker_name = broker.get("name", "N/A")
-                broker_phone = broker.get("phone", "N/A")
-                message = WA_BUY_MATCH_MESSAGE.format(
-                    location=location,
-                    price=price,
-                    bhk=bhk,
-                    property_type=property_type,
-                    broker_name=broker_name,
-                    broker_phone=broker_phone,
-                    score=score,
-                )
-            else:
-                opposite_snapshot = buy_snapshot
-                opposite_doc = _get_listing_by_id(match_info.get("_buy_id"), "buy")
-                location = opposite_snapshot.get("location", "N/A")
-                budget = _safe_int(opposite_snapshot.get("price_aed", 0))
-                bhk = _safe_bhk(opposite_snapshot.get("bhk", "N/A"))
-                property_type = opposite_snapshot.get("property_type", "N/A")
-                broker = opposite_snapshot.get("broker", {}) or {}
-                broker_name = broker.get("name", "N/A")
-                broker_phone = broker.get("phone", "N/A")
-                message = WA_SELL_MATCH_MESSAGE.format(
-                    location=location,
-                    budget=budget,
-                    bhk=bhk,
-                    property_type=property_type,
-                    broker_name=broker_name,
-                    broker_phone=broker_phone,
-                    score=score,
-                )
-
-            reply_phone = (opposite_snapshot.get("broker") or {}).get("phone")
-            reply_date = None
-            if opposite_doc:
-                reply_date = _serialize(opposite_doc.get("created_at"))
-
-            return {
-                "reply_message": message,
-                "reply_phone_number": reply_phone,
-                "reply_listing_date": reply_date,
-            }
-
-        def _second_reply_payload(match_info: dict) -> dict | None:
-            if not WA_NOTIFY_BOTH_SIDES:
-                return None
-
-            incoming_is_buy = match_info.get("_incoming_is_buy", True)
-            incoming_id = match_info.get("_buy_id") if incoming_is_buy else match_info.get("_sell_id")
-            incoming_doc = _get_listing_by_id(incoming_id, "buy" if incoming_is_buy else "sell")
-
-            incoming_snapshot = match_info.get("buy_snapshot") if incoming_is_buy else match_info.get("sell_snapshot")
-            incoming_snapshot = incoming_snapshot or {}
-
-            score = match_info.get("score") or 0.0
-
-            if incoming_is_buy:
-                location = incoming_snapshot.get("location", "N/A")
-                price = _safe_int(incoming_snapshot.get("price_aed", 0))
-                bhk = _safe_bhk(incoming_snapshot.get("bhk", "N/A"))
-                property_type = incoming_snapshot.get("property_type", "N/A")
-                broker = incoming_snapshot.get("broker", {}) or {}
-                broker_name = broker.get("name", "N/A")
-                broker_phone = broker.get("phone", "N/A")
-                message = WA_BUY_MATCH_MESSAGE.format(
-                    location=location,
-                    price=price,
-                    bhk=bhk,
-                    property_type=property_type,
-                    broker_name=broker_name,
-                    broker_phone=broker_phone,
-                    score=score,
-                )
-            else:
-                location = incoming_snapshot.get("location", "N/A")
-                budget = _safe_int(incoming_snapshot.get("price_aed", 0))
-                bhk = _safe_bhk(incoming_snapshot.get("bhk", "N/A"))
-                property_type = incoming_snapshot.get("property_type", "N/A")
-                broker = incoming_snapshot.get("broker", {}) or {}
-                broker_name = broker.get("name", "N/A")
-                broker_phone = broker.get("phone", "N/A")
-                message = WA_SELL_MATCH_MESSAGE.format(
-                    location=location,
-                    budget=budget,
-                    bhk=bhk,
-                    property_type=property_type,
-                    broker_name=broker_name,
-                    broker_phone=broker_phone,
-                    score=score,
-                )
-
-            reply_date = None
-            if incoming_doc:
-                reply_date = _serialize(incoming_doc.get("created_at"))
-
-            return {
-                "reply_message": message,
-                "reply_phone_number": phone_number,
-                "reply_listing_date": reply_date,
-            }
-
-        best_match = max(relevant_matches, key=lambda m: m.get("score") or 0.0)
-        reply_payload = _reply_payload(best_match)
-
-        response = {
+        return {
             WA_FIELD_MESSAGE_ID: message_id,
             WA_FIELD_PHONE_NUMBER: phone_number,
             WA_TIMESTAMP_FIELD: received_at,
             "inserted": len(inserted_ids),
             "duplicates_skipped": dupes,
             "listings_parsed": len(listings),
-            "match_found": True,
-            **reply_payload,
-            "second_reply": None,
+            "match_found": match_found,
+            "reply_message": reply_message,
+            "reply_phone_number": reply_phone_number,
+            "matches": combined_matches,
         }
-
-        if len(relevant_matches) == 1:
-            match_details = {
-                k: v for k, v in relevant_matches[0].items() if not k.startswith("_")
-            }
-            response["match_details"] = match_details
-        else:
-            matches_payload = [
-                {k: v for k, v in m.items() if not k.startswith("_")}
-                for m in relevant_matches
-            ]
-            response["matches"] = matches_payload
-            response["match_details"] = None
-
-        second_reply = _second_reply_payload(best_match)
-        if second_reply is not None:
-            response["second_reply"] = second_reply
-
-        return response
 
     except Exception as e:
         print(f"[API] WhatsApp ingest failed: {e}")
@@ -469,9 +495,7 @@ async def ingest_whatsapp(payload: WhatsAppIngestRequest):
             "match_found": False,
             "reply_message": WA_NO_MATCH_MESSAGE,
             "reply_phone_number": None,
-            "reply_listing_date": None,
-            "match_details": None,
-            "second_reply": None,
+            "matches": [],
         }
 
 

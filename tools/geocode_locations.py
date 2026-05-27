@@ -21,6 +21,10 @@ from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 from openpyxl import load_workbook
 
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+from core.config import COORDINATES_CSV, GEOCODE_FAILURES_FILE
+
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -57,7 +61,7 @@ SKIP_IF_NO_SUBCOMMUNITY = True
 SKIP_DUPLICATE_CANONICALS = True
 
 # data/coordinates.csv settings
-COORDINATES_CSV_PATH = str(_PROJECT_ROOT / "data" / "coordinates.csv")
+COORDINATES_CSV_PATH = COORDINATES_CSV
 CSV_CANONICAL_COLUMN = "canonical_name"
 CSV_LEVEL_COLUMN     = "level"
 CSV_LAT_COLUMN       = "lat"
@@ -225,6 +229,35 @@ def _load_tier3_properties(cache_path: str) -> set[str]:
     return tier3
 
 
+def _load_failures(cache_path: str) -> set[str]:
+    if not os.path.exists(cache_path):
+        return set()
+    try:
+        with open(cache_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return set()
+
+    failures: set[str] = set()
+    if isinstance(data, list):
+        for entry in data:
+            name = str(entry or "").strip().lower()
+            if name:
+                failures.add(name)
+    elif isinstance(data, dict):
+        for entry in data.get("failures", []):
+            name = str(entry or "").strip().lower()
+            if name:
+                failures.add(name)
+    return failures
+
+
+def _save_failures(cache_path: str, failures: set[str]) -> None:
+    Path(cache_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(cache_path, "w", encoding="utf-8") as f:
+        json.dump(sorted(failures), f, indent=2)
+
+
 def _build_query_parts(parts: list[str]) -> str:
     return ", ".join([part for part in parts if part])
 
@@ -283,6 +316,8 @@ def old_geocode_excel(excel_path: str) -> int:
     if not cache_exists and VERBOSE:
         print("[Warning] Tier3 cache not found; property filtering disabled.")
 
+    failures = _load_failures(GEOCODE_FAILURES_FILE)
+
     stats = {
         "geocoded": {"city": 0, "community": 0, "subcommunity": 0, "property": 0},
         "failed": {"city": 0, "community": 0, "subcommunity": 0, "property": 0},
@@ -305,6 +340,12 @@ def old_geocode_excel(excel_path: str) -> int:
                 print(f"  Row {row_idx:>4}: SKIP  ({level} already in CSV) — {canonical}")
             return
 
+        if canonical_lower in failures:
+            _bump("skipped", level)
+            if VERBOSE:
+                print(f"  Row {row_idx:>4}: SKIP  ({level} in failures cache) — {canonical}")
+            return
+
         if VERBOSE:
             print(f"  Row {row_idx:>4}: QUERY [{level}] '{query}' ...", end=" ", flush=True)
 
@@ -316,11 +357,17 @@ def old_geocode_excel(excel_path: str) -> int:
             if not DRY_RUN:
                 _append_to_csv(COORDINATES_CSV_PATH, canonical, level, lat, lng)
             csv_existing.add(canonical_lower)
+            if canonical_lower in failures:
+                failures.remove(canonical_lower)
+                _save_failures(GEOCODE_FAILURES_FILE, failures)
             _bump("geocoded", level)
         else:
             if VERBOSE:
                 print("→ FAILED")
             _bump("failed", level)
+            failures.add(canonical_lower)
+            _save_failures(GEOCODE_FAILURES_FILE, failures)
+            print(f"  [Geocoder] FAILED: {canonical} — added to failures cache")
 
     for row_idx, row in enumerate(rows[1:], start=2):
         city         = _cell_str(row, col_city)
@@ -364,6 +411,7 @@ def old_geocode_excel(excel_path: str) -> int:
     return 0
 
 def geocode_excel(excel_path: str, start_row: int = 2) -> int:
+    """Geocode rows with index >= start_row (1-based, header is row 1)."""
     if not os.path.exists(excel_path):
         print(f"[Error] File not found: {excel_path}")
         return 1
@@ -413,6 +461,8 @@ def geocode_excel(excel_path: str, start_row: int = 2) -> int:
     if not cache_exists and VERBOSE:
         print("[Warning] Tier3 cache not found; property filtering disabled.")
 
+    failures = _load_failures(GEOCODE_FAILURES_FILE)
+
     if start_row > 2:
         print(f"[Setup] Skipping rows 2–{start_row - 1} (--start-row {start_row})")
 
@@ -438,6 +488,12 @@ def geocode_excel(excel_path: str, start_row: int = 2) -> int:
                 print(f"  Row {row_idx:>4}: SKIP  ({level} already in CSV) — {canonical}")
             return
 
+        if canonical_lower in failures:
+            _bump("skipped", level)
+            if VERBOSE:
+                print(f"  Row {row_idx:>4}: SKIP  ({level} in failures cache) — {canonical}")
+            return
+
         if VERBOSE:
             print(f"  Row {row_idx:>4}: QUERY [{level}] '{query}' ...", end=" ", flush=True)
 
@@ -449,11 +505,17 @@ def geocode_excel(excel_path: str, start_row: int = 2) -> int:
             if not DRY_RUN:
                 _append_to_csv(COORDINATES_CSV_PATH, canonical, level, lat, lng)
             csv_existing.add(canonical_lower)
+            if canonical_lower in failures:
+                failures.remove(canonical_lower)
+                _save_failures(GEOCODE_FAILURES_FILE, failures)
             _bump("geocoded", level)
         else:
             if VERBOSE:
                 print("→ FAILED")
             _bump("failed", level)
+            failures.add(canonical_lower)
+            _save_failures(GEOCODE_FAILURES_FILE, failures)
+            print(f"  [Geocoder] FAILED: {canonical} — added to failures cache")
 
     for row_idx, row in enumerate(rows[1:], start=2):
         if row_idx < start_row:

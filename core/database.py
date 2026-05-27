@@ -15,6 +15,7 @@ from bson import ObjectId
 from core.config import (
     MONGO_URI, MONGO_DB_NAME,
     COLLECTION_BUY, COLLECTION_SELL, COLLECTION_MATCHES,
+    COLLECTION_PROJECTS, COLLECTION_PROJECT_MATCHES,
     DUPLICATE_DETECTION, DUPLICATE_PRICE_TOLERANCE,
 )
 
@@ -49,6 +50,13 @@ def _ensure_indexes(db):
     db[COLLECTION_MATCHES].create_index([("buy_id", ASCENDING)])
     db[COLLECTION_MATCHES].create_index([("sell_id", ASCENDING)])
     db[COLLECTION_MATCHES].create_index([("buy_id", ASCENDING), ("sell_id", ASCENDING)], unique=True)
+
+    projects = db[COLLECTION_PROJECTS]
+    projects.create_index([("location_coords", "2dsphere")])
+    projects.create_index([("project_fingerprint", ASCENDING)], unique=True)
+
+    project_matches = db[COLLECTION_PROJECT_MATCHES]
+    project_matches.create_index([("buy_id", ASCENDING), ("project_id", ASCENDING)], unique=True)
 
 
 def _collection(name: str):
@@ -172,18 +180,18 @@ def insert_many_listings(listings: list[dict]) -> tuple[list[ObjectId], int]:
 
 # ── Read ───────────────────────────────────────────────────────────────────────
 
-def get_unmatched(transaction: str) -> list[dict]:
+def get_all_active(transaction: str) -> list[dict]:
     coll_name = COLLECTION_BUY if transaction == "buy" else COLLECTION_SELL
-    return list(_collection(coll_name).find({"matched": False}))
+    return list(_collection(coll_name).find())
 
 
-def get_unmatched_filtered(transaction: str, property_type: str | None, bhk: int | None) -> list[dict]:
+def get_active_filtered(transaction: str, property_type: str | None, bhk: int | None) -> list[dict]:
     """
     Indexed pre-filter: only return candidates matching type and BHK.
     Dramatically reduces Python-side comparisons.
     """
     coll_name = COLLECTION_BUY if transaction == "buy" else COLLECTION_SELL
-    query: dict = {"matched": False}
+    query: dict = {}
 
     if property_type:
         query["property_type"] = property_type
@@ -202,6 +210,36 @@ def get_all_matches() -> list[dict]:
     return list(_collection(COLLECTION_MATCHES).find())
 
 
+def get_all_project_matches() -> list[dict]:
+    return list(_collection(COLLECTION_PROJECT_MATCHES).find())
+
+
+def get_all_projects() -> list[dict]:
+    return list(_collection(COLLECTION_PROJECTS).find())
+
+
+def _build_project_fingerprint(project: dict) -> str:
+    name = str(project.get("ProjectName") or "")
+    developer = str(project.get("Developer") or "")
+    area = str(project.get("AreaName") or "")
+    raw = f"{name}{developer}{area}"
+    return hashlib.md5(raw.encode()).hexdigest()
+
+
+def insert_project(project: dict) -> str | ObjectId:
+    project = project.copy()
+    project["project_fingerprint"] = _build_project_fingerprint(project)
+
+    exists = _collection(COLLECTION_PROJECTS).find_one({
+        "project_fingerprint": project["project_fingerprint"],
+    })
+    if exists:
+        return "duplicate"
+
+    result = _collection(COLLECTION_PROJECTS).insert_one(project)
+    return result.inserted_id
+
+
 # ── Historical Match Check ─────────────────────────────────────────────────────
 
 def already_matched_pair(buy_id: ObjectId, sell_id: ObjectId) -> bool:
@@ -212,6 +250,14 @@ def already_matched_pair(buy_id: ObjectId, sell_id: ObjectId) -> bool:
     exists = _collection(COLLECTION_MATCHES).find_one({
         "buy_id": buy_id,
         "sell_id": sell_id,
+    })
+    return exists is not None
+
+
+def already_matched_project_pair(buy_id: ObjectId, project_id: ObjectId) -> bool:
+    exists = _collection(COLLECTION_PROJECT_MATCHES).find_one({
+        "buy_id": buy_id,
+        "project_id": project_id,
     })
     return exists is not None
 
@@ -251,6 +297,32 @@ def record_match(buy_id: ObjectId, sell_id: ObjectId, score: float, reasons: lis
         db[COLLECTION_SELL].update_one({"_id": sell_id}, {"$set": {"matched": True, "match_id": match_id}})
 
     return match_id
+
+
+def record_project_match(
+    buy_id: ObjectId,
+    project_id: ObjectId,
+    score: float,
+    reasons: list[str],
+    buy_snapshot: dict,
+    project_snapshot: dict,
+) -> ObjectId | None:
+    if already_matched_project_pair(buy_id, project_id):
+        return None
+
+    doc = {
+        "buy_id": buy_id,
+        "project_id": project_id,
+        "match_score": round(score, 4),
+        "match_reasons": reasons,
+        "buy_snapshot": buy_snapshot,
+        "project_snapshot": project_snapshot,
+        "buy_broker": (buy_snapshot or {}).get("broker") or {},
+        "matched_at": datetime.now(timezone.utc),
+    }
+
+    result = _collection(COLLECTION_PROJECT_MATCHES).insert_one(doc)
+    return result.inserted_id
 
 
 def _strip_meta(doc: dict) -> dict:
@@ -315,4 +387,6 @@ def clear_all():
     db[COLLECTION_BUY].drop()
     db[COLLECTION_SELL].drop()
     db[COLLECTION_MATCHES].drop()
+    db[COLLECTION_PROJECTS].drop()
+    db[COLLECTION_PROJECT_MATCHES].drop()
     print("[DB] All collections cleared.")

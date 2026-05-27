@@ -9,6 +9,7 @@ Buy/sell matching engine with:
 """
 
 from bson import ObjectId
+from rapidfuzz import fuzz
 from core.config import (
     PRICE_TOLERANCE,
     DISTANCE_KM_TOLERANCE,
@@ -18,8 +19,19 @@ from core.config import (
     MIN_MATCH_SCORE,
     REQUIRE_PRICE_OR_LOCATION,
     COLLECTION_SELL,
+    COLLECTION_PROJECTS,
+    FUZZY_LOCATION_THRESHOLD,
 )
-from core.database import get_unmatched, get_unmatched_filtered, record_match, already_matched_pair, get_db
+from core.database import (
+    get_all_active,
+    get_active_filtered,
+    record_match,
+    already_matched_pair,
+    get_db,
+    get_all_projects,
+    record_project_match,
+    already_matched_project_pair,
+)
 
 
 # ── Individual field checks ────────────────────────────────────────────────────
@@ -145,7 +157,7 @@ def _geo_candidates_for_buy(buy: dict) -> list[dict]:
 
     lng, lat = coord_list
 
-    query: dict = {"matched": False}
+    query: dict = {}
     if buy.get("property_type"):
         query["property_type"] = buy.get("property_type")
 
@@ -176,6 +188,7 @@ FIELD_WEIGHTS = {
     "type_match":            0.25,
     "location_exact_match":  0.20,
     "location_match":        0.15,
+    "location_fuzzy_match":  0.15,
     "bhk_match":             0.15,
     "sqft_match":            0.10,
 }
@@ -249,7 +262,7 @@ def run_matching() -> list[dict]:
     3. Pick best scoring sell for each buy (1-to-1 matching)
     4. Enforce historical match prevention
     """
-    buy_listings = get_unmatched("buy")
+    buy_listings = get_all_active("buy")
 
     if not buy_listings:
         print("[Matcher] No unmatched buy listings.")
@@ -277,7 +290,7 @@ def run_matching() -> list[dict]:
         else:
             # ── Pre-filter sell candidates using MongoDB indexes ──────────────
             # Only fetch sells that match property_type and BHK — skips unrelated listings entirely
-            sell_candidates = get_unmatched_filtered(
+            sell_candidates = get_active_filtered(
                 transaction="sell",
                 property_type=buy.get("property_type"),
                 bhk=buy.get("bhk") if BHK_TOLERANCE == 0 else None,  # skip BHK filter if tolerance > 0
@@ -317,4 +330,165 @@ def run_matching() -> list[dict]:
                 results.append({**best_match, "match_id": match_id})
 
     print(f"[Matcher] Done. {len(results)} match(es) recorded.")
+    return results
+
+
+def _geo_candidates_for_projects(buy: dict) -> list[dict]:
+    coords = buy.get("location_coords")
+    if not isinstance(coords, dict):
+        return []
+
+    coord_list = coords.get("coordinates")
+    if not isinstance(coord_list, (list, tuple)) or len(coord_list) != 2:
+        return []
+
+    lng, lat = coord_list
+
+    pipeline = [
+        {
+            "$geoNear": {
+                "near": {"type": "Point", "coordinates": [lng, lat]},
+                "distanceField": "distance_m",
+                "maxDistance": DISTANCE_KM_TOLERANCE * 1000,
+                "spherical": True,
+            }
+        }
+    ]
+
+    db = get_db()
+    return list(db[COLLECTION_PROJECTS].aggregate(pipeline))
+
+
+def run_project_matching() -> list[dict]:
+    results = []
+
+    buy_listings = get_all_active("buy")
+    if not buy_listings:
+        return results
+
+    for buy in buy_listings:
+        if (buy.get("transaction") or "").lower() != "buy":
+            continue
+
+        use_geo = _has_valid_coords(buy) and not buy.get("location_unresolved")
+        if use_geo:
+            candidates = _geo_candidates_for_projects(buy)
+            for project in candidates:
+                distance_m = project.get("distance_m")
+                if distance_m is not None:
+                    project["_distance_km"] = distance_m / 1000.0
+        else:
+            candidates = get_all_projects()
+
+        if not candidates:
+            continue
+
+        for project in candidates:
+            reasons: list[str] = []
+            skipped: list[str] = []
+
+            project_types = project.get("property_types") or []
+            project_bhks = project.get("bhk_options") or []
+
+            buy_type = (buy.get("property_type") or "").lower().strip()
+            if buy_type:
+                if buy_type not in project_types:
+                    continue
+                reasons.append(f"type_match({buy_type})")
+            else:
+                skipped.append("type_skipped")
+
+            buy_bhk = buy.get("bhk")
+            if buy_bhk is not None:
+                if buy_bhk not in project_bhks:
+                    continue
+                reasons.append(f"bhk_match({buy_bhk}BR)")
+            else:
+                skipped.append("bhk_skipped")
+
+            buyer_max = buy.get("price_max_aed")
+            if buyer_max is None:
+                buyer_max = buy.get("price_aed")
+            if buyer_max is None:
+                buyer_max = buy.get("price_min_aed")
+
+            project_price = project.get("starting_price")
+            if buyer_max is None:
+                skipped.append("price_skipped")
+            elif project_price is None:
+                skipped.append("price_skipped(no_project_price)")
+            elif buyer_max >= project_price:
+                reasons.append(
+                    f"price_match(budget={buyer_max} >= starting={project_price})"
+                )
+            else:
+                continue
+
+            if use_geo and project.get("_distance_km") is not None:
+                dist = project.get("_distance_km")
+                if dist <= DISTANCE_KM_TOLERANCE:
+                    reasons.append(f"location_match(dist={dist:.2f}km)")
+                else:
+                    continue
+            else:
+                buy_loc = buy.get("location_raw") or ""
+                area = project.get("AreaName") or ""
+                if buy_loc and area:
+                    score = fuzz.WRatio(buy_loc, area)
+                    if score >= FUZZY_LOCATION_THRESHOLD:
+                        reasons.append(f"location_fuzzy_match(area={area}, score={score})")
+                    else:
+                        skipped.append("location_skipped")
+                else:
+                    skipped.append("location_skipped")
+
+            if REQUIRE_PRICE_OR_LOCATION:
+                has_price = any(r.startswith("price_match") for r in reasons)
+                has_location = any(
+                    r.startswith("location_match") or r.startswith("location_fuzzy_match")
+                    for r in reasons
+                )
+                if not has_price and not has_location:
+                    continue
+
+            score = _compute_score(reasons)
+            if score < MIN_MATCH_SCORE:
+                continue
+
+            buy_id = buy.get("_id")
+            project_id = project.get("_id")
+            if buy_id is None or project_id is None:
+                continue
+
+            if already_matched_project_pair(buy_id, project_id):
+                continue
+
+            record_project_match(
+                buy_id=buy_id,
+                project_id=project_id,
+                score=score,
+                reasons=reasons,
+                buy_snapshot=buy,
+                project_snapshot=project,
+            )
+
+            results.append({
+                "match_type": "project",
+                "buy_id": buy_id,
+                "project_id": project_id,
+                "score": score,
+                "reasons": reasons,
+                "skipped": skipped,
+                "project_name": project.get("ProjectName"),
+                "developer": project.get("Developer"),
+                "area": project.get("AreaName"),
+                "starting_price": project.get("starting_price"),
+                "handover": project.get("Handover"),
+                "payment_plan": project.get("PaymentPlan"),
+                "bedrooms_available": project.get("bhk_options"),
+                "youtube_link": project.get("Youtube"),
+                "image_link": project.get("ImageLink"),
+                "pdf_link": project.get("PDF"),
+            })
+
     return results

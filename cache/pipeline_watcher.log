@@ -1,0 +1,27 @@
+2026-05-26T04:46:38 [Pipeline] File not found: data/projects_master.xlsx
+2026-05-26T04:46:38 [Pipeline] Location master changed; starting pipeline.
+2026-05-26T04:46:38 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-26T04:46:39 [Pipeline] Step failed: excel_processor (exit 1)
+2026-05-26T04:46:39 [Pipeline][stderr] Traceback (most recent call last):
+2026-05-26T04:46:39 [Pipeline][stderr]   File "C:\Users\melvin_varghese\RealEstate\tools\excel_processor.py", line 17, in <module>
+2026-05-26T04:46:39 [Pipeline][stderr]     from core.config import LOCATION_MASTER_EXCEL, UNIQUE_NAMES_CACHE
+2026-05-26T04:46:39 [Pipeline][stderr] ModuleNotFoundError: No module named 'core'
+2026-05-26T04:46:39 [Pipeline] Location pipeline stopped at excel_processor.
+2026-05-26T04:46:58 [Pipeline] File not found: data/projects_master.xlsx
+2026-05-26T04:46:58 [Pipeline] Location master changed; starting pipeline.
+2026-05-26T04:46:58 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-26T04:46:59 [Pipeline] Step failed: excel_processor (exit 1)
+2026-05-26T04:46:59 [Pipeline][stderr] Traceback (most recent call last):
+2026-05-26T04:46:59 [Pipeline][stderr]   File "C:\Users\melvin_varghese\RealEstate\tools\excel_processor.py", line 17, in <module>
+2026-05-26T04:46:59 [Pipeline][stderr]     from core.config import LOCATION_MASTER_EXCEL, UNIQUE_NAMES_CACHE
+2026-05-26T04:46:59 [Pipeline][stderr] ModuleNotFoundError: No module named 'core'
+2026-05-26T04:46:59 [Pipeline] Location pipeline stopped at excel_processor.
+2026-05-26T04:51:20 [Pipeline] File not found: data/projects_master.xlsx
+2026-05-26T04:51:20 [Pipeline] Location master changed; starting pipeline.
+2026-05-26T04:51:20 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-26T04:51:21 [Pipeline] Step failed: excel_processor (exit 1)
+2026-05-26T04:51:21 [Pipeline][stderr] Traceback (most recent call last):
+2026-05-26T04:51:21 [Pipeline][stderr]   File "C:\Users\melvin_varghese\RealEstate\tools\excel_processor.py", line 17, in <module>
+2026-05-26T04:51:21 [Pipeline][stderr]     from core.config import LOCATION_MASTER_EXCEL, UNIQUE_NAMES_CACHE
+2026-05-26T04:51:21 [Pipeline][stderr] ModuleNotFoundError: No module named 'core'
+2026-05-26T04:51:21 [Pipeline] Location pipeline stopped at excel_processor.

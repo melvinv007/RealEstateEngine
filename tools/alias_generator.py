@@ -3,6 +3,9 @@ alias_generator.py
 
 Generate broker-style aliases for Dubai/UAE locations using Gemini.
 Reads cache/unique_names.json and writes data/raw_aliases.csv.
+
+Supports --start-row N (1-based index into unique_names.json order).
+Resumable: entries already present in data/raw_aliases.csv are skipped.
 """
 
 import csv
@@ -216,7 +219,7 @@ def _generate_aliases(canonical: str, level: str, parent: str) -> str:
 
 # ---- Main -------------------------------------------------------------------
 
-def run() -> int:
+def run(start_row: int = 1) -> int:
     input_path = Path(INPUT_PATH)
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {INPUT_PATH}")
@@ -225,6 +228,11 @@ def run() -> int:
         data = json.load(file)
 
     queue = _build_queue(data)
+    if start_row < 1:
+        start_row = 1
+    if start_row > 1:
+        print(f"[AliasGen] Skipping entries 1–{start_row - 1} (--start-row {start_row})")
+    queue = queue[start_row - 1:]
     total = len(queue)
 
     if not GEMINI_API_KEY:
@@ -232,11 +240,13 @@ def run() -> int:
 
 
     output_path = Path(OUTPUT_PATH)
+    # Resumable behavior: skip any canonical already present in raw_aliases.csv.
     existing = _load_existing(output_path)
     _ensure_output_header(output_path)
 
-    completed_count = len(existing)
-    processed_count = len(existing)
+    existing_in_scope = sum(1 for item in queue if _key(item["canonical"], item["level"], item["parent"]) in existing)
+    completed_count = existing_in_scope
+    processed_count = existing_in_scope
     last_processed: str | None = None
 
     for item in queue:
@@ -292,9 +302,14 @@ def run() -> int:
 
 
 def main() -> int:
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate location aliases using Gemini")
+    parser.add_argument("--start-row", type=int, default=1, help="Start index (1-based) into unique_names.json")
+    args = parser.parse_args()
+
     try:
-        return run()
-    
+        return run(start_row=args.start_row)
+
     except Exception as exc:
         remaining = 0
         reason = f"unexpected_error: {exc}"

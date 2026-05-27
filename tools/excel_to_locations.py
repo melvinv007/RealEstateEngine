@@ -3,8 +3,11 @@ excel_to_locations.py
 
 Convert data/raw_aliases.csv into data/locations.csv with deduped aliases.
 Validates canonical names against cache/unique_names.json.
+
+Supports --start-row N (default 2) and merges into existing locations.csv.
 """
 
+import argparse
 import csv
 import json
 from collections import OrderedDict
@@ -60,13 +63,38 @@ def _parse_aliases(raw: str, canonical: str) -> list[str]:
     return [part for part in parts if part != canonical_norm]
 
 
-def convert() -> int:
+def _load_existing_locations(output_path: Path) -> tuple[list[dict[str, str]], set[str]]:
+    if not output_path.exists():
+        return [], set()
+
+    entries: list[dict[str, str]] = []
+    existing: set[str] = set()
+    with output_path.open("r", encoding="utf-8", newline="") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            canonical = _normalize(row.get("canonical_name"))
+            if not canonical:
+                continue
+            entries.append({
+                "canonical_name": canonical,
+                "level": _normalize(row.get("level")),
+                "parent": _normalize(row.get("parent")),
+                "aliases": _normalize(row.get("aliases")),
+            })
+            existing.add(canonical.lower())
+    return entries, existing
+
+
+def convert(start_row: int = 2) -> int:
     input_path = Path(INPUT_PATH)
     if not input_path.exists():
         print(f"[Error] Input not found: {INPUT_PATH}")
         return 1
 
     known_names = _build_known_set(Path(NAMES_CACHE))
+
+    output_path = Path(OUTPUT_PATH)
+    existing_entries, existing_keys = _load_existing_locations(output_path)
 
     entries: "OrderedDict[str, dict[str, str]]" = OrderedDict()
     alias_lists: dict[str, list[str]] = {}
@@ -80,7 +108,9 @@ def convert() -> int:
             print("[Error] Input CSV has no header.")
             return 1
 
-        for row in reader:
+        for row_idx, row in enumerate(reader, start=2):
+            if row_idx < start_row:
+                continue
             canonical = _normalize(row.get("canonical_name"))
             level = _normalize(row.get("level"))
             parent = _normalize(row.get("parent"))
@@ -89,6 +119,8 @@ def convert() -> int:
                 continue
 
             canonical_key = canonical.lower()
+            if canonical_key in existing_keys:
+                continue
             aliases = _parse_aliases(row.get("aliases", ""), canonical)
 
             if canonical_key not in entries:
@@ -110,12 +142,21 @@ def convert() -> int:
                 alias_sets[canonical_key].add(alias)
                 alias_lists[canonical_key].append(alias)
 
-    output_path = Path(OUTPUT_PATH)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     with output_path.open("w", encoding="utf-8", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["canonical_name", "level", "parent", "aliases"])
+
+        for entry in existing_entries:
+            writer.writerow([
+                entry.get("canonical_name", ""),
+                entry.get("level", ""),
+                entry.get("parent", ""),
+                entry.get("aliases", ""),
+            ])
+            level_value = entry.get("level", "") or "unknown"
+            level_counts[level_value] = level_counts.get(level_value, 0) + 1
 
         for canonical_key, entry in entries.items():
             aliases = ", ".join(alias_lists.get(canonical_key, []))
@@ -129,7 +170,7 @@ def convert() -> int:
             level_value = entry.get("level", "") or "unknown"
             level_counts[level_value] = level_counts.get(level_value, 0) + 1
 
-    total = len(entries)
+    total = len(existing_entries) + len(entries)
     print(f"Total entries: {total}")
     for level in sorted(level_counts):
         print(f"  {level}: {level_counts[level]}")
@@ -141,8 +182,12 @@ def convert() -> int:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Convert raw_aliases.csv to locations.csv")
+    parser.add_argument("--start-row", type=int, default=2, help="Start row (1-based, header is row 1)")
+    args = parser.parse_args()
+
     try:
-        return convert()
+        return convert(start_row=args.start_row)
     except Exception as exc:
         print(f"[Error] {exc}")
         return 1
