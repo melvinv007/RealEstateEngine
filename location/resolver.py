@@ -1,9 +1,23 @@
 """
-resolver.py
+location_resolver.py
+Resolve raw Dubai location strings to canonical names.
 
-Tree-based location resolver with caching, hint validation, and fallback logic.
+Pipeline:
+  L0 — Cache (exact norm key hit)
+  L1 — Exact alias match
+  L2 — Candidate generation + confidence scoring
+         • Split input into {base, phase}
+         • Fuzzy match base against all alias bases → top-N candidates
+         • Score each by: fuzzy similarity + token coverage + phase agreement
+         • Decision:
+             HIGH confidence + clear winner  → return directly
+             AMBIGUOUS (top candidates close) → Gemini disambiguate
+             LOW confidence                  → Gemini cold
+  L3 — Gemini (3 modes: disambiguate / confirm / cold)
+  L4 — Unresolved logger + cache as UNKNOWN
 """
 
+import csv
 import json
 import os
 import time
@@ -15,7 +29,7 @@ from typing import Any
 from core.gemini_client import call_gemini
 from rapidfuzz import fuzz, process
 
-from core.config import GEMINI_API_KEY
+from core.config import GEMINI_API_KEY, PRODUCTION_MODE
 from location.location_tree import build_or_load_tree, normalize_key, split_phase
 
 MIN_CONFIDENCE = 0.65
@@ -84,6 +98,9 @@ def _save_cache() -> None:
 
 
 def _append_log(path: str, message: str) -> None:
+    # In production mode we suppress certain diagnostic logs to reduce disk noise
+    if PRODUCTION_MODE and path in (HINT_MISMATCH_LOG, GEMINI_ARBITRATION_LOG, UNRESOLVED_LOG):
+        return
     log_path = Path(path)
     log_path.parent.mkdir(parents=True, exist_ok=True)
     with log_path.open("a", encoding="utf-8") as file:

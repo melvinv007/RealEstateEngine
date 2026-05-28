@@ -20,6 +20,7 @@ from core.config import (
     LOCATION_MASTER_EXCEL,
     PIPELINE_STATE_FILE,
     PIPELINE_WATCHER_LOG,
+    PRODUCTION_MODE,
 )
 from ingestion import project_importer
 
@@ -31,9 +32,11 @@ def _log(message: str) -> None:
     line = f"{timestamp} {message}"
     print(line)
     log_path = Path(PIPELINE_WATCHER_LOG)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    with log_path.open("a", encoding="utf-8") as file:
-        file.write(line + "\n")
+    # In production we suppress verbose pipeline tracing to reduce disk noise
+    if not PRODUCTION_MODE:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with log_path.open("a", encoding="utf-8") as file:
+            file.write(line + "\n")
 
 
 def _log_output(prefix: str, text: str) -> None:

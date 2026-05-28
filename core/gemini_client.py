@@ -35,6 +35,7 @@ from core.config import (
     OPENROUTER_API_KEY,
     OPENROUTER_MODELS,
 )
+from core.config import PRODUCTION_MODE
 
 try:
     from json_repair import repair_json
@@ -69,12 +70,25 @@ def _timestamp() -> str:
 
 
 def _log_call(model_name: str, success: bool, latency_s: float, note: str = "") -> None:
+    # In production we suppress writes to gemini_calls.log to reduce disk noise
+    if PRODUCTION_MODE:
+        return
     path = Path(_CALL_LOG)
     path.parent.mkdir(parents=True, exist_ok=True)
     status = "OK" if success else "FAIL"
     line = f"{_timestamp()}\t{model_name}\t{status}\t{latency_s:.2f}s\t{note}"
     with path.open("a", encoding="utf-8") as f:
         f.write(line + "\n")
+
+
+def _pprint(msg: str, level: str = "INFO") -> None:
+    """
+    Controlled printing helper. In production, only WARN and ERROR are printed.
+    """
+    lvl = (level or "INFO").upper()
+    if PRODUCTION_MODE and lvl not in ("WARN", "ERROR"):
+        return
+    print(msg)
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -134,7 +148,7 @@ def _validate_json_text(raw_text: str) -> str | None:
                 return repaired
             except Exception:
                 pass
-        print(f"[Parser] Invalid JSON returned: {raw_text[:500]}")
+        _pprint(f"[Parser] Invalid JSON returned: {raw_text[:500]}", level="WARN")
         return None
 
 
@@ -162,7 +176,7 @@ def _set_current_model(model_name: str) -> None:
     global _current_model
     if _current_model != model_name:
         _current_model = model_name
-        print(f"[AI] Now using model: {model_name}")
+        _pprint(f"[AI] Now using model: {model_name}", level="INFO")
 
 
 def _classify_gemini_error(err: str) -> str:
@@ -318,25 +332,25 @@ def _call_gemini_models(
                 category = _classify_gemini_error(err)
 
                 if category == "daily_quota":
-                    print(f"[Gemini] {model_name} daily quota exhausted — blacklisting for this session.")
+                    _pprint(f"[Gemini] {model_name} daily quota exhausted — blacklisting for this session.", level="WARN")
                     _log_call(model_name, False, latency, "daily_quota")
                     _daily_quota_blacklist.add(model_name)
                     last_error = e
                     break
 
                 elif category in ("bad_model", "auth_err"):
-                    print(f"[Gemini] {model_name} skipped — {category}: {err[:100]}")
+                    _pprint(f"[Gemini] {model_name} skipped — {category}: {err[:100]}", level="WARN")
                     _log_call(model_name, False, latency, category)
                     last_error = e
                     break
 
                 elif category in ("rate_limit", "server_err"):
-                    print(f"[Gemini] {model_name} attempt {attempt}/{RETRY_MAX} ({category})")
+                    _pprint(f"[Gemini] {model_name} attempt {attempt}/{RETRY_MAX} ({category})", level="DEBUG")
                     _log_call(model_name, False, latency, f"{category}_attempt{attempt}")
                     last_error = e
                     if attempt < RETRY_MAX:
                         wait = _extract_retry_delay(err)
-                        print(f"[Gemini] Waiting {wait:.0f}s before retry...")
+                        _pprint(f"[Gemini] Waiting {wait:.0f}s before retry...", level="DEBUG")
                         time.sleep(wait)
 
                 else:
@@ -344,7 +358,7 @@ def _call_gemini_models(
                     raise
 
         else:
-            print(f"[Gemini] {model_name} exhausted all {RETRY_MAX} attempts, trying next model...")
+            _pprint(f"[Gemini] {model_name} exhausted all {RETRY_MAX} attempts, trying next model...", level="DEBUG")
 
     return None  # all Gemini models exhausted
 
@@ -368,13 +382,13 @@ def _call_groq_models(
         return None
 
     if image_part:
-        print("[Groq] Warning: image_part not supported by Groq — skipping Groq fallback.")
+        _pprint("[Groq] Warning: image_part not supported by Groq — skipping Groq fallback.", level="WARN")
         return None
 
     try:
         from groq import Groq
     except ImportError:
-        print("[Groq] groq package not installed. Run: pip install groq")
+        _pprint("[Groq] groq package not installed. Run: pip install groq", level="WARN")
         return None
 
     client = Groq(api_key=GROQ_API_KEY)
@@ -431,24 +445,24 @@ def _call_groq_models(
                 category = _classify_groq_error(err)
 
                 if category == "daily_quota":
-                    print(f"[Groq] {model_name} daily quota exhausted — blacklisting for this session.")
+                    _pprint(f"[Groq] {model_name} daily quota exhausted — blacklisting for this session.", level="WARN")
                     _log_call(f"groq/{model_name}", False, latency, "daily_quota")
                     _daily_quota_blacklist.add(model_name)
                     last_error = e
                     break
 
                 elif category in ("bad_model", "auth_err"):
-                    print(f"[Groq] {model_name} skipped — {category}: {err[:100]}")
+                    _pprint(f"[Groq] {model_name} skipped — {category}: {err[:100]}", level="WARN")
                     _log_call(f"groq/{model_name}", False, latency, category)
                     last_error = e
                     break
 
                 elif category in ("rate_limit", "server_err"):
-                    print(f"[Groq] {model_name} attempt {attempt}/{RETRY_MAX} ({category})")
+                    _pprint(f"[Groq] {model_name} attempt {attempt}/{RETRY_MAX} ({category})", level="DEBUG")
                     _log_call(f"groq/{model_name}", False, latency, f"{category}_attempt{attempt}")
                     last_error = e
                     if attempt < RETRY_MAX:
-                        print(f"[Groq] Waiting {RETRY_WAIT_DEFAULT:.0f}s before retry...")
+                        _pprint(f"[Groq] Waiting {RETRY_WAIT_DEFAULT:.0f}s before retry...", level="DEBUG")
                         time.sleep(RETRY_WAIT_DEFAULT)
 
                 else:
@@ -456,7 +470,7 @@ def _call_groq_models(
                     raise
 
         else:
-            print(f"[Groq] {model_name} exhausted all {RETRY_MAX} attempts, trying next model...")
+            _pprint(f"[Groq] {model_name} exhausted all {RETRY_MAX} attempts, trying next model...", level="DEBUG")
 
     return None  # all Groq models exhausted
 
@@ -478,13 +492,13 @@ def _call_openrouter_models(
         return None
 
     if image_part:
-        print("[OpenRouter] Warning: image_part not supported — skipping.")
+        _pprint("[OpenRouter] Warning: image_part not supported — skipping.", level="WARN")
         return None
 
     try:
         from openai import OpenAI
     except ImportError:
-        print("[OpenRouter] openai package not installed.")
+        _pprint("[OpenRouter] openai package not installed.", level="WARN")
         return None
 
     client = OpenAI(
@@ -570,53 +584,19 @@ def _call_openrouter_models(
                 category = _classify_openrouter_error(err)
 
                 if category == "daily_quota":
-
-                    print(
-                        f"[OpenRouter] {model_name} quota exhausted."
-                    )
-
-                    _daily_quota_blacklist.add(
-                        f"openrouter/{model_name}"
-                    )
-
-                    _log_call(
-                        f"openrouter/{model_name}",
-                        False,
-                        latency,
-                        "daily_quota",
-                    )
-
+                    _pprint(f"[OpenRouter] {model_name} quota exhausted.", level="WARN")
+                    _daily_quota_blacklist.add(f"openrouter/{model_name}")
+                    _log_call(f"openrouter/{model_name}", False, latency, "daily_quota")
                     break
 
                 elif category in ("bad_model", "auth_err"):
-
-                    print(
-                        f"[OpenRouter] {model_name} skipped — {category}"
-                    )
-
-                    _log_call(
-                        f"openrouter/{model_name}",
-                        False,
-                        latency,
-                        category,
-                    )
-
+                    _pprint(f"[OpenRouter] {model_name} skipped — {category}", level="WARN")
+                    _log_call(f"openrouter/{model_name}", False, latency, category)
                     break
 
                 elif category in ("rate_limit", "server_err"):
-
-                    print(
-                        f"[OpenRouter] {model_name} attempt "
-                        f"{attempt}/{RETRY_MAX} ({category})"
-                    )
-
-                    _log_call(
-                        f"openrouter/{model_name}",
-                        False,
-                        latency,
-                        f"{category}_attempt{attempt}",
-                    )
-
+                    _pprint(f"[OpenRouter] {model_name} attempt {attempt}/{RETRY_MAX} ({category})", level="DEBUG")
+                    _log_call(f"openrouter/{model_name}", False, latency, f"{category}_attempt{attempt}")
                     if attempt < RETRY_MAX:
                         time.sleep(RETRY_WAIT_DEFAULT)
 
@@ -651,7 +631,7 @@ def call_gemini(
     # Warn on very long prompts
     length = _prompt_length(prompt)
     if length > PROMPT_LENGTH_WARN:
-        print(f"[AI] Warning: prompt is {length} chars — may hit token limits.")
+        _pprint(f"[AI] Warning: prompt is {length} chars — may hit token limits.", level="WARN")
 
     try:
 
@@ -660,10 +640,10 @@ def call_gemini(
             response = _call_gemini_models(prompt, generation_config, system_instruction, image_part)
             if response is not None:
                 return response
-            
+
         if not _groq_fallback_announced:
-                print("[AI] All Gemini models exhausted — falling back to Groq for this session.")
-                _groq_fallback_announced = True
+            _pprint("[AI] All Gemini models exhausted — falling back to Groq for this session.", level="WARN")
+            _groq_fallback_announced = True
 
         # Fall through to Groq
         response = _call_groq_models(
@@ -677,7 +657,7 @@ def call_gemini(
             return response
 
         # Fall through to OpenRouter
-        print("[AI] Groq exhausted — falling back to OpenRouter.")
+        _pprint("[AI] Groq exhausted — falling back to OpenRouter.", level="WARN")
 
         response = _call_openrouter_models(
             prompt,
@@ -707,4 +687,4 @@ def reset_blacklist() -> None:
     global _groq_fallback_announced
     _daily_quota_blacklist.clear()
     _groq_fallback_announced = False
-    print("[AI] Session blacklist cleared.")
+    _pprint("[AI] Session blacklist cleared.", level="INFO")

@@ -189,3 +189,7 @@ DELETE_AFTER_MATCH = False      # True = delete matched listings after match
 LOCATION_CONFIDENCE_HIGH = 0.82
 LOCATION_CONFIDENCE_AMBIGUITY_BAND = 0.08
 LOCATION_CONFIDENCE_CONFIRM = 0.65
+
+# When True, reduce console verbosity and suppress diagnostic logs
+# Set this in the environment on production hosts (e.g. EC2)
+PRODUCTION_MODE = os.getenv("PRODUCTION_MODE", "False").lower() in ("1", "true", "yes")

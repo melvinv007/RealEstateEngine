@@ -2,6 +2,6 @@ __pycache__/
 .env
 .copilot/
 *.png
-.venv/
+venv/
 old.*
 md_files/
