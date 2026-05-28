@@ -354,6 +354,8 @@ def _classify_with_gemini(text: str) -> tuple[bool | None, float | None]:
     )
 
     response = call_gemini(prompt, generation_config={"temperature": 0.1, "response_mime_type": "application/json"})
+    if response is None:
+        return None, None
     data = _safe_json_loads(response.text.strip())
     if isinstance(data, dict):
         label = data.get("is_real_estate")
@@ -411,6 +413,9 @@ def parse_text_message(message: str) -> list[dict]:
             [SYSTEM_PROMPT, f"\nMESSAGE:\n{message}"],
             generation_config={"temperature": 0.1, "response_mime_type": "application/json"},
         )
+        if response is None:
+            print("[Parser] Invalid JSON returned")
+            return []
 
         raw = _clean_json(response.text)
 
@@ -474,6 +479,9 @@ def parse_image(image_path: str) -> list[dict]:
             generation_config={"temperature": 0.1, "response_mime_type": "application/json"},
             image_part=image_part,
         )
+        if response is None:
+            print("[Parser] Invalid JSON returned from image")
+            return []
 
         raw = _clean_json(response.text)
 

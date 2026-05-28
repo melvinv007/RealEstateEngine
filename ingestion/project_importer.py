@@ -6,14 +6,16 @@ Imports projects from an Excel master sheet into the MongoDB projects collection
 
 import argparse
 import re
+import sys
 from pathlib import Path
 from typing import Any
 
 from openpyxl import load_workbook
 
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 from core.config import PROJECTS_MASTER_EXCEL
 from core.database import insert_project
-
 
 EXPECTED_COLUMNS = [
     "Youtube",
@@ -28,7 +30,7 @@ EXPECTED_COLUMNS = [
     "RedSticker",
     "LifeStyle",
     "Handover",
-    "PaymentPlan",
+    "Payment Plan",
     "Bedrooms",
 ]
 
@@ -165,7 +167,7 @@ def _build_project_doc(row: tuple, header_map: dict[str, int]) -> dict:
     red_sticker = _normalize_value(_get_col("RedSticker"))
     lifestyle = _normalize_value(_get_col("LifeStyle"))
     handover = _normalize_value(_get_col("Handover"))
-    payment_plan = _normalize_value(_get_col("PaymentPlan"))
+    payment_plan = _normalize_value(_get_col("Payment Plan"))
     bedrooms_raw = _normalize_value(_get_col("Bedrooms"))
 
     property_types = _parse_property_types(property_type_raw)
@@ -195,13 +197,13 @@ def _build_project_doc(row: tuple, header_map: dict[str, int]) -> dict:
     }
 
 
-def run_import(start_row: int = 2, excel_path: str | None = None) -> dict:
+def run_import(start_row: int = 3, excel_path: str | None = None) -> dict:
     path = Path(excel_path or PROJECTS_MASTER_EXCEL)
 
-    workbook = load_workbook(filename=path, read_only=True, data_only=True)
-    sheet = workbook.active
+    workbook = load_workbook(filename=path, data_only=True) #, read_only=True
+    sheet = workbook["Sheet 1"]
 
-    header = [str(c).strip() if c is not None else "" for c in sheet[1]]
+    header = [str(c.value).strip() if c.value is not None else "" for c in sheet[2]]
     header_map = {name: idx for idx, name in enumerate(header) if name}
 
     inserted = 0
@@ -223,7 +225,7 @@ def run_import(start_row: int = 2, excel_path: str | None = None) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Import projects from Excel")
-    parser.add_argument("--start-row", type=int, default=2, help="Start row (1-based)")
+    parser.add_argument("--start-row", type=int, default=3, help="Start row (1-based)")
     parser.add_argument("--excel-path", type=str, default=None, help="Path to projects_master.xlsx")
     args = parser.parse_args()
 

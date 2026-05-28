@@ -4800,5 +4800,66 @@
     "confidence": 0.7,
     "resolution_path": "gemini_arbitration",
     "location_unresolved": false
+  },
+  "naya 3 district one mbr": {
+    "matched_canonical": "Dubai",
+    "matched_level": "city",
+    "city": "Dubai",
+    "community": null,
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai",
+    "coords": {
+      "lat": 25.0742823,
+      "lng": 55.1885387
+    },
+    "confidence": 1.0,
+    "resolution_path": "hint_city_only",
+    "location_unresolved": false
+  },
+  "district one mbr": {
+    "matched_canonical": "District One",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Mohammed Bin Rashid City",
+    "subcommunity": "District One",
+    "property": null,
+    "coords_key": "District One",
+    "coords": {
+      "lat": 25.1600468,
+      "lng": 55.2788652
+    },
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "district one": {
+    "matched_canonical": "Dubai Design District",
+    "matched_level": "community",
+    "city": "Dubai",
+    "community": "Dubai Design District",
+    "subcommunity": null,
+    "property": null,
+    "coords_key": "Dubai Design District",
+    "coords": {
+      "lat": 25.1883375,
+      "lng": 55.2974839
+    },
+    "confidence": 0.775,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
+  },
+  "green square dubai hills estate": {
+    "matched_canonical": "Green Square",
+    "matched_level": "subcommunity",
+    "city": "Dubai",
+    "community": "Dubai Hills Estate",
+    "subcommunity": "Green Square",
+    "property": null,
+    "coords_key": null,
+    "coords": null,
+    "confidence": 1.0,
+    "resolution_path": "gemini_arbitration",
+    "location_unresolved": false
   }
 }

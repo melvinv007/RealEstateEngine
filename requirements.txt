@@ -10,3 +10,4 @@ openpyxl>=3.1.0
 groq
 openai>=1.30.0
 python-telegram-bot==22.1
+json-repair

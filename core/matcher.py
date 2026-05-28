@@ -18,6 +18,7 @@ from core.config import (
     DELETE_AFTER_MATCH,
     MIN_MATCH_SCORE,
     REQUIRE_PRICE_OR_LOCATION,
+    COLLECTION_BUY,
     COLLECTION_SELL,
     COLLECTION_PROJECTS,
     FUZZY_LOCATION_THRESHOLD,
@@ -181,6 +182,37 @@ def _geo_candidates_for_buy(buy: dict) -> list[dict]:
     return list(db[COLLECTION_SELL].aggregate(pipeline))
 
 
+def _geo_candidates_buys_for_sell(sell: dict) -> list[dict]:
+    coords = sell.get("location_coords")
+    if not isinstance(coords, dict):
+        return []
+
+    coord_list = coords.get("coordinates")
+    if not isinstance(coord_list, (list, tuple)) or len(coord_list) != 2:
+        return []
+
+    lng, lat = coord_list
+
+    pipeline = [
+        {
+            "$geoNear": {
+                "near": {"type": "Point", "coordinates": [lng, lat]},
+                "distanceField": "distance_m",
+                "maxDistance": DISTANCE_KM_TOLERANCE * 1000,
+                "spherical": True,
+            }
+        }
+    ]
+
+    db = get_db()
+    buys = list(db[COLLECTION_BUY].aggregate(pipeline))
+    for buy in buys:
+        distance_m = buy.get("distance_m")
+        if distance_m is not None:
+            buy["_distance_km"] = distance_m / 1000.0
+    return buys
+
+
 # ── Scoring ────────────────────────────────────────────────────────────────────
 
 FIELD_WEIGHTS = {
@@ -269,15 +301,12 @@ def run_matching() -> list[dict]:
         return []
 
     matched_sell_ids: set[ObjectId] = set()
-    matched_buy_ids: set[ObjectId] = set()
     results = []
 
     print(f"[Matcher] Processing {len(buy_listings)} buy listing(s)...")
 
     for buy in buy_listings:
         buy_id = buy["_id"]
-        if buy_id in matched_buy_ids:
-            continue
 
         use_geo = _has_valid_coords(buy) and not buy.get("location_unresolved")
 
@@ -299,8 +328,7 @@ def run_matching() -> list[dict]:
         if not sell_candidates:
             continue
 
-        best_match = None
-        best_score = -1.0
+        valid_matches: list[dict] = []
 
         for sell in sell_candidates:
             sell_id = sell["_id"]
@@ -312,25 +340,97 @@ def run_matching() -> list[dict]:
                 continue
 
             m = match_single(buy, sell)
-            if m and m["score"] > best_score:
-                best_match = m
-                best_score = m["score"]
+            if m:
+                valid_matches.append(m)
 
-        if best_match:
+        valid_matches.sort(key=lambda match: match["score"], reverse=True)
+
+        for match in valid_matches:
             match_id = record_match(
-                buy_id=best_match["buy_id"],
-                sell_id=best_match["sell_id"],
-                score=best_match["score"],
-                reasons=best_match["reasons"],
+                buy_id=match["buy_id"],
+                sell_id=match["sell_id"],
+                score=match["score"],
+                reasons=match["reasons"],
                 delete_after=DELETE_AFTER_MATCH,
             )
             if match_id:
-                matched_buy_ids.add(best_match["buy_id"])
-                matched_sell_ids.add(best_match["sell_id"])
-                results.append({**best_match, "match_id": match_id})
+                matched_sell_ids.add(match["sell_id"])
+                results.append({**match, "match_id": match_id})
 
     print(f"[Matcher] Done. {len(results)} match(es) recorded.")
     return results
+
+
+def run_matching_for_sell(sell: dict) -> list[dict]:
+    if not sell or (sell.get("transaction") or "").lower() != "sell":
+        return []
+
+    sell_id = sell.get("_id")
+    if sell_id is None:
+        return []
+
+    use_geo = _has_valid_coords(sell) and not sell.get("location_unresolved")
+
+    if use_geo:
+        buy_candidates = _geo_candidates_buys_for_sell(sell)
+    else:
+        buy_candidates = get_active_filtered(
+            transaction="buy",
+            property_type=sell.get("property_type"),
+            bhk=sell.get("bhk") if BHK_TOLERANCE == 0 else None,
+        )
+
+    if not buy_candidates:
+        return []
+
+    best_matches: list[dict] = []
+
+    for buy in buy_candidates:
+        buy_id = buy.get("_id")
+        if buy_id is None:
+            continue
+
+        if already_matched_pair(buy_id, sell_id):
+            continue
+
+        if use_geo:
+            sell_copy = {**sell, "_distance_km": buy.get("_distance_km")}
+        else:
+            sell_copy = sell
+
+        m = match_single(buy, sell_copy)
+        if not m:
+            continue
+
+        best_matches.append({
+            "match_type": "broker_buy",
+            "buy_id": buy_id,
+            "sell_id": sell_id,
+            "score": m["score"],
+            "reasons": m["reasons"],
+            "skipped": m["skipped"],
+            "buy_broker": buy.get("broker", {}),
+            "buy_snapshot": {
+                "property_type": buy.get("property_type"),
+                "bhk": buy.get("bhk"),
+                "price_aed": buy.get("price_aed"),
+                "price_min_aed": buy.get("price_min_aed"),
+                "price_max_aed": buy.get("price_max_aed"),
+                "location": buy.get("location"),
+                "sqft": buy.get("sqft"),
+            },
+        })
+
+        record_match(
+            buy_id=buy_id,
+            sell_id=sell_id,
+            score=m["score"],
+            reasons=m["reasons"],
+            delete_after=DELETE_AFTER_MATCH,
+        )
+
+    best_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
+    return best_matches
 
 
 def _geo_candidates_for_projects(buy: dict) -> list[dict]:

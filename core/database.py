@@ -16,7 +16,7 @@ from core.config import (
     MONGO_URI, MONGO_DB_NAME,
     COLLECTION_BUY, COLLECTION_SELL, COLLECTION_MATCHES,
     COLLECTION_PROJECTS, COLLECTION_PROJECT_MATCHES,
-    DUPLICATE_DETECTION, DUPLICATE_PRICE_TOLERANCE,
+    DUPLICATE_DETECTION_BUY, DUPLICATE_DETECTION_SELL, DUPLICATE_PRICE_TOLERANCE,
 )
 
 _client = None
@@ -126,9 +126,9 @@ def _build_fingerprint(listing: dict) -> str:
     return hashlib.md5(raw.encode()).hexdigest()
 
 
-def _is_duplicate(listing: dict, coll_name: str) -> bool:
+def _is_duplicate(listing: dict, coll_name: str, enabled: bool) -> bool:
     """Check if a near-identical listing already exists in the collection."""
-    if not DUPLICATE_DETECTION:
+    if not enabled:
         return False
 
     fp = _build_fingerprint(listing)
@@ -156,7 +156,9 @@ def insert_listing(listing: dict) -> ObjectId | None:
     transaction = listing.get("transaction", "sell").lower()
     coll_name = COLLECTION_BUY if transaction == "buy" else COLLECTION_SELL
 
-    if _is_duplicate(listing, coll_name):
+    dedupe_enabled = DUPLICATE_DETECTION_BUY if transaction == "buy" else DUPLICATE_DETECTION_SELL
+
+    if _is_duplicate(listing, coll_name, dedupe_enabled):
         return None
 
     result = _collection(coll_name).insert_one(listing)

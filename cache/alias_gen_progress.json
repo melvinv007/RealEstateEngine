@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-05-27T05:55:26",
-  "last_processed": "Al Yaqoub Tower",
-  "completed_count": 1748,
-  "remaining_count": 8603,
-  "stopped_reason": "running"
+  "timestamp": "2026-05-28T04:59:14",
+  "last_processed": "Dubai Marina Walk",
+  "completed_count": 2896,
+  "remaining_count": 7457,
+  "stopped_reason": "keyboard_interrupt"
 }

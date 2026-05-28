@@ -17,6 +17,7 @@ Features:
 """
 
 import base64
+import json
 import re
 import time
 from datetime import datetime
@@ -34,6 +35,11 @@ from core.config import (
     OPENROUTER_API_KEY,
     OPENROUTER_MODELS,
 )
+
+try:
+    from json_repair import repair_json
+except Exception:
+    repair_json = None
 
 _GEMINI_CLIENT = None
 
@@ -105,6 +111,31 @@ def _prompt_to_string(prompt: Any) -> str:
                     parts.append(str(p))
         return "\n".join(parts)
     return str(prompt)
+
+
+def _strip_markdown_fences(text: str) -> str:
+    cleaned = text.strip()
+    cleaned = re.sub(r"^```json", "", cleaned, flags=re.IGNORECASE).strip()
+    cleaned = re.sub(r"^```", "", cleaned).strip()
+    cleaned = re.sub(r"```$", "", cleaned).strip()
+    return cleaned
+
+
+def _validate_json_text(raw_text: str) -> str | None:
+    cleaned = _strip_markdown_fences(raw_text)
+    try:
+        json.loads(cleaned)
+        return cleaned
+    except Exception:
+        if repair_json:
+            try:
+                repaired = repair_json(cleaned)
+                json.loads(repaired)
+                return repaired
+            except Exception:
+                pass
+        print(f"[Parser] Invalid JSON returned: {raw_text[:500]}")
+        return None
 
 
 def _normalize_contents(prompt: Any, image_part: dict | None) -> list[Any]:
@@ -384,6 +415,13 @@ def _call_groq_models(
                 text = completion.choices[0].message.content or ""
 
                 latency = time.time() - t_start
+                if wants_json:
+                    validated = _validate_json_text(text)
+                    if validated is None:
+                        _log_call(f"groq/{model_name}", False, latency, "invalid_json")
+                        continue
+                    text = validated
+
                 _log_call(f"groq/{model_name}", True, latency)
                 return _GroqResponse(text)
 
@@ -503,6 +541,18 @@ def _call_openrouter_models(
                 text = completion.choices[0].message.content or ""
 
                 latency = time.time() - t_start
+
+                if wants_json:
+                    validated = _validate_json_text(text)
+                    if validated is None:
+                        _log_call(
+                            f"openrouter/{model_name}",
+                            False,
+                            latency,
+                            "invalid_json",
+                        )
+                        continue
+                    text = validated
 
                 _log_call(
                     f"openrouter/{model_name}",

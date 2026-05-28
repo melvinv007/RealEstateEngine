@@ -119,7 +119,7 @@ def _run_project_pipeline(state: dict) -> None:
     buffer = io.StringIO()
     try:
         with redirect_stdout(buffer), redirect_stderr(buffer):
-            result = project_importer.run_import(start_row=2, excel_path=PROJECTS_MASTER_EXCEL)
+            result = project_importer.run_import(start_row=3, excel_path=PROJECTS_MASTER_EXCEL)
     except Exception as exc:
         _log(f"[Pipeline] Projects import failed: {exc}")
         _log_output("[Pipeline][project_importer] ", buffer.getvalue())

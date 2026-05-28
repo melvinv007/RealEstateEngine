@@ -69,15 +69,15 @@ WA_NO_MATCH_MESSAGE = (
     "Your requirement has been saved and you will be notified when a match is found."
 )
 
-WA_SELL_ACK_MESSAGE = (
-    "Your listing has been received and stored. "
-    "We will notify you if a matching buyer is found."
-)
-
 WA_BUY_MATCH_HEADER = "We found {n} match(es) for your requirement:"
+WA_SELL_MATCH_HEADER = "Your listing matched {n} potential buyer(s):"
 WA_BROKER_SELL_TEMPLATE = (
     "[Broker Sell] {property_type} {bhk}BR at {location} — "
     "AED {price:,.0f} | Contact: {broker_name} {broker_phone}"
+)
+WA_BROKER_BUY_TEMPLATE = (
+    "[Buyer] Looking for {property_type} {bhk}BR in {location} | "
+    "Budget: AED {price:,.0f} | Contact: {broker_name} {broker_phone}"
 )
 WA_PROJECT_TEMPLATE = (
     "[New Project] {project_name} by {developer} in {area} | "
@@ -177,7 +177,8 @@ REQUIRE_PRICE_OR_LOCATION = True
 FUZZY_LOCATION_THRESHOLD = 85       # 0–100 similarity score
  
 # ── Duplicate Detection ───────────────────────────────────────────────────────
-DUPLICATE_DETECTION = True
+DUPLICATE_DETECTION_BUY = False
+DUPLICATE_DETECTION_SELL = True
 DUPLICATE_PRICE_TOLERANCE = 0.05    # ±5% for fingerprint price comparison (tighter than match)
 
  

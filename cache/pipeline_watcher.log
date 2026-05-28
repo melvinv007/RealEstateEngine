@@ -80,3 +80,277 @@
 2026-05-27T05:43:31 [Pipeline] Projects import complete. 1 inserted, 13 skipped.
 2026-05-27T05:43:31 [Pipeline] Location master changed; starting pipeline.
 2026-05-27T05:43:31 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T21:39:53 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T21:39:53 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T21:39:53 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T21:39:59 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T21:39:59 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T21:39:59 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T21:39:59 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T21:39:59 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T21:39:59 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T21:39:59 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:11:47 [Pipeline] Projects master changed; starting import.
+2026-05-27T22:11:55 [Pipeline][project_importer] [ProjectImporter] 1 inserted, 13 duplicates skipped
+2026-05-27T22:11:55 [Pipeline] Projects import complete. 1 inserted, 13 skipped.
+2026-05-27T22:11:55 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:11:55 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:12:00 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:12:00 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:12:00 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:12:00 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:12:00 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:12:00 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:12:00 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:13:12 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:13:12 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:13:12 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:13:25 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:13:25 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:13:25 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:13:29 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:13:29 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:13:29 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:13:29 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:13:30 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:13:30 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:13:30 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:18:01 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:18:01 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:18:01 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:18:29 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:18:29 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:18:29 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:18:43 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:18:43 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:18:43 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:18:46 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:18:46 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:18:46 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:18:46 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:18:46 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:18:46 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:18:46 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:22:58 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:22:58 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:22:58 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:23:01 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:23:01 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:23:01 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:23:01 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:23:01 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:23:01 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:23:01 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:27:40 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:27:40 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:27:40 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:27:44 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:27:44 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:27:44 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:27:44 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:27:44 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:27:44 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:27:44 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:28:04 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:28:04 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:28:04 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:28:17 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:28:17 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:28:17 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:28:26 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:28:26 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:28:26 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:28:27 [Pipeline] Step failed: excel_processor (exit 3221225786)
+2026-05-27T22:28:27 [Pipeline][stderr] Traceback (most recent call last):
+2026-05-27T22:28:27 [Pipeline][stderr]   File "C:\Users\melvin_varghese\RealEstate\tools\excel_processor.py", line 15, in <module>
+2026-05-27T22:28:27 [Pipeline][stderr]     from openpyxl import load_workbook
+2026-05-27T22:28:27 [Pipeline][stderr]   File "C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\__init__.py", line 5, in <module>
+2026-05-27T22:28:27 [Pipeline][stderr]     from openpyxl.compat.numbers import NUMPY
+2026-05-27T22:28:27 [Pipeline][stderr]   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+2026-05-27T22:28:27 [Pipeline][stderr]   File "<frozen importlib._bootstrap>", line 1322, in _find_and_load_unlocked
+2026-05-27T22:28:27 [Pipeline][stderr]   File "<frozen importlib._bootstrap>", line 1262, in _find_spec
+2026-05-27T22:28:27 [Pipeline][stderr]   File "<frozen importlib._bootstrap_external>", line 1532, in find_spec
+2026-05-27T22:28:27 [Pipeline][stderr]   File "<frozen importlib._bootstrap_external>", line 1506, in _get_spec
+2026-05-27T22:28:27 [Pipeline][stderr]   File "<frozen importlib._bootstrap_external>", line 1620, in find_spec
+2026-05-27T22:28:27 [Pipeline][stderr]   File "<frozen importlib._bootstrap_external>", line 105, in _path_join
+2026-05-27T22:28:27 [Pipeline][stderr] KeyboardInterrupt
+2026-05-27T22:28:27 [Pipeline] Location pipeline stopped at excel_processor.
+2026-05-27T22:28:37 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:28:37 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:28:37 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:28:41 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:28:41 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:28:41 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:28:41 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:28:41 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:28:41 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:28:41 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:33:19 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:33:19 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:33:19 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:33:33 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:33:33 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:33:33 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:33:36 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:33:36 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:33:36 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:33:36 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:33:37 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:33:37 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:33:37 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:33:57 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:33:57 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:33:57 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:34:00 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:34:00 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:34:00 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:34:00 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:34:00 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:34:00 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:34:00 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:34:26 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:34:26 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:34:26 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:34:29 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:34:29 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:34:29 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:34:29 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:34:29 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:34:29 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:34:29 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:35:31 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:35:31 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:35:31 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:35:35 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:35:35 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:35:35 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:35:35 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:35:35 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:35:35 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:35:35 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:36:47 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:36:47 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:36:47 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:36:50 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:36:50 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:36:50 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:36:50 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:36:50 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:36:50 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:36:50 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:37:10 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:37:10 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:37:10 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:37:21 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:37:21 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:37:22 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:37:25 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:37:25 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:37:25 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:37:25 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:37:25 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:37:25 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:37:25 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:38:37 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:38:37 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:38:37 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:38:57 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:38:58 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:38:58 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:39:18 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:39:18 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:39:18 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:39:33 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:39:33 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:39:33 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:39:37 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:39:37 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:39:37 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:39:37 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:39:37 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:39:37 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:39:37 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:40:00 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:40:01 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:40:01 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:40:05 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:40:05 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:40:05 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:40:05 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:40:05 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:40:05 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:40:05 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:41:12 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:41:12 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:41:12 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:41:46 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:41:46 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:41:46 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:41:55 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:41:55 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:41:55 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:41:55 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:41:55 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:41:55 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:41:55 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:47:16 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:47:16 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:47:16 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:47:28 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:47:28 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:47:28 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:47:31 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:47:31 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:47:31 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:47:31 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:47:31 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:47:31 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:47:31 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-27T22:50:12 [Pipeline] Projects master unchanged; skipping.
+2026-05-27T22:50:12 [Pipeline] Location master changed; starting pipeline.
+2026-05-27T22:50:12 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-27T22:50:17 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-27T22:50:17 [Pipeline][stdout] Unique cities count: 8
+2026-05-27T22:50:17 [Pipeline][stdout] Unique communities count: 517
+2026-05-27T22:50:17 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-27T22:50:17 [Pipeline][stdout] Unique properties count: 4646
+2026-05-27T22:50:17 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-27T22:50:17 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-28T04:43:56 [Pipeline] Projects master unchanged; skipping.
+2026-05-28T04:43:56 [Pipeline] Location master changed; starting pipeline.
+2026-05-28T04:43:56 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-28T04:44:16 [Pipeline] Projects master unchanged; skipping.
+2026-05-28T04:44:16 [Pipeline] Location master changed; starting pipeline.
+2026-05-28T04:44:16 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-28T04:44:39 [Pipeline] Projects master unchanged; skipping.
+2026-05-28T04:44:39 [Pipeline] Location master changed; starting pipeline.
+2026-05-28T04:44:39 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-28T04:45:02 [Pipeline] Projects master unchanged; skipping.
+2026-05-28T04:45:02 [Pipeline] Location master changed; starting pipeline.
+2026-05-28T04:45:02 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-28T04:45:21 [Pipeline] Projects master unchanged; skipping.
+2026-05-28T04:45:21 [Pipeline] Location master changed; starting pipeline.
+2026-05-28T04:45:21 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-28T04:45:29 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-28T04:45:29 [Pipeline][stdout] Unique cities count: 8
+2026-05-28T04:45:29 [Pipeline][stdout] Unique communities count: 517
+2026-05-28T04:45:29 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-28T04:45:29 [Pipeline][stdout] Unique properties count: 4646
+2026-05-28T04:45:29 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-28T04:45:29 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
+2026-05-28T04:46:41 [Pipeline] Projects master unchanged; skipping.
+2026-05-28T04:46:41 [Pipeline] Location master changed; starting pipeline.
+2026-05-28T04:46:42 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-28T04:47:07 [Pipeline] Projects master unchanged; skipping.
+2026-05-28T04:47:07 [Pipeline] Location master changed; starting pipeline.
+2026-05-28T04:47:07 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-28T04:47:27 [Pipeline] Projects master unchanged; skipping.
+2026-05-28T04:47:27 [Pipeline] Location master changed; starting pipeline.
+2026-05-28T04:47:27 [Pipeline] Running excel_processor: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/excel_processor.py --start-row 2
+2026-05-28T04:47:42 [Pipeline][stdout] Total rows in Excel: 10288
+2026-05-28T04:47:42 [Pipeline][stdout] Unique cities count: 8
+2026-05-28T04:47:42 [Pipeline][stdout] Unique communities count: 517
+2026-05-28T04:47:42 [Pipeline][stdout] Unique subcommunities count: 5306
+2026-05-28T04:47:42 [Pipeline][stdout] Unique properties count: 4646
+2026-05-28T04:47:42 [Pipeline][stdout] Tier 3 properties count: 124
+2026-05-28T04:47:42 [Pipeline] Running alias_generator: C:\Users\melvin_varghese\AppData\Local\Programs\Python\Python312\python.exe tools/alias_generator.py
