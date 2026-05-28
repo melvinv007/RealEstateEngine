@@ -17,6 +17,8 @@ from pydantic import BaseModel, Field
 
 from core.config import (
     API_KEY,
+    COLLECTION_BUY,
+    COLLECTION_SELL,
     WA_BUY_MATCH_HEADER,
     WA_BROKER_BUY_TEMPLATE,
     WA_BROKER_SELL_TEMPLATE,
@@ -35,6 +37,8 @@ from core.database import (
     insert_listing,
     count_listings,
     get_all_matches,
+    get_db,
+    _build_fingerprint,
 )
 from core.pipeline_watcher import check_and_run_pipelines
 from core.matcher import run_matching, run_project_matching, run_matching_for_sell
@@ -281,6 +285,37 @@ def _apply_location_resolution(listings: list[dict]) -> list[dict]:
     return resolved
 
 
+def _find_existing_listing_by_fingerprint(listing: dict) -> dict | None:
+    transaction = (listing.get("transaction") or "").lower()
+    if transaction == "buy":
+        coll_name = COLLECTION_BUY
+    else:
+        coll_name = COLLECTION_SELL
+
+    fingerprint = listing.get("fingerprint") or _build_fingerprint(listing)
+    return get_db()[coll_name].find_one({"fingerprint": fingerprint})
+
+
+def _request_listing_ids(listings: list[dict], transaction: str) -> set[ObjectId]:
+    request_ids: set[ObjectId] = set()
+    for listing in listings:
+        if not isinstance(listing, dict):
+            continue
+        if (listing.get("transaction") or "").lower() != transaction:
+            continue
+
+        listing_id = listing.get("_id")
+        if isinstance(listing_id, ObjectId):
+            request_ids.add(listing_id)
+            continue
+
+        existing = _find_existing_listing_by_fingerprint(listing)
+        if existing and isinstance(existing.get("_id"), ObjectId):
+            request_ids.add(existing["_id"])
+
+    return request_ids
+
+
 @app.get("/")
 async def root():
     return {"message": "Matcher API is running"}
@@ -316,41 +351,37 @@ async def ingest_text(payload: TextIngestRequest):
         else:
             dupes += 1
 
-    transactions = {
-        listing.get("transaction")
+    request_buy_ids = _request_listing_ids(listings, "buy")
+    has_buy = any(
+        (listing.get("transaction") or "").lower() == "buy"
         for listing in listings
         if isinstance(listing, dict)
-    }
-    has_buy = "buy" in transactions
+    )
 
     combined_matches: list[dict] = []
     match_found = False
     if has_buy:
-        if inserted_ids:
-            matches = run_matching()
-            project_matches = run_project_matching()
-            match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
-            inserted_id_set = set(inserted_ids)
-            relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in inserted_id_set]
-            relevant_projects = [
-                match for match in project_matches
-                if match.get("buy_id") in inserted_id_set
-            ]
-            combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
-            combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
+        matches = run_matching()
+        project_matches = run_project_matching()
+        match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
+        relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in request_buy_ids]
+        relevant_projects = [
+            match for match in project_matches
+            if match.get("buy_id") in request_buy_ids
+        ]
+        combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
+        combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
 
         match_found = bool(combined_matches)
         reply_message = _build_reply_message(combined_matches)
         reply_phone_number = _best_broker_phone(combined_matches)
     else:
-        inserted_id_set = set(inserted_ids)
         sell_matches: list[dict] = []
         for listing in listings:
             if listing.get("transaction") != "sell":
                 continue
-            if listing.get("_id") not in inserted_id_set:
-                continue
-            sell_matches.extend(run_matching_for_sell(listing))
+            sell_doc = listing if isinstance(listing.get("_id"), ObjectId) else _find_existing_listing_by_fingerprint(listing) or listing
+            sell_matches.extend(run_matching_for_sell(sell_doc))
 
         sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
         combined_matches = sell_matches
@@ -415,41 +446,37 @@ async def ingest_image(file: UploadFile = File(...)):
             else:
                 dupes += 1
 
-        transactions = {
-            listing.get("transaction")
+        request_buy_ids = _request_listing_ids(listings, "buy")
+        has_buy = any(
+            (listing.get("transaction") or "").lower() == "buy"
             for listing in listings
             if isinstance(listing, dict)
-        }
-        has_buy = "buy" in transactions
+        )
 
         combined_matches: list[dict] = []
         match_found = False
         if has_buy:
-            if inserted_ids:
-                matches = run_matching()
-                project_matches = run_project_matching()
-                match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
-                inserted_id_set = set(inserted_ids)
-                relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in inserted_id_set]
-                relevant_projects = [
-                    match for match in project_matches
-                    if match.get("buy_id") in inserted_id_set
-                ]
-                combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
-                combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
+            matches = run_matching()
+            project_matches = run_project_matching()
+            match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
+            relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in request_buy_ids]
+            relevant_projects = [
+                match for match in project_matches
+                if match.get("buy_id") in request_buy_ids
+            ]
+            combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
+            combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
 
             match_found = bool(combined_matches)
             reply_message = _build_reply_message(combined_matches)
             reply_phone_number = _best_broker_phone(combined_matches)
         else:
-            inserted_id_set = set(inserted_ids)
             sell_matches: list[dict] = []
             for listing in listings:
                 if listing.get("transaction") != "sell":
                     continue
-                if listing.get("_id") not in inserted_id_set:
-                    continue
-                sell_matches.extend(run_matching_for_sell(listing))
+                sell_doc = listing if isinstance(listing.get("_id"), ObjectId) else _find_existing_listing_by_fingerprint(listing) or listing
+                sell_matches.extend(run_matching_for_sell(sell_doc))
 
             sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
             combined_matches = sell_matches
@@ -537,31 +564,28 @@ async def ingest_whatsapp(payload: WhatsAppIngestRequest):
         combined_matches: list[dict] = []
         match_found = False
         if has_buy:
-            if inserted_ids:
-                matches = run_matching()
-                project_matches = run_project_matching()
-                match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
-                inserted_id_set = set(inserted_ids)
-                relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in inserted_id_set]
-                relevant_projects = [
-                    match for match in project_matches
-                    if match.get("buy_id") in inserted_id_set
-                ]
-                combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
-                combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
+            request_buy_ids = _request_listing_ids(listings, "buy")
+            matches = run_matching()
+            project_matches = run_project_matching()
+            match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
+            relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in request_buy_ids]
+            relevant_projects = [
+                match for match in project_matches
+                if match.get("buy_id") in request_buy_ids
+            ]
+            combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
+            combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
 
             match_found = bool(combined_matches)
             reply_message = _build_reply_message(combined_matches)
             reply_phone_number = _best_broker_phone(combined_matches)
         else:
-            inserted_id_set = set(inserted_ids)
             sell_matches: list[dict] = []
             for listing in listings:
                 if listing.get("transaction") != "sell":
                     continue
-                if listing.get("_id") not in inserted_id_set:
-                    continue
-                sell_matches.extend(run_matching_for_sell(listing))
+                sell_doc = listing if isinstance(listing.get("_id"), ObjectId) else _find_existing_listing_by_fingerprint(listing) or listing
+                sell_matches.extend(run_matching_for_sell(sell_doc))
 
             sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
             combined_matches = sell_matches
