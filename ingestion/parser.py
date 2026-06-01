@@ -440,32 +440,50 @@ def parse_text_message(message: str) -> list[dict]:
 # Image Parsing
 # ─────────────────────────────────────────────────────────────
 
-def parse_image(image_path: str) -> list[dict]:
+def parse_image(image_path: str | None = None, *, data_b64: str | None = None, mime_type: str = "image/jpeg") -> list[dict]:
     """
     Parse flyer/image into listings.
+
+    Supports either a filesystem path (backwards compatible) or a base64-encoded
+    image passed via `data_b64`. The `mime_type` is forwarded to the Gemini
+    client and defaults to "image/jpeg".
     """
 
     if not USE_GEMINI_PARSER_IMAGE_EXTRACTION:
         print("[Parser] Gemini extraction disabled; skipping image parse.")
         return []
 
-    path = Path(image_path)
+    encoded = None
 
-    if not path.exists():
-        print(f"[Parser] Image not found: {image_path}")
+    # If base64 data provided, prefer that (used by multipart endpoints)
+    if data_b64:
+        encoded = data_b64
+
+    # Otherwise, fall back to reading from a filesystem path (existing behavior)
+    elif image_path:
+        path = Path(image_path)
+
+        if not path.exists():
+            print(f"[Parser] Image not found: {image_path}")
+            return []
+
+        mime_types = {
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".png": "image/png",
+            ".webp": "image/webp",
+        }
+
+        # If caller didn't explicitly set mime_type, infer from suffix
+        if mime_type == "image/jpeg":
+            mime_type = mime_types.get(path.suffix.lower(), mime_type)
+
+        with open(path, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode("utf-8")
+
+    else:
+        print("[Parser] No image data provided to parse_image")
         return []
-
-    mime_types = {
-        ".jpg": "image/jpeg",
-        ".jpeg": "image/jpeg",
-        ".png": "image/png",
-        ".webp": "image/webp",
-    }
-
-    mime_type = mime_types.get(path.suffix.lower(), "image/jpeg")
-
-    with open(path, "rb") as f:
-        encoded = base64.b64encode(f.read()).decode("utf-8")
 
     image_part = {
         "mime_type": mime_type,
