@@ -46,30 +46,18 @@ WA_STORED_MESSAGE_ID = "wa_message_id"
 WA_STORED_PHONE_NUMBER = "wa_phone_number"
 WA_STORED_RECEIVED_AT = "wa_received_at"
 
-WA_BUY_MATCH_MESSAGE = (
-    "✅ Match found for your requirement!\n"
-    "📍 Location: {location}\n"
-    "💰 Price: AED {price:,}\n"
-    "🛏 {bhk}BR {property_type}\n"
-    "👤 Seller Broker: {broker_name} | {broker_phone}\n"
-    "🎯 Match Score: {score:.0%}"
-)
-
-WA_SELL_MATCH_MESSAGE = (
-    "✅ Buyer found for your listing!\n"
-    "📍 Looking in: {location}\n"
-    "💰 Budget: AED {budget:,}\n"
-    "🛏 {bhk}BR {property_type}\n"
-    "👤 Buyer Broker: {broker_name} | {broker_phone}\n"
-    "🎯 Match Score: {score:.0%}"
-)
-
-WA_NO_MATCH_MESSAGE = (
-    "No matching listing found at this time. "
+WA_NO_MATCH_BUY_MESSAGE = (
+    "No matching listings found at this time. "
     "Your requirement has been saved and you will be notified when a match is found."
 )
+WA_NO_MATCH_SELL_MESSAGE = (
+    "Your listing has been stored. "
+    "We will notify you when a matching buyer is found."
+)
 
-WA_BUY_MATCH_HEADER = "We found {n} match(es) for your requirement:"
+WA_BUY_MATCH_HEADER_BROKER_ONLY = "We found {n} broker listing(s) for your requirement:"
+WA_BUY_MATCH_HEADER_PROJECT_ONLY = "We found {n} project(s) for your requirement:"
+WA_BUY_MATCH_HEADER_BOTH = "We found {nb} broker listing(s) and {np} project(s) for your requirement:"
 WA_SELL_MATCH_HEADER = "Your listing matched {n} potential buyer(s):"
 WA_BROKER_SELL_TEMPLATE = (
     "[Broker Sell] {property_type} {bhk}BR at {location} — "

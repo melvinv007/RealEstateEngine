@@ -19,13 +19,16 @@ from core.config import (
     API_KEY,
     COLLECTION_BUY,
     COLLECTION_SELL,
-    WA_BUY_MATCH_HEADER,
     WA_BROKER_BUY_TEMPLATE,
     WA_BROKER_SELL_TEMPLATE,
     WA_FIELD_MESSAGE_ID,
     WA_FIELD_PHONE_NUMBER,
     WA_FIELD_RAW_MESSAGE,
-    WA_NO_MATCH_MESSAGE,
+    WA_BUY_MATCH_HEADER_BROKER_ONLY, 
+    WA_BUY_MATCH_HEADER_PROJECT_ONLY, 
+    WA_BUY_MATCH_HEADER_BOTH, 
+    WA_NO_MATCH_BUY_MESSAGE,
+    WA_NO_MATCH_SELL_MESSAGE,
     WA_PROJECT_TEMPLATE,
     WA_SELL_MATCH_HEADER,
     WA_STORED_MESSAGE_ID,
@@ -196,24 +199,25 @@ def _best_buy_budget(snapshot: dict) -> object:
 
 def _build_reply_message(matches: list[dict]) -> str:
     if not matches:
-        return WA_NO_MATCH_MESSAGE
+        return WA_NO_MATCH_BUY_MESSAGE
 
-    lines = []
+    broker_lines = []
+    project_lines = []
+
     for match in matches:
         if match.get("match_type") == "broker_sell":
             snapshot = match.get("sell_snapshot") or {}
             broker = match.get("sell_broker") or {}
-            line = WA_BROKER_SELL_TEMPLATE.format(
+            broker_lines.append(WA_BROKER_SELL_TEMPLATE.format(
                 property_type=snapshot.get("property_type", "N/A"),
                 bhk=_safe_bhk(snapshot.get("bhk")),
                 location=snapshot.get("location", "N/A"),
                 price=_safe_int(snapshot.get("price_aed", 0)),
                 broker_name=broker.get("name", "N/A"),
                 broker_phone=broker.get("phone", "N/A"),
-            )
-            lines.append(line)
+            ))
         elif match.get("match_type") == "project":
-            line = WA_PROJECT_TEMPLATE.format(
+            project_lines.append(WA_PROJECT_TEMPLATE.format(
                 project_name=match.get("project_name", "N/A"),
                 developer=match.get("developer", "N/A"),
                 area=match.get("area", "N/A"),
@@ -222,16 +226,26 @@ def _build_reply_message(matches: list[dict]) -> str:
                 handover=match.get("handover", "N/A"),
                 payment_plan=match.get("payment_plan", "N/A"),
                 pdf_link=match.get("pdf_link", "N/A"),
-            )
-            lines.append(line)
+            ))
 
-    header = WA_BUY_MATCH_HEADER.format(n=len(matches))
-    return "\n".join([header] + lines) if lines else WA_NO_MATCH_MESSAGE
+    if not broker_lines and not project_lines:
+        return WA_NO_MATCH_BUY_MESSAGE
+
+    nb, np = len(broker_lines), len(project_lines)
+    if nb > 0 and np > 0:
+        header = WA_BUY_MATCH_HEADER_BOTH.format(nb=nb, np=np)
+    elif nb > 0:
+        header = WA_BUY_MATCH_HEADER_BROKER_ONLY.format(n=nb)
+    else:
+        header = WA_BUY_MATCH_HEADER_PROJECT_ONLY.format(n=np)
+
+    all_lines = broker_lines + project_lines
+    return "\n".join([header] + all_lines)
 
 
 def _build_sell_reply_message(matches: list[dict]) -> str:
     if not matches:
-        return ""
+        return WA_NO_MATCH_SELL_MESSAGE
 
     lines = []
     for match in matches:
@@ -239,19 +253,20 @@ def _build_sell_reply_message(matches: list[dict]) -> str:
             continue
         snapshot = match.get("buy_snapshot") or {}
         broker = match.get("buy_broker") or {}
-        line = WA_BROKER_BUY_TEMPLATE.format(
+        lines.append(WA_BROKER_BUY_TEMPLATE.format(
             property_type=snapshot.get("property_type", "N/A"),
             bhk=_safe_bhk(snapshot.get("bhk")),
             location=snapshot.get("location", "N/A"),
             price=_safe_int(_best_buy_budget(snapshot), 0),
             broker_name=broker.get("name", "N/A"),
             broker_phone=broker.get("phone", "N/A"),
-        )
-        lines.append(line)
+        ))
+
+    if not lines:
+        return WA_NO_MATCH_SELL_MESSAGE
 
     header = WA_SELL_MATCH_HEADER.format(n=len(lines))
-    return "\n".join([header] + lines) if lines else ""
-
+    return "\n".join([header] + lines)
 
 def _best_broker_phone(matches: list[dict]) -> str | None:
     broker_matches = [m for m in matches if m.get("match_type") == "broker_sell"]
@@ -336,7 +351,7 @@ async def ingest_text(payload: TextIngestRequest):
             "duplicates_skipped": 0,
             "listings": [],
             "match_found": False,
-            "reply_message": WA_NO_MATCH_MESSAGE,
+            "reply_message": WA_NO_MATCH_BUY_MESSAGE,
             "reply_phone_number": None,
             "matches": [],
         }
@@ -389,10 +404,7 @@ async def ingest_text(payload: TextIngestRequest):
         if sell_matches:
             reply_message = _build_sell_reply_message(sell_matches)
         else:
-            reply_message = (
-                "Your listing has been stored. "
-                "We will notify you when a matching buyer is found."
-            )
+            reply_message = WA_NO_MATCH_SELL_MESSAGE
         reply_phone_number = None
 
     return {
@@ -431,7 +443,7 @@ async def ingest_image(file: UploadFile = File(...)):
                 "duplicates_skipped": 0,
                 "listings": [],
                 "match_found": False,
-                "reply_message": WA_NO_MATCH_MESSAGE,
+                "reply_message": WA_NO_MATCH_BUY_MESSAGE,
                 "reply_phone_number": None,
                 "matches": [],
             }
@@ -484,10 +496,7 @@ async def ingest_image(file: UploadFile = File(...)):
             if sell_matches:
                 reply_message = _build_sell_reply_message(sell_matches)
             else:
-                reply_message = (
-                    "Your listing has been stored. "
-                    "We will notify you when a matching buyer is found."
-                )
+                reply_message = WA_NO_MATCH_SELL_MESSAGE
             reply_phone_number = None
 
         return {
@@ -530,7 +539,7 @@ async def ingest_whatsapp(payload: WhatsAppIngestRequest):
                 "duplicates_skipped": 0,
                 "listings_parsed": 0,
                 "match_found": False,
-                "reply_message": WA_NO_MATCH_MESSAGE,
+                "reply_message": WA_NO_MATCH_BUY_MESSAGE,
                 "reply_phone_number": None,
                 "matches": [],
             }
@@ -593,10 +602,7 @@ async def ingest_whatsapp(payload: WhatsAppIngestRequest):
             if sell_matches:
                 reply_message = _build_sell_reply_message(sell_matches)
             else:
-                reply_message = (
-                    "Your listing has been stored. "
-                    "We will notify you when a matching buyer is found."
-                )
+                reply_message = WA_NO_MATCH_SELL_MESSAGE
             reply_phone_number = phone_number
 
         return {
@@ -622,7 +628,7 @@ async def ingest_whatsapp(payload: WhatsAppIngestRequest):
             "duplicates_skipped": 0,
             "listings_parsed": 0,
             "match_found": False,
-            "reply_message": WA_NO_MATCH_MESSAGE,
+            "reply_message": WA_NO_MATCH_BUY_MESSAGE,
             "reply_phone_number": None,
             "matches": [],
         }
