@@ -110,6 +110,8 @@ Each listing MUST follow this exact schema:
     "company": "<string or null>"
   },
 
+    "sent_by": "<string or null>",
+
   "notes": "<string or null>",
 
   "raw_text": "<only the relevant snippet for THIS listing>"
@@ -182,6 +184,11 @@ IMPORTANT EXTRACTION RULES:
         - Do not guess. A null is better than a wrong value.
 
 16. Return ONLY JSON ARRAY.
+
+17. sent_by:
+        - Extract the original sender name if the message includes forwarding info
+            like "Message sent by: Aarav" or "From Aarav:" or just name.
+        - Use null when not present.
 """
 
 # ─────────────────────────────────────────────────────────────
@@ -277,6 +284,13 @@ def _normalize_listing(listing: dict) -> dict:
         "phone": broker.get("phone"),
         "company": broker.get("company"),
     }
+
+    sent_by = listing.get("sent_by")
+    if sent_by is None:
+        listing["sent_by"] = None
+    else:
+        sent_by = str(sent_by).strip()
+        listing["sent_by"] = sent_by or None
 
     # Boolean defaults
     for field in ["is_distress", "is_mortgage", "is_cash"]:
@@ -440,13 +454,20 @@ def parse_text_message(message: str) -> list[dict]:
 # Image Parsing
 # ─────────────────────────────────────────────────────────────
 
-def parse_image(image_path: str | None = None, *, data_b64: str | None = None, mime_type: str = "image/jpeg") -> list[dict]:
+def parse_image(
+    image_path: str | None = None,
+    *,
+    data_b64: str | None = None,
+    mime_type: str = "image/jpeg",
+    context_text: str | None = None,
+) -> list[dict]:
     """
     Parse flyer/image into listings.
 
     Supports either a filesystem path (backwards compatible) or a base64-encoded
     image passed via `data_b64`. The `mime_type` is forwarded to the Gemini
-    client and defaults to "image/jpeg".
+    client and defaults to "image/jpeg". When provided, `context_text` is added
+    to the prompt for extra message context.
     """
 
     if not USE_GEMINI_PARSER_IMAGE_EXTRACTION:
@@ -492,8 +513,14 @@ def parse_image(image_path: str | None = None, *, data_b64: str | None = None, m
 
     try:
 
+        prompt_parts = [SYSTEM_PROMPT, "Extract all listings from this image."]
+        if context_text:
+            context_text = context_text.strip()
+            if context_text:
+                prompt_parts.append(f"Additional context message:\n{context_text}")
+
         response = call_gemini(
-            [SYSTEM_PROMPT, "Extract all listings from this image."],
+            prompt_parts,
             generation_config={"temperature": 0.1, "response_mime_type": "application/json"},
             image_part=image_part,
         )

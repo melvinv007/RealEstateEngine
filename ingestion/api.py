@@ -519,23 +519,52 @@ async def ingest_image(file: UploadFile = File(...)):
 
 
 @app.post("/ingest/whatsapp")
-async def ingest_whatsapp(payload: WhatsAppIngestRequest):
+async def ingest_whatsapp(
+    message_id: str = Form(...),
+    phone_number: str = Form(...),
+    raw_message: str | None = Form(None),
+    file: UploadFile | None = File(None),
+):
     received_at = datetime.utcnow().isoformat() + "Z"
 
     try:
-        raw_message = payload.raw_message or ""
-        if not raw_message.strip():
-            return JSONResponse(status_code=422, content={"detail": "raw_message is required"})
+        raw_message_text = (raw_message or "").strip()
+        has_message = bool(raw_message_text)
+        has_file = file is not None
 
-        message_id = payload.message_id
-        phone_number = payload.phone_number
+        if not has_message and not has_file:
+            return JSONResponse(status_code=400, content={"detail": "raw_message or file is required"})
 
-        listings = parse_text_message(raw_message)
+        listings: list[dict] = []
+        parsed_from_image = False
+        content = None
+
+        if has_file:
+            content = await file.read()
+            if content:
+                encoded = base64.b64encode(content).decode("utf-8")
+                mime_type = (file.content_type or "").strip() or "image/jpeg"
+                if has_message:
+                    listings = parse_image(
+                        data_b64=encoded,
+                        mime_type=mime_type,
+                        context_text=raw_message_text,
+                    )
+                else:
+                    listings = parse_image(data_b64=encoded, mime_type=mime_type)
+                parsed_from_image = True
+            elif not has_message:
+                return JSONResponse(status_code=400, content={"detail": "file is required"})
+
+        if not parsed_from_image and has_message:
+            listings = parse_text_message(raw_message_text)
+
         if not listings:
             return {
                 WA_FIELD_MESSAGE_ID: message_id,
                 WA_FIELD_PHONE_NUMBER: phone_number,
                 WA_TIMESTAMP_FIELD: received_at,
+                "sent_by": None,
                 "inserted": 0,
                 "duplicates_skipped": 0,
                 "listings_parsed": 0,
@@ -545,6 +574,11 @@ async def ingest_whatsapp(payload: WhatsAppIngestRequest):
                 "matches": [],
             }
 
+        sent_by = None
+        first_listing = listings[0] if listings else None
+        if isinstance(first_listing, dict):
+            sent_by = first_listing.get("sent_by")
+
         listings = _apply_location_resolution(listings)
 
         for listing in listings:
@@ -553,6 +587,7 @@ async def ingest_whatsapp(payload: WhatsAppIngestRequest):
             listing[WA_STORED_MESSAGE_ID] = message_id
             listing[WA_STORED_PHONE_NUMBER] = phone_number
             listing[WA_STORED_RECEIVED_AT] = received_at
+            listing["wa_sent_by"] = sent_by
 
         inserted_ids: list[ObjectId] = []
         dupes = 0
@@ -610,6 +645,7 @@ async def ingest_whatsapp(payload: WhatsAppIngestRequest):
             WA_FIELD_MESSAGE_ID: message_id,
             WA_FIELD_PHONE_NUMBER: phone_number,
             WA_TIMESTAMP_FIELD: received_at,
+            "sent_by": sent_by,
             "inserted": len(inserted_ids),
             "duplicates_skipped": dupes,
             "listings_parsed": len(listings),
@@ -622,9 +658,10 @@ async def ingest_whatsapp(payload: WhatsAppIngestRequest):
     except Exception as e:
         print(f"[API] WhatsApp ingest failed: {e}")
         return {
-            WA_FIELD_MESSAGE_ID: payload.message_id,
-            WA_FIELD_PHONE_NUMBER: payload.phone_number,
+            WA_FIELD_MESSAGE_ID: message_id,
+            WA_FIELD_PHONE_NUMBER: phone_number,
             WA_TIMESTAMP_FIELD: received_at,
+            "sent_by": None,
             "inserted": 0,
             "duplicates_skipped": 0,
             "listings_parsed": 0,
@@ -638,123 +675,6 @@ async def ingest_whatsapp(payload: WhatsAppIngestRequest):
 @app.get("/stats")
 async def get_stats():
     return count_listings()
-
-
-@app.post("/ingest/whatsapp/image")
-async def ingest_whatsapp_image(message_id: str = Form(...), phone_number: str = Form(...), file: UploadFile = File(...)):
-    received_at = datetime.utcnow().isoformat() + "Z"
-
-    try:
-        content = await file.read()
-        if not content:
-            return JSONResponse(status_code=422, content={"detail": "file is required"})
-
-        encoded = base64.b64encode(content).decode("utf-8")
-        mime_type = (file.content_type or "").strip() or "image/jpeg"
-
-        listings = parse_image(data_b64=encoded, mime_type=mime_type)
-        if not listings:
-            return {
-                WA_FIELD_MESSAGE_ID: message_id,
-                WA_FIELD_PHONE_NUMBER: phone_number,
-                WA_TIMESTAMP_FIELD: received_at,
-                "inserted": 0,
-                "duplicates_skipped": 0,
-                "listings_parsed": 0,
-                "match_found": False,
-                "reply_message": WA_NO_MATCH_BUY_MESSAGE,
-                "reply_phone_number": None,
-                "matches": [],
-            }
-
-        listings = _apply_location_resolution(listings)
-
-        for listing in listings:
-            if not isinstance(listing, dict):
-                continue
-            listing[WA_STORED_MESSAGE_ID] = message_id
-            listing[WA_STORED_PHONE_NUMBER] = phone_number
-            listing[WA_STORED_RECEIVED_AT] = received_at
-
-        inserted_ids: list[ObjectId] = []
-        dupes = 0
-        for listing in listings:
-            inserted_id = insert_listing(listing)
-            if inserted_id:
-                listing["_id"] = inserted_id
-                inserted_ids.append(inserted_id)
-            else:
-                dupes += 1
-
-        transactions = {
-            listing.get("transaction")
-            for listing in listings
-            if isinstance(listing, dict)
-        }
-        has_buy = "buy" in transactions
-
-        combined_matches: list[dict] = []
-        match_found = False
-        if has_buy:
-            request_buy_ids = _request_listing_ids(listings, "buy")
-            matches = run_matching()
-            project_matches = run_project_matching()
-            match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
-            relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in request_buy_ids]
-            relevant_projects = [
-                match for match in project_matches
-                if match.get("buy_id") in request_buy_ids
-            ]
-            combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
-            combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
-
-            match_found = bool(combined_matches)
-            reply_message = _build_reply_message(combined_matches)
-            reply_phone_number = _best_broker_phone(combined_matches)
-        else:
-            sell_matches: list[dict] = []
-            for listing in listings:
-                if listing.get("transaction") != "sell":
-                    continue
-                sell_doc = listing if isinstance(listing.get("_id"), ObjectId) else _find_existing_listing_by_fingerprint(listing) or listing
-                sell_matches.extend(run_matching_for_sell(sell_doc))
-
-            sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
-            combined_matches = sell_matches
-            match_found = bool(sell_matches)
-            if sell_matches:
-                reply_message = _build_sell_reply_message(sell_matches)
-            else:
-                reply_message = WA_NO_MATCH_SELL_MESSAGE
-            reply_phone_number = phone_number
-
-        return {
-            WA_FIELD_MESSAGE_ID: message_id,
-            WA_FIELD_PHONE_NUMBER: phone_number,
-            WA_TIMESTAMP_FIELD: received_at,
-            "inserted": len(inserted_ids),
-            "duplicates_skipped": dupes,
-            "listings_parsed": len(listings),
-            "match_found": match_found,
-            "reply_message": reply_message,
-            "reply_phone_number": reply_phone_number,
-            "matches": combined_matches,
-        }
-
-    except Exception as e:
-        print(f"[API] WhatsApp image ingest failed: {e}")
-        return {
-            WA_FIELD_MESSAGE_ID: message_id,
-            WA_FIELD_PHONE_NUMBER: phone_number,
-            WA_TIMESTAMP_FIELD: received_at,
-            "inserted": 0,
-            "duplicates_skipped": 0,
-            "listings_parsed": 0,
-            "match_found": False,
-            "reply_message": WA_NO_MATCH_BUY_MESSAGE,
-            "reply_phone_number": None,
-            "matches": [],
-        }
 
 
 @app.get("/matches")
