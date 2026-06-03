@@ -13,6 +13,8 @@ import json
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any
+import sys
+csv.field_size_limit(sys.maxsize)
 
 INPUT_PATH = "data/raw_aliases.csv"
 OUTPUT_PATH = "data/locations.csv"
