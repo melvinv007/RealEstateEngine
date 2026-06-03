@@ -17,6 +17,8 @@ import time
 from rapidfuzz import fuzz
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+import sys
+csv.field_size_limit(sys.maxsize)
 
 from core.config import (
     COORDINATES_CSV,

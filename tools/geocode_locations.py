@@ -25,6 +25,8 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from core.config import COORDINATES_CSV, GEOCODE_FAILURES_FILE
 
+csv.field_size_limit(sys.maxsize)
+
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
