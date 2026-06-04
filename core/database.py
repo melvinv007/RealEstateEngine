@@ -112,7 +112,8 @@ def _build_fingerprint(listing: dict) -> str:
     """
     price = listing.get("price_aed") or 0
     # Round price to nearest DUPLICATE_PRICE_TOLERANCE to tolerate trivial reprice changes
-    price_bucket = round(price / DUPLICATE_PRICE_TOLERANCE) * DUPLICATE_PRICE_TOLERANCE
+    # price_bucket = round(price / DUPLICATE_PRICE_TOLERANCE) * DUPLICATE_PRICE_TOLERANCE
+    price_bucket = round(price / 50000) * 50000
 
     identity = {
         "type": (listing.get("property_type") or "").lower().strip(),
@@ -409,4 +410,5 @@ def clear_all():
     db[COLLECTION_MATCHES].drop()
     db[COLLECTION_PROJECTS].drop()
     db[COLLECTION_PROJECT_MATCHES].drop()
+    db["raw_messages"].drop()
     print("[DB] All collections cleared.")
