@@ -16,7 +16,7 @@ csv.field_size_limit(sys.maxsize)
 
 from openpyxl import load_workbook
 
-EXCEL_PATH = "data/location_master_test.xlsx"
+EXCEL_PATH = "data/location_master.xlsx"
 LOCATIONS_CSV = "data/locations.csv"
 COORDINATES_CSV = "data/coordinates.csv"
 TREE_CACHE = "cache/location_tree.json"

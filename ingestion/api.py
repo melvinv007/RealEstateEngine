@@ -497,7 +497,7 @@ async def ingest_text(payload: TextIngestRequest):
         for listing in listings:
             if listing.get("transaction") != "sell":
                 continue
-            sell_doc = listing if isinstance(listing.get("_id"), ObjectId) else _find_existing_listing_by_fingerprint(listing) or listing
+            sell_doc = _find_existing_listing_by_fingerprint(listing) or listing
             sell_matches.extend(run_matching_for_sell(sell_doc))
 
         sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
@@ -589,7 +589,7 @@ async def ingest_image(file: UploadFile = File(...)):
             for listing in listings:
                 if listing.get("transaction") != "sell":
                     continue
-                sell_doc = listing if isinstance(listing.get("_id"), ObjectId) else _find_existing_listing_by_fingerprint(listing) or listing
+                sell_doc = _find_existing_listing_by_fingerprint(listing) or listing
                 sell_matches.extend(run_matching_for_sell(sell_doc))
 
             sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
@@ -730,7 +730,7 @@ async def ingest_whatsapp(
             for listing in listings:
                 if listing.get("transaction") != "sell":
                     continue
-                sell_doc = listing if isinstance(listing.get("_id"), ObjectId) else _find_existing_listing_by_fingerprint(listing) or listing
+                sell_doc = _find_existing_listing_by_fingerprint(listing) or listing
                 sell_matches.extend(run_matching_for_sell(sell_doc))
 
             sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
