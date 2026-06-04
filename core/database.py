@@ -157,7 +157,8 @@ def insert_listing(listing: dict) -> ObjectId | None:
     transaction = listing.get("transaction", "sell").lower()
     coll_name = COLLECTION_BUY if transaction == "buy" else COLLECTION_SELL
 
-    dedupe_enabled = DUPLICATE_DETECTION_BUY if transaction == "buy" else DUPLICATE_DETECTION_SELL
+    # dedupe_enabled = DUPLICATE_DETECTION_BUY if transaction == "buy" else DUPLICATE_DETECTION_SELL
+    dedupe_enabled = False
 
     duplicate_doc = _is_duplicate(listing, coll_name, dedupe_enabled)
     if duplicate_doc:
@@ -166,11 +167,11 @@ def insert_listing(listing: dict) -> ObjectId | None:
             if isinstance(original_listing, dict):
                 original_listing["_duplicate"] = True
                 original_listing["_id"] = existing_id
-            return existing_id
+            return str(existing_id)
         return None
 
     result = _collection(coll_name).insert_one(listing)
-    return result.inserted_id
+    return str(result.inserted_id)
 
 
 def insert_many_listings(listings: list[dict]) -> tuple[list[ObjectId], int]:
@@ -250,7 +251,7 @@ def insert_project(project: dict) -> str | ObjectId:
         return "duplicate"
 
     result = _collection(COLLECTION_PROJECTS).insert_one(project)
-    return result.inserted_id
+    return str(result.inserted_id)
 
 
 # ── Historical Match Check ─────────────────────────────────────────────────────
@@ -335,7 +336,7 @@ def record_project_match(
     }
 
     result = _collection(COLLECTION_PROJECT_MATCHES).insert_one(doc)
-    return result.inserted_id
+    return str(result.inserted_id)
 
 
 def _strip_meta(doc: dict) -> dict:
@@ -393,6 +394,12 @@ def dedupe_collection(transaction: str) -> dict:
 
     return {"scanned": len(all_docs), "removed": deleted}
 
+def store_raw_message(payload: dict) -> str:
+    """Store every incoming raw message before any processing."""
+    payload = payload.copy()
+    payload["stored_at"] = datetime.now(timezone.utc).isoformat()
+    result = get_db()["raw_messages"].insert_one(payload)
+    return str(result.inserted_id)
 
 def clear_all():
     """⚠️ Drops all data. Use only in testing."""

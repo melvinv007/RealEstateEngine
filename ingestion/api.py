@@ -43,6 +43,7 @@ from core.database import (
     get_all_matches,
     get_db,
     _build_fingerprint,
+    store_raw_message,
 )
 from core.pipeline_watcher import check_and_run_pipelines
 from core.matcher import run_matching, run_project_matching, run_matching_for_sell
@@ -408,7 +409,6 @@ def _find_existing_listing_by_fingerprint(listing: dict) -> dict | None:
     fingerprint = listing.get("fingerprint") or _build_fingerprint(listing)
     return get_db()[coll_name].find_one({"fingerprint": fingerprint})
 
-
 def _request_listing_ids(listings: list[dict], transaction: str) -> set[ObjectId]:
     request_ids: set[ObjectId] = set()
     for listing in listings:
@@ -418,6 +418,13 @@ def _request_listing_ids(listings: list[dict], transaction: str) -> set[ObjectId
             continue
 
         listing_id = listing.get("_id")
+        # _id is now stored as str after insert_listing() — convert back for DB comparison
+        if isinstance(listing_id, str):
+            try:
+                request_ids.add(ObjectId(listing_id))
+            except Exception:
+                pass
+            continue
         if isinstance(listing_id, ObjectId):
             request_ids.add(listing_id)
             continue
@@ -428,7 +435,6 @@ def _request_listing_ids(listings: list[dict], transaction: str) -> set[ObjectId
 
     return request_ids
 
-
 @app.get("/")
 async def root():
     return {"message": "Matcher API is running"}
@@ -438,6 +444,12 @@ async def root():
 async def ingest_text(payload: TextIngestRequest):
     if not is_real_estate_message(payload.message):
         return {"filtered": True, "reason": "not a real estate message"}
+
+    store_raw_message({
+        "source": "text",
+        "raw_message": payload.message,
+        "received_at": datetime.utcnow().isoformat() + "Z",
+    })
 
     listings = parse_text_message(payload.message)
     if not listings:
@@ -506,7 +518,7 @@ async def ingest_text(payload: TextIngestRequest):
         reply_message = _build_reply_message("sell", sell_matches)
         reply_phone_number = None
 
-    return {
+    return _serialize({
         "filtered": False,
         WA_FIELD_MESSAGE_ID: None,
         WA_FIELD_PHONE_NUMBER: None,
@@ -518,7 +530,7 @@ async def ingest_text(payload: TextIngestRequest):
         "reply_message": reply_message,
         "reply_phone_number": reply_phone_number,
         "matches": combined_matches,
-    }
+    })
 
 
 @app.post("/ingest/image")
@@ -530,6 +542,12 @@ async def ingest_image(file: UploadFile = File(...)):
             temp_path = tmp.name
             content = await file.read()
             tmp.write(content)
+
+        store_raw_message({
+            "source": "image",
+            "filename": file.filename,
+            "received_at": datetime.utcnow().isoformat() + "Z",
+        })
 
         listings = parse_image(temp_path)
         if not listings:
@@ -598,7 +616,7 @@ async def ingest_image(file: UploadFile = File(...)):
             reply_message = _build_reply_message("sell", sell_matches)
             reply_phone_number = None
 
-        return {
+        return _serialize({
             "filtered": False,
             WA_FIELD_MESSAGE_ID: None,
             WA_FIELD_PHONE_NUMBER: None,
@@ -610,7 +628,7 @@ async def ingest_image(file: UploadFile = File(...)):
             "reply_message": reply_message,
             "reply_phone_number": reply_phone_number,
             "matches": combined_matches,
-        }
+        })
     finally:
         if temp_path and os.path.exists(temp_path):
             os.remove(temp_path)
@@ -624,6 +642,15 @@ async def ingest_whatsapp(
     file: UploadFile | None = File(None),
 ):
     received_at = datetime.utcnow().isoformat() + "Z"
+
+    store_raw_message({
+        "source": "whatsapp",
+        "message_id": message_id,
+        "phone_number": phone_number,
+        "raw_message": raw_message,
+        "has_file": file is not None,
+        "received_at": received_at,
+    })
 
     try:
         raw_message_text = (raw_message or "").strip()
@@ -739,7 +766,7 @@ async def ingest_whatsapp(
             reply_message = _build_reply_message("sell", sell_matches)
             reply_phone_number = phone_number
 
-        return {
+        return _serialize({
             WA_FIELD_MESSAGE_ID: message_id,
             WA_FIELD_PHONE_NUMBER: phone_number,
             WA_TIMESTAMP_FIELD: received_at,
@@ -751,11 +778,11 @@ async def ingest_whatsapp(
             "reply_message": reply_message,
             "reply_phone_number": reply_phone_number,
             "matches": combined_matches,
-        }
+        })
 
     except Exception as e:
         print(f"[API] WhatsApp ingest failed: {e}")
-        return {
+        return _serialize({
             WA_FIELD_MESSAGE_ID: message_id,
             WA_FIELD_PHONE_NUMBER: phone_number,
             WA_TIMESTAMP_FIELD: received_at,
@@ -767,7 +794,7 @@ async def ingest_whatsapp(
             "reply_message": WA_NO_MATCH_BUY_MESSAGE,
             "reply_phone_number": None,
             "matches": [],
-        }
+        })
 
 
 @app.get("/stats")
