@@ -165,7 +165,7 @@ REQUIRE_PRICE_OR_LOCATION = True
 FUZZY_LOCATION_THRESHOLD = 85       # 0–100 similarity score
  
 # ── Duplicate Detection ───────────────────────────────────────────────────────
-DUPLICATE_DETECTION_BUY = False
+DUPLICATE_DETECTION_BUY = True
 DUPLICATE_DETECTION_SELL = True
 DUPLICATE_PRICE_TOLERANCE = 0.05    # ±5% for fingerprint price comparison (tighter than match)
 
