@@ -135,7 +135,7 @@ def _is_duplicate(listing: dict, coll_name: str, enabled: bool) -> dict | None:
     exists = _collection(coll_name).find_one({"fingerprint": fp})
     if exists:
         print(f"[DB] Duplicate detected — skipping listing: {listing.get('location')} {listing.get('bhk')}BR {listing.get('price_aed')}")
-        return exists
+        return None
     return None
 
 
