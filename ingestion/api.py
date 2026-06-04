@@ -10,9 +10,9 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Any
 
+import base64
 from bson import ObjectId
 from fastapi import FastAPI, File, UploadFile, Request, Form
-import base64
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
@@ -25,9 +25,9 @@ from core.config import (
     WA_FIELD_MESSAGE_ID,
     WA_FIELD_PHONE_NUMBER,
     WA_FIELD_RAW_MESSAGE,
-    WA_BUY_MATCH_HEADER_BROKER_ONLY, 
-    WA_BUY_MATCH_HEADER_PROJECT_ONLY, 
-    WA_BUY_MATCH_HEADER_BOTH, 
+    WA_BUY_MATCH_HEADER_BROKER_ONLY,
+    WA_BUY_MATCH_HEADER_PROJECT_ONLY,
+    WA_BUY_MATCH_HEADER_BOTH,
     WA_NO_MATCH_BUY_MESSAGE,
     WA_NO_MATCH_SELL_MESSAGE,
     WA_PROJECT_TEMPLATE,
@@ -198,36 +198,159 @@ def _best_buy_budget(snapshot: dict) -> object:
     return 0
 
 
-def _build_reply_message(matches: list[dict]) -> str:
+def _build_reply_message(transaction: str, matches: list[dict]) -> str:
     if not matches:
-        return WA_NO_MATCH_BUY_MESSAGE
+        return WA_NO_MATCH_SELL_MESSAGE if transaction == "sell" else WA_NO_MATCH_BUY_MESSAGE
 
-    broker_lines = []
-    project_lines = []
+    broker_lines: list[str] = []
+    project_lines: list[str] = []
+
+    def _clean_text(value: object) -> str | None:
+        if value is None:
+            return None
+        text = str(value).strip()
+        return text or None
+
+    def _format_bhk_value(value: object) -> str:
+        if value is None:
+            return ""
+        try:
+            num = int(value)
+            if num == 0:
+                return "Studio"
+            return f"{num}BR"
+        except Exception:
+            text = str(value).strip()
+            return text or ""
+
+    def _format_price(value: object) -> str | None:
+        if value is None:
+            return None
+        try:
+            amount = float(value)
+        except Exception:
+            return None
+        if amount <= 0:
+            return None
+        return f"AED {amount:,.0f}"
+
+    def _format_contact(broker: dict) -> str | None:
+        name = _clean_text((broker or {}).get("name"))
+        phone = _clean_text((broker or {}).get("phone"))
+        parts = [p for p in (name, phone) if p]
+        if not parts:
+            return None
+        return "Contact: " + " ".join(parts)
+
+    def _append_segment(segments: list[str], label: str, value: object) -> None:
+        text = _clean_text(value)
+        if text:
+            segments.append(f"{label}{text}")
+
+    def _format_project_bedrooms(value: object) -> str | None:
+        if value is None:
+            return None
+        label = _format_bedrooms(value)
+        label = _clean_text(label)
+        if not label or label == "N/A":
+            return None
+        return label
 
     for match in matches:
-        if match.get("match_type") == "broker_sell":
+        match_type = match.get("match_type")
+        if transaction == "buy" and match_type == "broker_sell":
             snapshot = match.get("sell_snapshot") or {}
             broker = match.get("sell_broker") or {}
-            broker_lines.append(WA_BROKER_SELL_TEMPLATE.format(
-                property_type=snapshot.get("property_type", "N/A"),
-                bhk=_safe_bhk(snapshot.get("bhk")),
-                location=snapshot.get("location", "N/A"),
-                price=_safe_int(snapshot.get("price_aed", 0)),
-                broker_name=broker.get("name", "N/A"),
-                broker_phone=broker.get("phone", "N/A"),
-            ))
-        elif match.get("match_type") == "project":
-            project_lines.append(WA_PROJECT_TEMPLATE.format(
-                project_name=match.get("project_name", "N/A"),
-                developer=match.get("developer", "N/A"),
-                area=match.get("area", "N/A"),
-                starting_price=_safe_int(match.get("starting_price", 0)),
-                bedrooms=_format_bedrooms(match.get("bedrooms_available")),
-                handover=match.get("handover", "N/A"),
-                payment_plan=match.get("payment_plan", "N/A"),
-                pdf_link=match.get("pdf_link", "N/A"),
-            ))
+            segments: list[str] = []
+
+            property_parts = []
+            property_type = _clean_text(snapshot.get("property_type"))
+            if property_type:
+                property_parts.append(property_type)
+            bhk_label = _format_bhk_value(snapshot.get("bhk"))
+            if bhk_label:
+                property_parts.append(bhk_label)
+            location = _clean_text(snapshot.get("location"))
+            if location:
+                property_parts.append(f"at {location}")
+            if property_parts:
+                segments.append(" ".join(property_parts))
+
+            price_text = _format_price(snapshot.get("price_aed"))
+            if price_text:
+                segments.append(price_text)
+
+            contact_text = _format_contact(broker)
+            if contact_text:
+                segments.append(contact_text)
+
+            if segments:
+                broker_lines.append("[Broker Sell] " + " | ".join(segments))
+
+        elif transaction == "sell" and match_type == "broker_buy":
+            snapshot = match.get("buy_snapshot") or {}
+            broker = match.get("buy_broker") or {}
+            segments: list[str] = []
+
+            property_parts = []
+            property_type = _clean_text(snapshot.get("property_type"))
+            if property_type:
+                property_parts.append(property_type)
+            bhk_label = _format_bhk_value(snapshot.get("bhk"))
+            if bhk_label:
+                property_parts.append(bhk_label)
+            location = _clean_text(snapshot.get("location"))
+            if location:
+                property_parts.append(f"in {location}")
+            if property_parts:
+                segments.append("Looking for " + " ".join(property_parts))
+
+            budget_text = _format_price(_best_buy_budget(snapshot))
+            if budget_text:
+                segments.append(f"Budget: {budget_text}")
+
+            contact_text = _format_contact(broker)
+            if contact_text:
+                segments.append(contact_text)
+
+            if segments:
+                broker_lines.append("[Buyer] " + " | ".join(segments))
+
+        elif transaction == "buy" and match_type == "project":
+            segments: list[str] = []
+            header_parts = []
+            project_name = _clean_text(match.get("project_name"))
+            if project_name:
+                header_parts.append(project_name)
+            developer = _clean_text(match.get("developer"))
+            if developer:
+                header_parts.append(f"by {developer}")
+            area = _clean_text(match.get("area"))
+            if area:
+                header_parts.append(f"in {area}")
+            if header_parts:
+                segments.append(" ".join(header_parts))
+
+            starting_price = _format_price(match.get("starting_price"))
+            if starting_price:
+                segments.append(f"Starting {starting_price}")
+
+            bedrooms = _format_project_bedrooms(match.get("bedrooms_available"))
+            if bedrooms:
+                segments.append(bedrooms)
+
+            _append_segment(segments, "Handover: ", match.get("handover"))
+            _append_segment(segments, "", match.get("payment_plan"))
+            _append_segment(segments, "PDF: ", match.get("pdf_link"))
+
+            if segments:
+                project_lines.append("[New Project] " + " | ".join(segments))
+
+    if transaction == "sell":
+        if not broker_lines:
+            return WA_NO_MATCH_SELL_MESSAGE
+        header = WA_SELL_MATCH_HEADER.format(n=len(broker_lines))
+        return "\n".join([header] + broker_lines)
 
     if not broker_lines and not project_lines:
         return WA_NO_MATCH_BUY_MESSAGE
@@ -240,34 +363,8 @@ def _build_reply_message(matches: list[dict]) -> str:
     else:
         header = WA_BUY_MATCH_HEADER_PROJECT_ONLY.format(n=np)
 
-    all_lines = broker_lines + project_lines
-    return "\n".join([header] + all_lines)
+    return "\n".join([header] + broker_lines + project_lines)
 
-
-def _build_sell_reply_message(matches: list[dict]) -> str:
-    if not matches:
-        return WA_NO_MATCH_SELL_MESSAGE
-
-    lines = []
-    for match in matches:
-        if match.get("match_type") != "broker_buy":
-            continue
-        snapshot = match.get("buy_snapshot") or {}
-        broker = match.get("buy_broker") or {}
-        lines.append(WA_BROKER_BUY_TEMPLATE.format(
-            property_type=snapshot.get("property_type", "N/A"),
-            bhk=_safe_bhk(snapshot.get("bhk")),
-            location=snapshot.get("location", "N/A"),
-            price=_safe_int(_best_buy_budget(snapshot), 0),
-            broker_name=broker.get("name", "N/A"),
-            broker_phone=broker.get("phone", "N/A"),
-        ))
-
-    if not lines:
-        return WA_NO_MATCH_SELL_MESSAGE
-
-    header = WA_SELL_MATCH_HEADER.format(n=len(lines))
-    return "\n".join([header] + lines)
 
 def _best_broker_phone(matches: list[dict]) -> str | None:
     broker_matches = [m for m in matches if m.get("match_type") == "broker_sell"]
@@ -336,6 +433,7 @@ def _request_listing_ids(listings: list[dict], transaction: str) -> set[ObjectId
 async def root():
     return {"message": "Matcher API is running"}
 
+
 @app.post("/ingest/text")
 async def ingest_text(payload: TextIngestRequest):
     if not is_real_estate_message(payload.message):
@@ -363,7 +461,10 @@ async def ingest_text(payload: TextIngestRequest):
         inserted_id = insert_listing(listing)
         if inserted_id:
             listing["_id"] = inserted_id
-            inserted_ids.append(inserted_id)
+            if listing.pop("_duplicate", False):
+                dupes += 1
+            else:
+                inserted_ids.append(inserted_id)
         else:
             dupes += 1
 
@@ -389,7 +490,7 @@ async def ingest_text(payload: TextIngestRequest):
         combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
 
         match_found = bool(combined_matches)
-        reply_message = _build_reply_message(combined_matches)
+        reply_message = _build_reply_message("buy", combined_matches)
         reply_phone_number = _best_broker_phone(combined_matches)
     else:
         sell_matches: list[dict] = []
@@ -402,10 +503,7 @@ async def ingest_text(payload: TextIngestRequest):
         sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
         combined_matches = sell_matches
         match_found = bool(sell_matches)
-        if sell_matches:
-            reply_message = _build_sell_reply_message(sell_matches)
-        else:
-            reply_message = WA_NO_MATCH_SELL_MESSAGE
+        reply_message = _build_reply_message("sell", sell_matches)
         reply_phone_number = None
 
     return {
@@ -455,7 +553,10 @@ async def ingest_image(file: UploadFile = File(...)):
             inserted_id = insert_listing(listing)
             if inserted_id:
                 listing["_id"] = inserted_id
-                inserted_ids.append(inserted_id)
+                if listing.pop("_duplicate", False):
+                    dupes += 1
+                else:
+                    inserted_ids.append(inserted_id)
             else:
                 dupes += 1
 
@@ -481,7 +582,7 @@ async def ingest_image(file: UploadFile = File(...)):
             combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
 
             match_found = bool(combined_matches)
-            reply_message = _build_reply_message(combined_matches)
+            reply_message = _build_reply_message("buy", combined_matches)
             reply_phone_number = _best_broker_phone(combined_matches)
         else:
             sell_matches: list[dict] = []
@@ -494,10 +595,7 @@ async def ingest_image(file: UploadFile = File(...)):
             sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
             combined_matches = sell_matches
             match_found = bool(sell_matches)
-            if sell_matches:
-                reply_message = _build_sell_reply_message(sell_matches)
-            else:
-                reply_message = WA_NO_MATCH_SELL_MESSAGE
+            reply_message = _build_reply_message("sell", sell_matches)
             reply_phone_number = None
 
         return {
@@ -595,7 +693,10 @@ async def ingest_whatsapp(
             inserted_id = insert_listing(listing)
             if inserted_id:
                 listing["_id"] = inserted_id
-                inserted_ids.append(inserted_id)
+                if listing.pop("_duplicate", False):
+                    dupes += 1
+                else:
+                    inserted_ids.append(inserted_id)
             else:
                 dupes += 1
 
@@ -622,7 +723,7 @@ async def ingest_whatsapp(
             combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
 
             match_found = bool(combined_matches)
-            reply_message = _build_reply_message(combined_matches)
+            reply_message = _build_reply_message("buy", combined_matches)
             reply_phone_number = _best_broker_phone(combined_matches)
         else:
             sell_matches: list[dict] = []
@@ -635,10 +736,7 @@ async def ingest_whatsapp(
             sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
             combined_matches = sell_matches
             match_found = bool(sell_matches)
-            if sell_matches:
-                reply_message = _build_sell_reply_message(sell_matches)
-            else:
-                reply_message = WA_NO_MATCH_SELL_MESSAGE
+            reply_message = _build_reply_message("sell", sell_matches)
             reply_phone_number = phone_number
 
         return {

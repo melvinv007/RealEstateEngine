@@ -6,3 +6,4 @@ venv/
 old.*
 md_files/
 pytmouse.py
+old_pytmouse.py

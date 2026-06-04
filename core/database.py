@@ -126,17 +126,17 @@ def _build_fingerprint(listing: dict) -> str:
     return hashlib.md5(raw.encode()).hexdigest()
 
 
-def _is_duplicate(listing: dict, coll_name: str, enabled: bool) -> bool:
-    """Check if a near-identical listing already exists in the collection."""
+def _is_duplicate(listing: dict, coll_name: str, enabled: bool) -> dict | None:
+    """Return the existing duplicate document if found; otherwise None."""
     if not enabled:
-        return False
+        return None
 
     fp = _build_fingerprint(listing)
     exists = _collection(coll_name).find_one({"fingerprint": fp})
     if exists:
         print(f"[DB] Duplicate detected — skipping listing: {listing.get('location')} {listing.get('bhk')}BR {listing.get('price_aed')}")
-        return True
-    return False
+        return exists
+    return None
 
 
 # ── Insert ─────────────────────────────────────────────────────────────────────
@@ -144,8 +144,9 @@ def _is_duplicate(listing: dict, coll_name: str, enabled: bool) -> bool:
 def insert_listing(listing: dict) -> ObjectId | None:
     """
     Insert a listing into the correct collection.
-    Returns None if duplicate detected.
+    Returns existing _id if duplicate detected.
     """
+    original_listing = listing
     listing = listing.copy()
     _apply_location_metadata(listing)
     listing["created_at"] = datetime.now(timezone.utc)
@@ -158,7 +159,14 @@ def insert_listing(listing: dict) -> ObjectId | None:
 
     dedupe_enabled = DUPLICATE_DETECTION_BUY if transaction == "buy" else DUPLICATE_DETECTION_SELL
 
-    if _is_duplicate(listing, coll_name, dedupe_enabled):
+    duplicate_doc = _is_duplicate(listing, coll_name, dedupe_enabled)
+    if duplicate_doc:
+        existing_id = duplicate_doc.get("_id")
+        if isinstance(existing_id, ObjectId):
+            if isinstance(original_listing, dict):
+                original_listing["_duplicate"] = True
+                original_listing["_id"] = existing_id
+            return existing_id
         return None
 
     result = _collection(coll_name).insert_one(listing)
@@ -174,7 +182,10 @@ def insert_many_listings(listings: list[dict]) -> tuple[list[ObjectId], int]:
     for listing in listings:
         inserted_id = insert_listing(listing)
         if inserted_id:
-            ids.append(inserted_id)
+            if isinstance(listing, dict) and listing.pop("_duplicate", False):
+                dupes += 1
+            else:
+                ids.append(inserted_id)
         else:
             dupes += 1
     return ids, dupes
