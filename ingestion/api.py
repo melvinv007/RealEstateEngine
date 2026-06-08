@@ -139,6 +139,7 @@ def _format_broker_sell_matches(match_docs: list[dict]) -> list[dict]:
             },
             "message_id": sell_snapshot.get("wa_message_id"),
             "phone_number": sell_snapshot.get("wa_phone_number"),
+            "matched_listing_received_at": sell_snapshot.get("wa_received_at"),
         })
     return formatted
 
@@ -521,6 +522,7 @@ async def ingest_text(payload: TextIngestRequest):
             buy_snap = sm.get("buy_snapshot") or {}
             sm.setdefault("matched_listing_message_id", buy_snap.get("wa_message_id"))
             sm.setdefault("matched_listing_phone_number", buy_snap.get("wa_phone_number"))
+            sm.setdefault("matched_listing_received_at", buy_snap.get("wa_received_at"))
         sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
         combined_matches = sell_matches
         match_found = bool(sell_matches)
@@ -623,6 +625,7 @@ async def ingest_image(file: UploadFile = File(...)):
                 buy_snap = sm.get("buy_snapshot") or {}
                 sm.setdefault("matched_listing_message_id", buy_snap.get("wa_message_id"))
                 sm.setdefault("matched_listing_phone_number", buy_snap.get("wa_phone_number"))
+                sm.setdefault("matched_listing_received_at", buy_snap.get("wa_received_at"))
             sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
             combined_matches = sell_matches
             match_found = bool(sell_matches)
@@ -778,6 +781,7 @@ async def ingest_whatsapp(
                 buy_snap = sm.get("buy_snapshot") or {}
                 sm.setdefault("matched_listing_message_id", buy_snap.get("wa_message_id"))
                 sm.setdefault("matched_listing_phone_number", buy_snap.get("wa_phone_number"))
+                sm.setdefault("matched_listing_received_at", buy_snap.get("wa_received_at"))
             sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
             combined_matches = sell_matches
             match_found = bool(sell_matches)

@@ -301,6 +301,7 @@ def run_matching() -> list[dict]:
         return []
 
     matched_sell_ids: set[ObjectId] = set()
+    fake_sell_match_counts: dict = {}  # sell_id -> match count, for customer_message=False sells
     results = []
 
     print(f"[Matcher] Processing {len(buy_listings)} buy listing(s)...")
@@ -339,6 +340,11 @@ def run_matching() -> list[dict]:
             if already_matched_pair(buy_id, sell_id):
                 continue
 
+            # Limit fake sell listings to max 2 matches total
+            if not sell.get("customer_message", True):
+                if fake_sell_match_counts.get(sell_id, 0) >= 2:
+                    continue
+
             m = match_single(buy, sell)
             if m:
                 valid_matches.append(m)
@@ -346,6 +352,10 @@ def run_matching() -> list[dict]:
         valid_matches.sort(key=lambda match: match["score"], reverse=True)
 
         for match in valid_matches:
+            sell_id = match["sell_id"]
+            sell_doc = next((s for s in sell_candidates if s["_id"] == sell_id), None)
+            is_fake_sell = sell_doc is not None and not sell_doc.get("customer_message", True)
+
             match_id = record_match(
                 buy_id=match["buy_id"],
                 sell_id=match["sell_id"],
@@ -355,6 +365,8 @@ def run_matching() -> list[dict]:
             )
             if match_id:
                 matched_sell_ids.add(match["sell_id"])
+                if is_fake_sell:
+                    fake_sell_match_counts[sell_id] = fake_sell_match_counts.get(sell_id, 0) + 1
                 results.append({**match, "match_id": match_id})
 
     print(f"[Matcher] Done. {len(results)} match(es) recorded.")
@@ -384,6 +396,7 @@ def run_matching_for_sell(sell: dict) -> list[dict]:
         return []
 
     best_matches: list[dict] = []
+    fake_buy_match_counts: dict = {}  # buy_id -> match count, for customer_message=False buys
 
     for buy in buy_candidates:
         buy_id = buy.get("_id")
@@ -392,6 +405,11 @@ def run_matching_for_sell(sell: dict) -> list[dict]:
 
         if already_matched_pair(buy_id, sell_id):
             continue
+
+        # Limit fake buy listings to max 2 matches total
+        if not buy.get("customer_message", True):
+            if fake_buy_match_counts.get(buy_id, 0) >= 2:
+                continue
 
         if use_geo:
             sell_copy = {**sell, "_distance_km": buy.get("_distance_km")}
@@ -420,6 +438,7 @@ def run_matching_for_sell(sell: dict) -> list[dict]:
                 "sqft": buy.get("sqft"),
                 "wa_message_id": buy.get("wa_message_id"),
                 "wa_phone_number": buy.get("wa_phone_number"),
+                "wa_received_at": buy.get("wa_received_at"),
             },
         })
 
@@ -430,6 +449,9 @@ def run_matching_for_sell(sell: dict) -> list[dict]:
             reasons=m["reasons"],
             delete_after=DELETE_AFTER_MATCH,
         )
+
+        if not buy.get("customer_message", True):
+            fake_buy_match_counts[buy_id] = fake_buy_match_counts.get(buy_id, 0) + 1
 
     best_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
     return best_matches
