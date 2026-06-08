@@ -418,6 +418,8 @@ def run_matching_for_sell(sell: dict) -> list[dict]:
                 "price_max_aed": buy.get("price_max_aed"),
                 "location": buy.get("location"),
                 "sqft": buy.get("sqft"),
+                "wa_message_id": buy.get("wa_message_id"),
+                "wa_phone_number": buy.get("wa_phone_number"),
             },
         })
 

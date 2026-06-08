@@ -44,6 +44,8 @@ from core.database import (
     get_db,
     _build_fingerprint,
     store_raw_message,
+    update_listing_tag,
+    backfill_new_fields,
 )
 from core.pipeline_watcher import check_and_run_pipelines
 from core.matcher import run_matching, run_project_matching, run_matching_for_sell
@@ -99,6 +101,7 @@ class WhatsAppIngestRequest(BaseModel):
     }
 
 
+
 def _serialize(value: Any):
     if isinstance(value, ObjectId):
         return str(value)
@@ -134,6 +137,8 @@ def _format_broker_sell_matches(match_docs: list[dict]) -> list[dict]:
                 "price_aed": sell_snapshot.get("price_aed"),
                 "location": sell_snapshot.get("location"),
             },
+            "message_id": sell_snapshot.get("wa_message_id"),
+            "phone_number": sell_snapshot.get("wa_phone_number"),
         })
     return formatted
 
@@ -512,6 +517,10 @@ async def ingest_text(payload: TextIngestRequest):
             sell_doc = _find_existing_listing_by_fingerprint(listing) or listing
             sell_matches.extend(run_matching_for_sell(sell_doc))
 
+        for sm in sell_matches:
+            buy_snap = sm.get("buy_snapshot") or {}
+            sm.setdefault("matched_listing_message_id", buy_snap.get("wa_message_id"))
+            sm.setdefault("matched_listing_phone_number", buy_snap.get("wa_phone_number"))
         sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
         combined_matches = sell_matches
         match_found = bool(sell_matches)
@@ -610,6 +619,10 @@ async def ingest_image(file: UploadFile = File(...)):
                 sell_doc = _find_existing_listing_by_fingerprint(listing) or listing
                 sell_matches.extend(run_matching_for_sell(sell_doc))
 
+            for sm in sell_matches:
+                buy_snap = sm.get("buy_snapshot") or {}
+                sm.setdefault("matched_listing_message_id", buy_snap.get("wa_message_id"))
+                sm.setdefault("matched_listing_phone_number", buy_snap.get("wa_phone_number"))
             sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
             combined_matches = sell_matches
             match_found = bool(sell_matches)
@@ -713,6 +726,7 @@ async def ingest_whatsapp(
             listing[WA_STORED_PHONE_NUMBER] = phone_number
             listing[WA_STORED_RECEIVED_AT] = received_at
             listing["wa_sent_by"] = sent_by
+            listing["customer_message"] = True
 
         inserted_ids: list[ObjectId] = []
         dupes = 0
@@ -760,6 +774,10 @@ async def ingest_whatsapp(
                 sell_doc = _find_existing_listing_by_fingerprint(listing) or listing
                 sell_matches.extend(run_matching_for_sell(sell_doc))
 
+            for sm in sell_matches:
+                buy_snap = sm.get("buy_snapshot") or {}
+                sm.setdefault("matched_listing_message_id", buy_snap.get("wa_message_id"))
+                sm.setdefault("matched_listing_phone_number", buy_snap.get("wa_phone_number"))
             sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
             combined_matches = sell_matches
             match_found = bool(sell_matches)
@@ -806,3 +824,33 @@ async def get_stats():
 async def get_matches(unnotified_only: bool = False):
     matches = get_all_matches()
     return _serialize(matches)
+
+@app.post("/ingest/update")
+async def update_listing_tag_endpoint(
+    message_id: str = Form(...),
+    tag: str = Form(...),
+):
+    """
+    Update the tag field on a listing identified by its WhatsApp message ID.
+    Called after the agent receives the original sender's info.
+    """
+    tag_value = tag.strip()
+    if not tag_value:
+        return JSONResponse(status_code=400, content={"detail": "tag must be a non-empty string"})
+
+    updated = update_listing_tag(message_id, tag_value)
+    if not updated:
+        return JSONResponse(
+            status_code=404,
+            content={"detail": f"No listing found with message_id: {message_id}"}
+        )
+    return {"updated": True, "message_id": message_id, "tag": tag_value}
+
+@app.post("/admin/backfill-fields")
+async def admin_backfill_fields():
+    """
+    One-time migration: backfills customer_message and tag fields on all
+    existing documents that predate these fields. Safe to call multiple times.
+    """
+    stats = backfill_new_fields()
+    return {"status": "done", "stats": stats}

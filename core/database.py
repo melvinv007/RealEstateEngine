@@ -154,6 +154,9 @@ def insert_listing(listing: dict) -> ObjectId | None:
     listing["matched"] = False
     listing["match_id"] = None
     listing["fingerprint"] = _build_fingerprint(listing)
+    listing.setdefault("customer_message", False)
+    listing.setdefault("tag", None)
+    
 
     transaction = listing.get("transaction", "sell").lower()
     coll_name = COLLECTION_BUY if transaction == "buy" else COLLECTION_SELL
@@ -401,6 +404,53 @@ def store_raw_message(payload: dict) -> str:
     payload["stored_at"] = datetime.now(timezone.utc).isoformat()
     result = get_db()["raw_messages"].insert_one(payload)
     return str(result.inserted_id)
+
+def update_listing_tag(wa_message_id: str, tag: str) -> bool:
+    """
+    Find a listing by wa_message_id across buy and sell collections and update its tag.
+    Returns True if a document was updated, False if not found.
+    """
+    db = get_db()
+    for coll_name in (COLLECTION_BUY, COLLECTION_SELL):
+        result = db[coll_name].update_one(
+            {"wa_message_id": wa_message_id},
+            {"$set": {"tag": tag}},
+        )
+        if result.matched_count > 0:
+            return True
+    return False
+
+def backfill_new_fields() -> dict:
+    """
+    One-time migration: sets customer_message=False and tag=None on all existing
+    documents that are missing these fields. Listings with a wa_message_id get
+    customer_message=True instead.
+    """
+    db = get_db()
+    stats = {}
+    for coll_name in (COLLECTION_BUY, COLLECTION_SELL):
+        coll = db[coll_name]
+        # Docs with wa_message_id → customer_message True
+        r1 = coll.update_many(
+            {"wa_message_id": {"$exists": True}, "customer_message": {"$exists": False}},
+            {"$set": {"customer_message": True, "tag": None}},
+        )
+        # Docs without wa_message_id → customer_message False
+        r2 = coll.update_many(
+            {"wa_message_id": {"$exists": False}, "customer_message": {"$exists": False}},
+            {"$set": {"customer_message": False, "tag": None}},
+        )
+        # Docs that already have customer_message but missing tag
+        r3 = coll.update_many(
+            {"tag": {"$exists": False}},
+            {"$set": {"tag": None}},
+        )
+        stats[coll_name] = {
+            "with_wa_id_updated": r1.modified_count,
+            "without_wa_id_updated": r2.modified_count,
+            "tag_backfilled": r3.modified_count,
+        }
+    return stats
 
 def clear_all():
     """⚠️ Drops all data. Use only in testing."""

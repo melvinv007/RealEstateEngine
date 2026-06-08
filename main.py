@@ -46,6 +46,7 @@ from core.database import (
     get_all_project_matches,
     clear_all,
     dedupe_collection,
+    backfill_new_fields,
 )
 from core.matcher import run_matching, run_project_matching
 
@@ -329,6 +330,7 @@ def main():
     group.add_argument("--show-project-matches", action="store_true", help="Print all recorded project matches")
     group.add_argument("--clear", action="store_true", help="⚠️ Clear all data (irreversible)")
     group.add_argument("--dedupe", action="store_true", help="Remove duplicate listings from buy and sell collections")
+    group.add_argument("--backfill", action="store_true", help="Backfill customer_message and tag fields on all existing documents")
     args = parser.parse_args()
 
     # ── Stats ──────────────────────────────────────────────────────────────────
@@ -391,6 +393,18 @@ def main():
         print("\n📊 Updated DB Stats:")
         for k, v in stats.items():
             print(f"  {k:20s}: {v}")
+        return
+
+    # ── Backfill ───────────────────────────────────────────────────────────────
+    if args.backfill:
+        print("\n🔧 Backfilling customer_message and tag fields...")
+        result = backfill_new_fields()
+        for coll_name, counts in result.items():
+            print(f"\n  Collection: {coll_name}")
+            print(f"    With wa_message_id (→ customer_message=True) : {counts['with_wa_id_updated']}")
+            print(f"    Without wa_message_id (→ customer_message=False): {counts['without_wa_id_updated']}")
+            print(f"    tag field backfilled                           : {counts['tag_backfilled']}")
+        print("\n✅ Backfill complete.")
         return
 
     # ── Clear ──────────────────────────────────────────────────────────────────
