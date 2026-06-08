@@ -20,8 +20,6 @@ from core.config import (
     API_KEY,
     COLLECTION_BUY,
     COLLECTION_SELL,
-    WA_BROKER_BUY_TEMPLATE,
-    WA_BROKER_SELL_TEMPLATE,
     WA_FIELD_MESSAGE_ID,
     WA_FIELD_PHONE_NUMBER,
     WA_FIELD_RAW_MESSAGE,
@@ -30,7 +28,6 @@ from core.config import (
     WA_BUY_MATCH_HEADER_BOTH,
     WA_NO_MATCH_BUY_MESSAGE,
     WA_NO_MATCH_SELL_MESSAGE,
-    WA_PROJECT_TEMPLATE,
     WA_SELL_MATCH_HEADER,
     WA_STORED_MESSAGE_ID,
     WA_STORED_PHONE_NUMBER,
@@ -48,7 +45,7 @@ from core.database import (
     backfill_new_fields,
 )
 from core.pipeline_watcher import check_and_run_pipelines
-from core.matcher import run_matching, run_project_matching, run_matching_for_sell
+from core.matcher import run_project_matching, run_matching_for_sell, run_matching_for_buy
 from ingestion.parser import parse_text_message, parse_image, is_real_estate_message
 from location.resolver import resolve_location
 
@@ -113,35 +110,6 @@ def _serialize(value: Any):
         return {k: _serialize(v) for k, v in value.items()}
     return value
 
-
-def _collect_match_docs(match_ids: list[ObjectId]) -> list[dict]:
-    if not match_ids:
-        return []
-    match_id_set = set(match_ids)
-    return [m for m in get_all_matches() if m.get("_id") in match_id_set]
-
-
-def _format_broker_sell_matches(match_docs: list[dict]) -> list[dict]:
-    formatted = []
-    for doc in match_docs:
-        sell_snapshot = doc.get("sell_snapshot") or {}
-        broker = sell_snapshot.get("broker") or {}
-        formatted.append({
-            "match_type": "broker_sell",
-            "score": doc.get("match_score"),
-            "reasons": doc.get("match_reasons") or [],
-            "sell_broker": broker,
-            "sell_snapshot": {
-                "property_type": sell_snapshot.get("property_type"),
-                "bhk": sell_snapshot.get("bhk"),
-                "price_aed": sell_snapshot.get("price_aed"),
-                "location": sell_snapshot.get("location"),
-            },
-            "message_id": sell_snapshot.get("wa_message_id"),
-            "phone_number": sell_snapshot.get("wa_phone_number"),
-            "matched_listing_received_at": sell_snapshot.get("wa_received_at"),
-        })
-    return formatted
 
 
 def _format_project_matches(project_matches: list[dict]) -> list[dict]:
@@ -415,31 +383,7 @@ def _find_existing_listing_by_fingerprint(listing: dict) -> dict | None:
     fingerprint = listing.get("fingerprint") or _build_fingerprint(listing)
     return get_db()[coll_name].find_one({"fingerprint": fingerprint})
 
-def _request_listing_ids(listings: list[dict], transaction: str) -> set[ObjectId]:
-    request_ids: set[ObjectId] = set()
-    for listing in listings:
-        if not isinstance(listing, dict):
-            continue
-        if (listing.get("transaction") or "").lower() != transaction:
-            continue
 
-        listing_id = listing.get("_id")
-        # _id is now stored as str after insert_listing() — convert back for DB comparison
-        if isinstance(listing_id, str):
-            try:
-                request_ids.add(ObjectId(listing_id))
-            except Exception:
-                pass
-            continue
-        if isinstance(listing_id, ObjectId):
-            request_ids.add(listing_id)
-            continue
-
-        existing = _find_existing_listing_by_fingerprint(listing)
-        if existing and isinstance(existing.get("_id"), ObjectId):
-            request_ids.add(existing["_id"])
-
-    return request_ids
 
 @app.get("/")
 async def root():
@@ -486,7 +430,6 @@ async def ingest_text(payload: TextIngestRequest):
         else:
             dupes += 1
 
-    request_buy_ids = _request_listing_ids(listings, "buy")
     has_buy = any(
         (listing.get("transaction") or "").lower() == "buy"
         for listing in listings
@@ -496,15 +439,43 @@ async def ingest_text(payload: TextIngestRequest):
     combined_matches: list[dict] = []
     match_found = False
     if has_buy:
-        matches = run_matching()
-        project_matches = run_project_matching()
-        match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
-        relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in request_buy_ids]
-        relevant_projects = [
-            match for match in project_matches
-            if match.get("buy_id") in request_buy_ids
-        ]
-        combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
+        broker_matches: list[dict] = []
+        project_matches_combined: list[dict] = []
+
+        for listing in listings:
+            if not isinstance(listing, dict):
+                continue
+            if (listing.get("transaction") or "").lower() != "buy":
+                continue
+
+            buy_doc = listing
+            broker_matches.extend(run_matching_for_buy(buy_doc))
+
+            buy_id = listing.get("_id")
+            if isinstance(buy_id, str):
+                try:
+                    from bson import ObjectId as _ObjId
+                    buy_id = _ObjId(buy_id)
+                except Exception:
+                    buy_id = None
+
+            if buy_id is not None:
+                all_project_matches = run_project_matching()
+                project_matches_combined.extend([
+                    m for m in all_project_matches
+                    if m.get("buy_id") == buy_id
+                ])
+
+        # Enrich broker matches with matched_listing_received_at
+        for bm in broker_matches:
+            sell_snap = bm.get("sell_snapshot") or {}
+            bm.setdefault("message_id", sell_snap.get("wa_message_id"))
+            bm.setdefault("phone_number", sell_snap.get("wa_phone_number"))
+            bm.setdefault("matched_listing_received_at", sell_snap.get("wa_received_at"))
+            bm.setdefault("matched_listing_tag", sell_snap.get("tag"))
+            bm.setdefault("matched_listing_customer_message", sell_snap.get("customer_message"))
+
+        combined_matches = broker_matches + _format_project_matches(project_matches_combined)
         combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
 
         match_found = bool(combined_matches)
@@ -520,8 +491,8 @@ async def ingest_text(payload: TextIngestRequest):
 
         for sm in sell_matches:
             buy_snap = sm.get("buy_snapshot") or {}
-            sm.setdefault("matched_listing_message_id", buy_snap.get("wa_message_id"))
-            sm.setdefault("matched_listing_phone_number", buy_snap.get("wa_phone_number"))
+            sm.setdefault("message_id", buy_snap.get("wa_message_id"))
+            sm.setdefault("phone_number", buy_snap.get("wa_phone_number"))
             sm.setdefault("matched_listing_received_at", buy_snap.get("wa_received_at"))
         sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
         combined_matches = sell_matches
@@ -589,7 +560,6 @@ async def ingest_image(file: UploadFile = File(...)):
             else:
                 dupes += 1
 
-        request_buy_ids = _request_listing_ids(listings, "buy")
         has_buy = any(
             (listing.get("transaction") or "").lower() == "buy"
             for listing in listings
@@ -599,15 +569,43 @@ async def ingest_image(file: UploadFile = File(...)):
         combined_matches: list[dict] = []
         match_found = False
         if has_buy:
-            matches = run_matching()
-            project_matches = run_project_matching()
-            match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
-            relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in request_buy_ids]
-            relevant_projects = [
-                match for match in project_matches
-                if match.get("buy_id") in request_buy_ids
-            ]
-            combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
+            broker_matches: list[dict] = []
+            project_matches_combined: list[dict] = []
+
+            for listing in listings:
+                if not isinstance(listing, dict):
+                    continue
+                if (listing.get("transaction") or "").lower() != "buy":
+                    continue
+
+                buy_doc = listing
+                broker_matches.extend(run_matching_for_buy(buy_doc))
+
+                buy_id = listing.get("_id")
+                if isinstance(buy_id, str):
+                    try:
+                        from bson import ObjectId as _ObjId
+                        buy_id = _ObjId(buy_id)
+                    except Exception:
+                        buy_id = None
+
+                if buy_id is not None:
+                    all_project_matches = run_project_matching()
+                    project_matches_combined.extend([
+                        m for m in all_project_matches
+                        if m.get("buy_id") == buy_id
+                    ])
+
+            # Enrich broker matches with matched_listing_received_at
+            for bm in broker_matches:
+                sell_snap = bm.get("sell_snapshot") or {}
+                bm.setdefault("message_id", sell_snap.get("wa_message_id"))
+                bm.setdefault("phone_number", sell_snap.get("wa_phone_number"))
+                bm.setdefault("matched_listing_received_at", sell_snap.get("wa_received_at"))
+                bm.setdefault("matched_listing_tag", sell_snap.get("tag"))
+                bm.setdefault("matched_listing_customer_message", sell_snap.get("customer_message"))
+
+            combined_matches = broker_matches + _format_project_matches(project_matches_combined)
             combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
 
             match_found = bool(combined_matches)
@@ -623,8 +621,8 @@ async def ingest_image(file: UploadFile = File(...)):
 
             for sm in sell_matches:
                 buy_snap = sm.get("buy_snapshot") or {}
-                sm.setdefault("matched_listing_message_id", buy_snap.get("wa_message_id"))
-                sm.setdefault("matched_listing_phone_number", buy_snap.get("wa_phone_number"))
+                sm.setdefault("message_id", buy_snap.get("wa_message_id"))
+                sm.setdefault("phone_number", buy_snap.get("wa_phone_number"))
                 sm.setdefault("matched_listing_received_at", buy_snap.get("wa_received_at"))
             sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
             combined_matches = sell_matches
@@ -754,16 +752,43 @@ async def ingest_whatsapp(
         combined_matches: list[dict] = []
         match_found = False
         if has_buy:
-            request_buy_ids = _request_listing_ids(listings, "buy")
-            matches = run_matching()
-            project_matches = run_project_matching()
-            match_docs = _collect_match_docs([m["match_id"] for m in matches if m.get("match_id")])
-            relevant_docs = [doc for doc in match_docs if doc.get("buy_id") in request_buy_ids]
-            relevant_projects = [
-                match for match in project_matches
-                if match.get("buy_id") in request_buy_ids
-            ]
-            combined_matches = _format_broker_sell_matches(relevant_docs) + _format_project_matches(relevant_projects)
+            broker_matches: list[dict] = []
+            project_matches_combined: list[dict] = []
+
+            for listing in listings:
+                if not isinstance(listing, dict):
+                    continue
+                if (listing.get("transaction") or "").lower() != "buy":
+                    continue
+
+                buy_doc = listing
+                broker_matches.extend(run_matching_for_buy(buy_doc))
+
+                buy_id = listing.get("_id")
+                if isinstance(buy_id, str):
+                    try:
+                        from bson import ObjectId as _ObjId
+                        buy_id = _ObjId(buy_id)
+                    except Exception:
+                        buy_id = None
+
+                if buy_id is not None:
+                    all_project_matches = run_project_matching()
+                    project_matches_combined.extend([
+                        m for m in all_project_matches
+                        if m.get("buy_id") == buy_id
+                    ])
+
+            # Enrich broker matches with matched_listing_received_at
+            for bm in broker_matches:
+                sell_snap = bm.get("sell_snapshot") or {}
+                bm.setdefault("message_id", sell_snap.get("wa_message_id"))
+                bm.setdefault("phone_number", sell_snap.get("wa_phone_number"))
+                bm.setdefault("matched_listing_received_at", sell_snap.get("wa_received_at"))
+                bm.setdefault("matched_listing_tag", sell_snap.get("tag"))
+                bm.setdefault("matched_listing_customer_message", sell_snap.get("customer_message"))
+
+            combined_matches = broker_matches + _format_project_matches(project_matches_combined)
             combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
 
             match_found = bool(combined_matches)
@@ -779,8 +804,8 @@ async def ingest_whatsapp(
 
             for sm in sell_matches:
                 buy_snap = sm.get("buy_snapshot") or {}
-                sm.setdefault("matched_listing_message_id", buy_snap.get("wa_message_id"))
-                sm.setdefault("matched_listing_phone_number", buy_snap.get("wa_phone_number"))
+                sm.setdefault("message_id", buy_snap.get("wa_message_id"))
+                sm.setdefault("phone_number", buy_snap.get("wa_phone_number"))
                 sm.setdefault("matched_listing_received_at", buy_snap.get("wa_received_at"))
             sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
             combined_matches = sell_matches

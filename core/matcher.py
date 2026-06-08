@@ -456,6 +456,95 @@ def run_matching_for_sell(sell: dict) -> list[dict]:
     best_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
     return best_matches
 
+def run_matching_for_buy(buy: dict) -> list[dict]:
+    if not buy or (buy.get("transaction") or "").lower() != "buy":
+        return []
+
+    buy_id = buy.get("_id")
+    if buy_id is None:
+        return []
+
+    # Convert string _id back to ObjectId if needed (insert_listing returns str)
+    if isinstance(buy_id, str):
+        try:
+            buy_id = ObjectId(buy_id)
+        except Exception:
+            return []
+
+    use_geo = _has_valid_coords(buy) and not buy.get("location_unresolved")
+
+    if use_geo:
+        sell_candidates = _geo_candidates_for_buy(buy)
+        for sell in sell_candidates:
+            distance_m = sell.get("distance_m")
+            if distance_m is not None:
+                sell["_distance_km"] = distance_m / 1000.0
+    else:
+        sell_candidates = get_active_filtered(
+            transaction="sell",
+            property_type=buy.get("property_type"),
+            bhk=buy.get("bhk") if BHK_TOLERANCE == 0 else None,
+        )
+
+    if not sell_candidates:
+        return []
+
+    best_matches: list[dict] = []
+    fake_sell_match_counts: dict = {}
+
+    for sell in sell_candidates:
+        sell_id = sell.get("_id")
+        if sell_id is None:
+            continue
+
+        if already_matched_pair(buy_id, sell_id):
+            continue
+
+        # Limit fake sell listings to max 2 matches total
+        if not sell.get("customer_message", True):
+            if fake_sell_match_counts.get(sell_id, 0) >= 2:
+                continue
+
+        m = match_single(buy, sell)
+        if not m:
+            continue
+
+        match_id = record_match(
+            buy_id=buy_id,
+            sell_id=sell_id,
+            score=m["score"],
+            reasons=m["reasons"],
+            delete_after=DELETE_AFTER_MATCH,
+        )
+
+        if match_id:
+            if not sell.get("customer_message", True):
+                fake_sell_match_counts[sell_id] = fake_sell_match_counts.get(sell_id, 0) + 1
+
+            best_matches.append({
+                "match_type": "broker_sell",
+                "buy_id": buy_id,
+                "sell_id": sell_id,
+                "match_id": match_id,
+                "score": m["score"],
+                "reasons": m["reasons"],
+                "skipped": m["skipped"],
+                "sell_broker": sell.get("broker", {}),
+                "sell_snapshot": {
+                    "property_type": sell.get("property_type"),
+                    "bhk": sell.get("bhk"),
+                    "price_aed": sell.get("price_aed"),
+                    "location": sell.get("location"),
+                    "wa_message_id": sell.get("wa_message_id"),
+                    "wa_phone_number": sell.get("wa_phone_number"),
+                    "wa_received_at": sell.get("wa_received_at"),
+                    "tag": sell.get("tag"),
+                    "customer_message": sell.get("customer_message"),
+                },
+            })
+
+    best_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
+    return best_matches
 
 def _geo_candidates_for_projects(buy: dict) -> list[dict]:
     coords = buy.get("location_coords")
