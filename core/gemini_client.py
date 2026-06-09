@@ -235,15 +235,20 @@ def _classify_gemini_error(err: str) -> str:
       auth_err     — 403 / billing / permission
       unknown      — anything else
     """
+    err_lower = err.lower()
     if "PerDay" in err or "per_day" in err.lower():
         return "daily_quota"
-    if "429" in err or "quota" in err.lower() or "resource_exhausted" in err.lower():
+    if "429" in err or "quota" in err_lower or "resource_exhausted" in err_lower:
         return "rate_limit"
-    if "500" in err or "internal error" in err.lower():
+    if ("500" in err or "503" in err or "502" in err
+            or "internal error" in err_lower
+            or "server error" in err_lower
+            or "unavailable" in err_lower
+            or "servererror" in err_lower):
         return "server_err"
-    if "404" in err or "not found" in err.lower() or "not supported" in err.lower():
+    if "404" in err or "not found" in err_lower or "not supported" in err_lower:
         return "bad_model"
-    if "403" in err or "permission" in err.lower() or "billing" in err.lower() or "api key" in err.lower():
+    if "403" in err or "permission" in err_lower or "billing" in err_lower or "api key" in err_lower:
         return "auth_err"
     return "unknown"
 
