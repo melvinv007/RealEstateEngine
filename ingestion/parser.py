@@ -13,6 +13,7 @@ Features:
 - Works with text + images
 """
 
+import traceback as _traceback
 import json
 import re
 import base64
@@ -412,7 +413,7 @@ def is_real_estate_message(text: str) -> bool:
         print(f"[Parser] Real estate filter failed: {e}")
         return True
 
-def parse_text_message(message: str) -> list[dict]:
+def old_parse_text_message(message: str) -> list[dict]:
     """
     Parse WhatsApp text message into structured listings.
     """
@@ -449,6 +450,98 @@ def parse_text_message(message: str) -> list[dict]:
         print(f"[Parser] Error parsing text: {e}")
         return []
 
+# Buy-signal keywords — if Gemini returns "sell" but message contains these, flip to buy
+_BUY_SIGNALS = [
+    "looking for", "requirement", "wanted", "budget", "pre-approved",
+    "investor looking", "ready to close", "cash buyer", "mortgage buyer",
+    "client looking", "client need", "client require", "need apartment",
+    "need villa", "need property", "seeking", "require",
+]
+
+def parse_text_message(message: str) -> list[dict]:
+    """
+    Parse WhatsApp text message into structured listings.
+    Includes post-parse heuristic to catch Gemini transaction misclassification.
+    """
+    if not USE_GEMINI_PARSER_TEXT_EXTRACTION:
+        print("[Parser] Gemini extraction disabled; skipping text parse.")
+        return []
+
+    raw_gemini_output = ""
+    try:
+        response = call_gemini(
+            [SYSTEM_PROMPT, f"\nMESSAGE:\n{message}"],
+            generation_config={"temperature": 0.1, "response_mime_type": "application/json"},
+        )
+        if response is None:
+            _log_parse_failure(message, "", "Gemini returned None")
+            return []
+
+        raw_gemini_output = response.text or ""
+        raw = _clean_json(raw_gemini_output)
+        data = _safe_json_loads(raw)
+
+        if data is None:
+            _log_parse_failure(message, raw_gemini_output, "Invalid JSON returned")
+            return []
+
+        if not isinstance(data, list):
+            data = [data]
+
+        listings = _validate_listings(data)
+
+        # ── Post-parse heuristic: catch transaction misclassification ──────────
+        # Gemini sometimes returns "sell" for clear buy requirements.
+        # If the raw message contains strong buy signals, flip transaction to "buy".
+        message_lower = message.lower()
+        for listing in listings:
+            if listing.get("transaction") == "sell":
+                found_signals = [s for s in _BUY_SIGNALS if s in message_lower]
+                if found_signals:
+                    listing["transaction"] = "buy"
+                    try:
+                        from core.logger import log_event
+                        log_event(
+                            "parse_warning", "warning", "parser",
+                            f"Transaction flipped sell→buy based on keyword signals in message",
+                            {
+                                "signals_found":   found_signals,
+                                "raw_snippet":     message[:300],
+                                "original_output": raw_gemini_output[:300],
+                                "location_raw":    listing.get("location_raw"),
+                                "property_type":   listing.get("property_type"),
+                            },
+                        )
+                    except Exception:
+                        pass
+                    print(f"[Parser] ⚠ Transaction flipped sell→buy — signals: {found_signals}")
+
+        return listings
+
+    except Exception as e:
+        _log_parse_failure(message, raw_gemini_output, str(e), exc=e)
+        return []
+
+
+def _log_parse_failure(message: str, raw_output: str, reason: str, exc: Exception | None = None) -> None:
+    """Log a parse failure to terminal and MongoDB."""
+    print(f"[Parser] ✗ Parse failed: {reason}")
+    if raw_output:
+        print(f"[Parser]   Raw output snippet: {raw_output[:200]}")
+    try:
+        from core.logger import log_event
+        log_event(
+            "parse_failure", "error", "parser",
+            f"Parse failed: {reason}",
+            {
+                "reason":            reason,
+                "raw_message_snippet": message[:300],
+                "raw_gemini_output":   raw_output[:500],
+                "traceback":           _traceback.format_exc() if exc else "",
+            },
+        )
+    except Exception:
+        pass
 
 # ─────────────────────────────────────────────────────────────
 # Image Parsing
@@ -525,15 +618,14 @@ def parse_image(
             image_part=image_part,
         )
         if response is None:
-            print("[Parser] Invalid JSON returned from image")
+            _log_parse_failure("", "", "Gemini returned None for image")
             return []
 
         raw = _clean_json(response.text)
-
         data = _safe_json_loads(raw)
 
         if data is None:
-            print("[Parser] Invalid JSON returned from image")
+            _log_parse_failure("", response.text or "", "Invalid JSON from image parse")
             return []
 
         if not isinstance(data, list):
@@ -542,7 +634,7 @@ def parse_image(
         return _validate_listings(data)
 
     except Exception as e:
-        print(f"[Parser] Error parsing image: {e}")
+        _log_parse_failure("", "", f"Image parse exception: {e}", exc=e)
         return []
 
 

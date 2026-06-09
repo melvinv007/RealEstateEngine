@@ -16,6 +16,11 @@ from fastapi import FastAPI, File, UploadFile, Request, Form
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+import time
+import traceback
+import uuid
+from core.logger import set_request_id, get_request_id, log_event, log_api_error
+
 from core.config import (
     API_KEY,
     COLLECTION_BUY,
@@ -395,6 +400,11 @@ async def ingest_text(payload: TextIngestRequest):
     if not is_real_estate_message(payload.message):
         return {"filtered": True, "reason": "not a real estate message"}
 
+    rid = str(uuid.uuid4())[:8]
+    set_request_id(rid)
+    t_start = time.time()
+    print(f"\n[REQ {rid}] POST /ingest/text | len={len(payload.message)}")
+
     store_raw_message({
         "source": "text",
         "raw_message": payload.message,
@@ -402,6 +412,18 @@ async def ingest_text(payload: TextIngestRequest):
     })
 
     listings = parse_text_message(payload.message)
+
+    if listings:
+        for i, lst in enumerate(listings):
+            print(f"  [PARSE {rid}] listing {i+1}/{len(listings)} | "
+                  f"transaction={lst.get('transaction')} | "
+                  f"type={lst.get('property_type')} | "
+                  f"bhk={lst.get('bhk')} | "
+                  f"price={lst.get('price_aed')} | "
+                  f"location={lst.get('location_raw')}")
+    else:
+        print(f"  [PARSE {rid}] 0 listings extracted")
+
     if not listings:
         return {
             "filtered": False,
@@ -417,6 +439,14 @@ async def ingest_text(payload: TextIngestRequest):
             "matches": [],
         }
     listings = _apply_location_resolution(listings)
+    # ── Location trace ────────────────────────────────────────────────────
+    for lst in listings:
+        res = lst.get("location_resolution") or {}
+        print(f"  [LOCATION {rid}] '{lst.get('location_raw')}' → "
+                f"{res.get('matched_canonical')} | "
+                f"level={res.get('matched_level')} | "
+                f"conf={res.get('confidence')} | "
+                f"path={res.get('resolution_path')}")
     inserted_ids: list[ObjectId] = []
     dupes = 0
     for listing in listings:
@@ -429,6 +459,9 @@ async def ingest_text(payload: TextIngestRequest):
                 inserted_ids.append(inserted_id)
         else:
             dupes += 1
+    
+    # ── DB trace ──────────────────────────────────────────────────────────
+    print(f"  [DB {rid}] inserted={len(inserted_ids)} | duplicates={dupes}")
 
     has_buy = any(
         (listing.get("transaction") or "").lower() == "buy"
@@ -525,6 +558,12 @@ async def ingest_image(file: UploadFile = File(...)):
             content = await file.read()
             tmp.write(content)
 
+        # ── Request tracing setup ─────────────────────────────────────────────────
+        rid = str(uuid.uuid4())[:8]
+        set_request_id(rid)
+        t_start = time.time()
+        print(f"\n[REQ {rid}] POST /ingest/image | file={file.filename}")
+
         store_raw_message({
             "source": "image",
             "filename": file.filename,
@@ -532,6 +571,19 @@ async def ingest_image(file: UploadFile = File(...)):
         })
 
         listings = parse_image(temp_path)
+
+        # ── Parse trace ───────────────────────────────────────────────────────
+        if listings:
+            for i, lst in enumerate(listings):
+                print(f"  [PARSE {rid}] listing {i+1}/{len(listings)} | "
+                      f"transaction={lst.get('transaction')} | "
+                      f"type={lst.get('property_type')} | "
+                      f"bhk={lst.get('bhk')} | "
+                      f"price={lst.get('price_aed')} | "
+                      f"location={lst.get('location_raw')}")
+        else:
+            print(f"  [PARSE {rid}] 0 listings extracted from message")
+
         if not listings:
             return {
                 "filtered": False,
@@ -547,6 +599,16 @@ async def ingest_image(file: UploadFile = File(...)):
                 "matches": [],
             }
         listings = _apply_location_resolution(listings)
+
+        # ── Location trace ────────────────────────────────────────────────────
+        for lst in listings:
+            res = lst.get("location_resolution") or {}
+            print(f"  [LOCATION {rid}] '{lst.get('location_raw')}' → "
+                  f"{res.get('matched_canonical')} | "
+                  f"level={res.get('matched_level')} | "
+                  f"conf={res.get('confidence')} | "
+                  f"path={res.get('resolution_path')}")
+
         inserted_ids: list[ObjectId] = []
         dupes = 0
         for listing in listings:
@@ -559,6 +621,9 @@ async def ingest_image(file: UploadFile = File(...)):
                     inserted_ids.append(inserted_id)
             else:
                 dupes += 1
+            
+        # ── DB trace ──────────────────────────────────────────────────────────
+        print(f"  [DB {rid}] inserted={len(inserted_ids)} | duplicates={dupes}")
 
         has_buy = any(
             (listing.get("transaction") or "").lower() == "buy"
@@ -655,7 +720,15 @@ async def ingest_whatsapp(
     raw_message: str | None = Form(None),
     file: UploadFile | None = File(None),
 ):
+    # ── Request tracing setup ─────────────────────────────────────────────────
+    rid = str(uuid.uuid4())[:8]
+    set_request_id(rid)
+    t_start = time.time()
     received_at = datetime.utcnow().isoformat() + "Z"
+
+    has_text_flag  = bool((raw_message or "").strip())
+    has_file_flag  = file is not None
+    print(f"\n[REQ {rid}] POST /ingest/whatsapp | phone={phone_number} | msg_id={message_id} | has_text={has_text_flag} | has_file={has_file_flag}")
 
     store_raw_message({
         "source": "whatsapp",
@@ -698,6 +771,18 @@ async def ingest_whatsapp(
         if not parsed_from_image and has_message:
             listings = parse_text_message(raw_message_text)
 
+        # ── Parse trace ───────────────────────────────────────────────────────
+        if listings:
+            for i, lst in enumerate(listings):
+                print(f"  [PARSE {rid}] listing {i+1}/{len(listings)} | "
+                      f"transaction={lst.get('transaction')} | "
+                      f"type={lst.get('property_type')} | "
+                      f"bhk={lst.get('bhk')} | "
+                      f"price={lst.get('price_aed')} | "
+                      f"location={lst.get('location_raw')}")
+        else:
+            print(f"  [PARSE {rid}] 0 listings extracted from message")
+
         if not listings:
             return {
                 WA_FIELD_MESSAGE_ID: message_id,
@@ -720,6 +805,15 @@ async def ingest_whatsapp(
 
         listings = _apply_location_resolution(listings)
 
+        # ── Location trace ────────────────────────────────────────────────────
+        for lst in listings:
+            res = lst.get("location_resolution") or {}
+            print(f"  [LOCATION {rid}] '{lst.get('location_raw')}' → "
+                  f"{res.get('matched_canonical')} | "
+                  f"level={res.get('matched_level')} | "
+                  f"conf={res.get('confidence')} | "
+                  f"path={res.get('resolution_path')}")
+
         for listing in listings:
             if not isinstance(listing, dict):
                 continue
@@ -741,6 +835,9 @@ async def ingest_whatsapp(
                     inserted_ids.append(inserted_id)
             else:
                 dupes += 1
+            
+        # ── DB trace ──────────────────────────────────────────────────────────
+        print(f"  [DB {rid}] inserted={len(inserted_ids)} | duplicates={dupes}")
 
         transactions = {
             listing.get("transaction")
@@ -813,6 +910,47 @@ async def ingest_whatsapp(
             reply_message = _build_reply_message("sell", sell_matches)
             reply_phone_number = phone_number
 
+        # ── Match + reply trace ───────────────────────────────────────────────
+        broker_count  = sum(1 for m in combined_matches if m.get("match_type") in ("broker_sell", "broker_buy"))
+        project_count = sum(1 for m in combined_matches if m.get("match_type") == "project")
+        duration_ms   = int((time.time() - t_start) * 1000)
+
+        # Determine reply_type label for logging
+        if match_found:
+            if has_buy:
+                if broker_count > 0 and project_count > 0:
+                    reply_type = "buy_match_both"
+                elif broker_count > 0:
+                    reply_type = "buy_match_broker_only"
+                else:
+                    reply_type = "buy_match_project_only"
+            else:
+                reply_type = "sell_match_found"
+        else:
+            reply_type = "no_match_buy" if has_buy else "no_match_sell"
+
+        print(f"  [MATCH {rid}] broker={broker_count} project={project_count}")
+        print(f"  [REPLY {rid}] type={reply_type} | to={phone_number} | {duration_ms}ms\n")
+
+        log_event("ingest_request", "info", "api",
+            f"WA ingest OK | {reply_type} | {duration_ms}ms",
+            {
+                "msg_id":          message_id,
+                "phone":           phone_number,
+                "listings_parsed": len(listings),
+                "inserted":        len(inserted_ids),
+                "duplicates":      dupes,
+                "match_found":     match_found,
+                "broker_matches":  broker_count,
+                "project_matches": project_count,
+                "reply_type":      reply_type,
+                "duration_ms":     duration_ms,
+                "parsed_from_image": parsed_from_image,
+                "has_text":        has_text_flag,
+                "has_file":        has_file_flag,
+            },
+        )
+
         return _serialize({
             WA_FIELD_MESSAGE_ID: message_id,
             WA_FIELD_PHONE_NUMBER: phone_number,
@@ -828,7 +966,13 @@ async def ingest_whatsapp(
         })
 
     except Exception as e:
-        print(f"[API] WhatsApp ingest failed: {e}")
+        duration_ms = int((time.time() - t_start) * 1000)
+        print(f"  [ERROR {rid}] WA ingest exception: {e}")
+        log_api_error("/ingest/whatsapp", e, {
+            "msg_id":      message_id,
+            "phone":       phone_number,
+            "duration_ms": duration_ms,
+        })
         return _serialize({
             WA_FIELD_MESSAGE_ID: message_id,
             WA_FIELD_PHONE_NUMBER: phone_number,

@@ -24,20 +24,34 @@ from core.config import (
 )
 from ingestion import project_importer
 
+try:
+    from core.logger import log_event as _log_db_event
+    _LOG_DB_AVAILABLE = True
+except Exception:
+    _LOG_DB_AVAILABLE = False
+    _log_db_event = None
+
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
-def _log(message: str) -> None:
+def _log(message: str, db_event: bool = False, level: str = "info", details: dict | None = None) -> None:
+    """
+    Print to terminal and write to pipeline_watcher.log.
+    If db_event=True, also write to MongoDB system_logs.
+    """
     timestamp = datetime.now().isoformat(timespec="seconds")
     line = f"{timestamp} {message}"
     print(line)
-    log_path = Path(PIPELINE_WATCHER_LOG)
-    # In production we suppress verbose pipeline tracing to reduce disk noise
     if not PRODUCTION_MODE:
+        log_path = Path(PIPELINE_WATCHER_LOG)
         log_path.parent.mkdir(parents=True, exist_ok=True)
         with log_path.open("a", encoding="utf-8") as file:
             file.write(line + "\n")
-
+    if db_event and _LOG_DB_AVAILABLE:
+        try:
+            _log_db_event("pipeline_event", level, "pipeline_watcher", message, details or {})
+        except Exception:
+            pass
 
 def _log_output(prefix: str, text: str) -> None:
     if not text:
@@ -118,20 +132,23 @@ def _run_project_pipeline(state: dict) -> None:
         _log("[Pipeline] Projects master unchanged; skipping.")
         return
 
-    _log("[Pipeline] Projects master changed; starting import.")
+    _log("[Pipeline] Projects master changed; starting import.", db_event=True, level="info",
+         details={"file": PROJECTS_MASTER_EXCEL, "pipeline": "projects"})
     buffer = io.StringIO()
     try:
         with redirect_stdout(buffer), redirect_stderr(buffer):
             result = project_importer.run_import(start_row=3, excel_path=PROJECTS_MASTER_EXCEL)
     except Exception as exc:
-        _log(f"[Pipeline] Projects import failed: {exc}")
+        _log(f"[Pipeline] Projects import failed: {exc}", db_event=True, level="error",
+            details={"error": str(exc), "pipeline": "projects"})
         _log_output("[Pipeline][project_importer] ", buffer.getvalue())
         return
 
     _log_output("[Pipeline][project_importer] ", buffer.getvalue())
     inserted = int(result.get("inserted", 0)) if isinstance(result, dict) else 0
     skipped = int(result.get("skipped", 0)) if isinstance(result, dict) else 0
-    _log(f"[Pipeline] Projects import complete. {inserted} inserted, {skipped} skipped.")
+    _log(f"[Pipeline] Projects import complete. {inserted} inserted, {skipped} skipped.", db_event=True, level="info",
+         details={"inserted": inserted, "skipped": skipped, "pipeline": "projects"})
 
     state["projects_master_mtime"] = projects_mtime
     _save_state(state)
@@ -147,7 +164,8 @@ def _run_location_pipeline(state: dict) -> None:
         _log("[Pipeline] Location master unchanged; skipping.")
         return
 
-    _log("[Pipeline] Location master changed; starting pipeline.")
+    _log("[Pipeline] Location master changed; starting pipeline.", db_event=True, level="info",
+         details={"file": LOCATION_MASTER_EXCEL, "pipeline": "location"})
 
     steps = [
         ([sys.executable, "tools/excel_processor.py", "--start-row", "2"], "excel_processor"),
@@ -164,13 +182,13 @@ def _run_location_pipeline(state: dict) -> None:
 
     for args, label in steps:
         if not _run_subprocess(args, label):
-            _log(f"[Pipeline] Location pipeline stopped at {label}.")
+            # On step failure:
+            _log(f"[Pipeline] Location pipeline stopped at {label}.", db_event=True, level="error",
+                details={"failed_step": label, "pipeline": "location"})
             return
 
-    _log(
-        "[Pipeline] Location pipeline complete. Review raw_aliases.csv if needed, "
-        "then re-run excel_to_locations.py for any manual corrections."
-    )
+    _log("[Pipeline] Location pipeline complete.", db_event=True, level="info",
+         details={"pipeline": "location"})
 
     state["location_master_mtime"] = location_mtime
     _save_state(state)

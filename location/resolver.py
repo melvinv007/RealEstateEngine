@@ -32,6 +32,8 @@ from rapidfuzz import fuzz, process
 from core.config import GEMINI_API_KEY, PRODUCTION_MODE
 from location.location_tree import build_or_load_tree, normalize_key, split_phase
 
+from core.logger import log_event as _log_event
+
 MIN_CONFIDENCE = 0.65
 HIGH_CONFIDENCE = 0.82
 AMBIGUITY_BAND = 0.08
@@ -327,7 +329,21 @@ def _hierarchy_validation(
                 f"{_timestamp()}\t{location_raw}\t{community_candidate.canonical}"
                 f"\t{parent}\t{sub_candidate.canonical}"
             )
-            _append_log(HINT_MISMATCH_LOG, message)
+            try:
+                _log_event("location_mismatch", "warning", "resolver",
+                    f"Hint hierarchy mismatch: {community_candidate.canonical} ≠ parent({sub_candidate.canonical})={parent}",
+                    {
+                        "location_raw":          location_raw,
+                        "hint_community":        community_candidate.canonical,
+                        "subcommunity":          sub_candidate.canonical,
+                        "actual_parent":         parent,
+                        "community_conf_before": round(community_candidate.confidence + 0.10, 4),
+                        "community_conf_after":  round(community_candidate.confidence, 4),
+                    })
+            except Exception:
+                pass
+            if not PRODUCTION_MODE:
+                _append_log(HINT_MISMATCH_LOG, message)
 
 
 def _depth_extension(
@@ -486,7 +502,23 @@ def _gemini_arbitrate(location_raw: str, location_hint: dict[str, Any], candidat
         f"{_timestamp()}\t{location_raw}\t{hint_text or 'none'}"
         f"\t{text}\t{[c.canonical for c in top_candidates]}"
     )
-    _append_log(GEMINI_ARBITRATION_LOG, log_message)
+    
+    try:
+        _log_event("gemini_arbitration", "info", "resolver",
+            f"Gemini arbitrated '{location_raw}' → {text or 'UNKNOWN'}",
+            {
+                "location_raw":  location_raw,
+                "hint":          hint_text or "none",
+                "gemini_choice": text,
+                "selected":      selected.canonical if selected else None,
+                "candidates":    [{"canonical": c.canonical, "level": c.level,
+                                   "confidence": round(c.confidence, 4)}
+                                  for c in top_candidates],
+            })
+    except Exception:
+        pass
+    if not PRODUCTION_MODE:
+        _append_log(GEMINI_ARBITRATION_LOG, log_message)
 
     return selected
 
@@ -690,7 +722,25 @@ def resolve_location(location_raw: str, location_hint: dict[str, Any] | None = N
         result = _assemble_result(final_candidate, resolution_path)
     else:
         result = _assemble_result(None, "unresolved")
-        _log_unresolved(location_raw, hint, candidate_pool)
+        
+        try:
+            top = sorted(candidate_pool, key=_candidate_sort_key, reverse=True)[:5]
+            _log_event("location_unresolved", "warning", "resolver",
+                f"Location unresolved: '{location_raw}'",
+                {
+                    "location_raw":  location_raw,
+                    "location_hint": hint,
+                    "top_candidates": [
+                        {"canonical": c.canonical, "level": c.level,
+                         "confidence": round(c.confidence, 4),
+                         "matched_via": c.matched_via}
+                        for c in top
+                    ],
+                })
+        except Exception:
+            pass
+        if not PRODUCTION_MODE:
+            _log_unresolved(location_raw, hint, candidate_pool)
 
     if raw_norm:
         cache[raw_norm] = result

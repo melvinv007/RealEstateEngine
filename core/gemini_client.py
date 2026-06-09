@@ -69,7 +69,7 @@ def _timestamp() -> str:
     return datetime.now().isoformat(timespec="seconds")
 
 
-def _log_call(model_name: str, success: bool, latency_s: float, note: str = "") -> None:
+def _old_log_call(model_name: str, success: bool, latency_s: float, note: str = "") -> None:
     # In production we suppress writes to gemini_calls.log to reduce disk noise
     if PRODUCTION_MODE:
         return
@@ -80,6 +80,52 @@ def _log_call(model_name: str, success: bool, latency_s: float, note: str = "") 
     with path.open("a", encoding="utf-8") as f:
         f.write(line + "\n")
 
+def _log_call(model_name: str, success: bool, latency_s: float, note: str = "", prompt_snippet: str = "") -> None:
+    """Log Gemini/Groq/OpenRouter call result to MongoDB and optionally to file."""
+    # File log (dev only, keep for startup debugging before DB is up)
+    if not PRODUCTION_MODE:
+        path = Path(_CALL_LOG)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        status = "OK" if success else "FAIL"
+        line = f"{_timestamp()}\t{model_name}\t{status}\t{latency_s:.2f}s\t{note}"
+        with path.open("a", encoding="utf-8") as f:
+            f.write(line + "\n")
+
+    # MongoDB log
+    if not success and note:
+        try:
+            from core.logger import log_gemini_error, log_gemini_success
+            # Parse provider from model_name (e.g. "groq/llama3-70b" → "groq")
+            if "/" in model_name:
+                provider, model = model_name.split("/", 1)
+            else:
+                provider, model = "gemini", model_name
+            attempt = 1
+            import re as _re
+            m = _re.search(r"attempt(\d+)", note)
+            if m:
+                attempt = int(m.group(1))
+            log_gemini_error(
+                model=model,
+                provider=provider,
+                error_type=note.split("_attempt")[0],
+                error_message=note,
+                attempt=attempt,
+                latency_s=latency_s,
+                prompt_snippet=prompt_snippet,
+            )
+        except Exception:
+            pass
+    elif success:
+        try:
+            from core.logger import log_gemini_success
+            if "/" in model_name:
+                provider, model = model_name.split("/", 1)
+            else:
+                provider, model = "gemini", model_name
+            log_gemini_success(model=model, provider=provider, latency_s=latency_s)
+        except Exception:
+            pass
 
 def _pprint(msg: str, level: str = "INFO") -> None:
     """
@@ -323,7 +369,7 @@ def _call_gemini_models(
                 )
 
                 latency = time.time() - t_start
-                _log_call(model_name, True, latency)
+                _log_call(f"gemini/{model_name}", True, latency, prompt_snippet=str(prompt)[:200])
                 return response
 
             except Exception as e:
@@ -333,28 +379,28 @@ def _call_gemini_models(
 
                 if category == "daily_quota":
                     _pprint(f"[Gemini] {model_name} daily quota exhausted — blacklisting for this session.", level="WARN")
-                    _log_call(model_name, False, latency, "daily_quota")
+                    _log_call(f"gemini/{model_name}", False, latency, "daily_quota", prompt_snippet=str(prompt)[:200])
                     _daily_quota_blacklist.add(model_name)
                     last_error = e
                     break
 
                 elif category in ("bad_model", "auth_err"):
                     _pprint(f"[Gemini] {model_name} skipped — {category}: {err[:100]}", level="WARN")
-                    _log_call(model_name, False, latency, category)
+                    _log_call(f"gemini/{model_name}", False, latency, category, prompt_snippet=str(prompt)[:200])
                     last_error = e
                     break
 
                 elif category in ("rate_limit", "server_err"):
-                    _pprint(f"[Gemini] {model_name} attempt {attempt}/{RETRY_MAX} ({category})", level="DEBUG")
-                    _log_call(model_name, False, latency, f"{category}_attempt{attempt}")
+                    _pprint(f"[Gemini] {model_name} attempt {attempt}/{RETRY_MAX} ({category}): {err[:120]}", level="WARN")
+                    _log_call(f"gemini/{model_name}", False, latency, f"{category}_attempt{attempt}", prompt_snippet=str(prompt)[:200])
                     last_error = e
                     if attempt < RETRY_MAX:
                         wait = _extract_retry_delay(err)
-                        _pprint(f"[Gemini] Waiting {wait:.0f}s before retry...", level="DEBUG")
+                        _pprint(f"[Gemini] Waiting {wait:.0f}s before retry...", level="WARN")
                         time.sleep(wait)
 
                 else:
-                    _log_call(model_name, False, latency, f"unknown: {err[:80]}")
+                    _log_call(f"gemini/{model_name}", False, latency, f"unknown: {err[:80]}", prompt_snippet=str(prompt)[:200])
                     raise
 
         else:
@@ -436,7 +482,7 @@ def _call_groq_models(
                         continue
                     text = validated
 
-                _log_call(f"groq/{model_name}", True, latency)
+                _log_call(f"groq/{model_name}", True, latency, prompt_snippet=str(prompt)[:200])
                 return _GroqResponse(text)
 
             except Exception as e:
@@ -446,27 +492,28 @@ def _call_groq_models(
 
                 if category == "daily_quota":
                     _pprint(f"[Groq] {model_name} daily quota exhausted — blacklisting for this session.", level="WARN")
-                    _log_call(f"groq/{model_name}", False, latency, "daily_quota")
+                    _log_call(f"groq/{model_name}", False, latency, "daily_quota", prompt_snippet=str(prompt)[:200])
                     _daily_quota_blacklist.add(model_name)
                     last_error = e
                     break
 
                 elif category in ("bad_model", "auth_err"):
                     _pprint(f"[Groq] {model_name} skipped — {category}: {err[:100]}", level="WARN")
-                    _log_call(f"groq/{model_name}", False, latency, category)
+                    _log_call(f"groq/{model_name}", False, latency, category, prompt_snippet=str(prompt)[:200])
                     last_error = e
                     break
 
                 elif category in ("rate_limit", "server_err"):
-                    _pprint(f"[Groq] {model_name} attempt {attempt}/{RETRY_MAX} ({category})", level="DEBUG")
-                    _log_call(f"groq/{model_name}", False, latency, f"{category}_attempt{attempt}")
+                    _pprint(f"[Groq] {model_name} attempt {attempt}/{RETRY_MAX} ({category}): {err[:120]}", level="WARN")
+                    _log_call(f"groq/{model_name}", False, latency, f"{category}_attempt{attempt}", prompt_snippet=str(prompt)[:200])
                     last_error = e
                     if attempt < RETRY_MAX:
-                        _pprint(f"[Groq] Waiting {RETRY_WAIT_DEFAULT:.0f}s before retry...", level="DEBUG")
-                        time.sleep(RETRY_WAIT_DEFAULT)
+                        wait = _extract_retry_delay(err)
+                        _pprint(f"[Groq] Waiting {wait:.0f}s before retry...", level="WARN")
+                        time.sleep(wait)
 
                 else:
-                    _log_call(f"groq/{model_name}", False, latency, f"unknown: {err[:80]}")
+                    _log_call(f"groq/{model_name}", False, latency, f"unknown: {err[:80]}", prompt_snippet=str(prompt)[:200])
                     raise
 
         else:
@@ -568,11 +615,7 @@ def _call_openrouter_models(
                         continue
                     text = validated
 
-                _log_call(
-                    f"openrouter/{model_name}",
-                    True,
-                    latency,
-                )
+                _log_call(f"openrouter/{model_name}", True, latency, prompt_snippet=str(prompt)[:200])
 
                 return _OpenRouterResponse(text)
 
@@ -585,20 +628,24 @@ def _call_openrouter_models(
 
                 if category == "daily_quota":
                     _pprint(f"[OpenRouter] {model_name} quota exhausted.", level="WARN")
-                    _daily_quota_blacklist.add(f"openrouter/{model_name}")
-                    _log_call(f"openrouter/{model_name}", False, latency, "daily_quota")
+                    _log_call(f"openrouter/{model_name}", False, latency, "daily_quota", prompt_snippet=str(prompt)[:200])
+                    _daily_quota_blacklist.add(model_name)
                     break
 
                 elif category in ("bad_model", "auth_err"):
-                    _pprint(f"[OpenRouter] {model_name} skipped — {category}", level="WARN")
-                    _log_call(f"openrouter/{model_name}", False, latency, category)
+                    _pprint(f"[OpenRouter] {model_name} skipped — {category}: {err[:100]}", level="WARN")
+                    _log_call(f"openrouter/{model_name}", False, latency, category, prompt_snippet=str(prompt)[:200])
+                    last_error = e
                     break
 
                 elif category in ("rate_limit", "server_err"):
-                    _pprint(f"[OpenRouter] {model_name} attempt {attempt}/{RETRY_MAX} ({category})", level="DEBUG")
-                    _log_call(f"openrouter/{model_name}", False, latency, f"{category}_attempt{attempt}")
+                    _pprint(f"[OpenRouter] {model_name} attempt {attempt}/{RETRY_MAX} ({category}): {err[:120]}", level="DEBUG")
+                    _log_call(f"openrouter/{model_name}", False, latency, f"{category}_attempt{attempt}", prompt_snippet=str(prompt)[:200])
+                    last_error = e
                     if attempt < RETRY_MAX:
-                        time.sleep(RETRY_WAIT_DEFAULT)
+                        wait = _extract_retry_delay(err)
+                        _pprint(f"[OpenRouter] Waiting {wait:.0f}s before retry...", level="WARN")
+                        time.sleep(wait)
 
                 else:
                     _log_call(
@@ -606,6 +653,7 @@ def _call_openrouter_models(
                         False,
                         latency,
                         f"unknown: {err[:80]}",
+                        prompt_snippet=str(prompt)[:200]
                     )
                     raise
 

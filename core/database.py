@@ -18,6 +18,7 @@ from core.config import (
     COLLECTION_PROJECTS, COLLECTION_PROJECT_MATCHES,
     DUPLICATE_DETECTION_BUY, DUPLICATE_DETECTION_SELL, DUPLICATE_PRICE_TOLERANCE,
 )
+from core.logger import COLLECTION_LOGS
 
 _client = None
 _db = None
@@ -57,6 +58,10 @@ def _ensure_indexes(db):
 
     project_matches = db[COLLECTION_PROJECT_MATCHES]
     project_matches.create_index([("buy_id", ASCENDING), ("project_id", ASCENDING)], unique=True)
+
+    # system_logs TTL + query indexes — created via logger module
+    from core.logger import _ensure_log_indexes
+    _ensure_log_indexes(db[COLLECTION_LOGS])
 
 
 def _collection(name: str):
@@ -135,7 +140,21 @@ def _is_duplicate(listing: dict, coll_name: str, enabled: bool) -> dict | None:
     fp = _build_fingerprint(listing)
     exists = _collection(coll_name).find_one({"fingerprint": fp})
     if exists:
-        print(f"[DB] Duplicate detected — skipping listing: {listing.get('location')} {listing.get('bhk')}BR {listing.get('price_aed')}")
+        msg = f"[DB] Duplicate: {listing.get('location')} {listing.get('bhk')}BR {listing.get('price_aed')}"
+        print(msg)
+        try:
+            from core.logger import log_event
+            log_event("duplicate_detected", "info", "database", msg, {
+                "fingerprint":   fp,
+                "existing_id":   str(exists.get("_id")),
+                "transaction":   listing.get("transaction"),
+                "location":      listing.get("location"),
+                "price_aed":     listing.get("price_aed"),
+                "bhk":           listing.get("bhk"),
+                "property_type": listing.get("property_type"),
+            })
+        except Exception:
+            pass
         return exists
     return None
 
@@ -305,6 +324,14 @@ def record_match(buy_id: ObjectId, sell_id: ObjectId, score: float, reasons: lis
     }
 
     match_result = db[COLLECTION_MATCHES].insert_one(match_doc)
+    try:
+        from core.logger import log_event
+        log_event("match_recorded", "info", "database",
+            f"Match recorded: score={score:.2f} buy={buy_id} sell={sell_id}",
+            {"buy_id": str(buy_id), "sell_id": str(sell_id),
+             "score": round(score, 4), "reasons": reasons})
+    except Exception:
+        pass
     match_id = match_result.inserted_id
 
     if delete_after:
@@ -461,4 +488,5 @@ def clear_all():
     db[COLLECTION_PROJECTS].drop()
     db[COLLECTION_PROJECT_MATCHES].drop()
     db["raw_messages"].drop()
+    db[COLLECTION_LOGS].drop()
     print("[DB] All collections cleared.")
