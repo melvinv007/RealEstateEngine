@@ -388,7 +388,74 @@ def _find_existing_listing_by_fingerprint(listing: dict) -> dict | None:
     fingerprint = listing.get("fingerprint") or _build_fingerprint(listing)
     return get_db()[coll_name].find_one({"fingerprint": fingerprint})
 
+def _attach_source_message_metadata(
+    listings: list[dict],
+    *,
+    full_raw_message: str | None = None,
+) -> None:
+    """
+    Attach source-message metadata before insert_listing().
 
+    This lets database.py detect exact duplicate WhatsApp/raw messages.
+    For multi-listing messages, source_listing_index prevents every listing
+    from mapping to the first old listing.
+    """
+    total = len(listings)
+
+    for index, listing in enumerate(listings):
+        if not isinstance(listing, dict):
+            continue
+
+        if full_raw_message:
+            listing["full_raw_message"] = full_raw_message
+
+        listing["source_listing_index"] = index
+        listing["source_listing_count"] = total
+
+
+def _insert_listings_with_duplicate_tracking(listings: list[dict]) -> tuple[list[ObjectId], int, list[dict]]:
+    """
+    Insert listings and collect duplicate details for API response.
+    """
+    inserted_ids: list[ObjectId] = []
+    dupes = 0
+    duplicate_details: list[dict] = []
+
+    for listing in listings:
+        inserted_id = insert_listing(listing)
+
+        if inserted_id:
+            listing["_id"] = inserted_id
+
+            if listing.pop("_duplicate", False):
+                dupes += 1
+                info = listing.get("_duplicate_info")
+                if isinstance(info, dict):
+                    duplicate_details.append(info)
+            else:
+                inserted_ids.append(inserted_id)
+        else:
+            dupes += 1
+
+    return inserted_ids, dupes, duplicate_details
+
+
+def _fetch_listing_by_id(transaction: str, listing_id: object) -> dict | None:
+    """
+    Fetch DB version of a listing by _id.
+
+    Important for fuzzy duplicates, because fingerprint may not match anymore.
+    """
+    if listing_id is None:
+        return None
+
+    try:
+        oid = ObjectId(listing_id) if isinstance(listing_id, str) else listing_id
+    except Exception:
+        return None
+
+    coll_name = COLLECTION_BUY if transaction == "buy" else COLLECTION_SELL
+    return get_db()[coll_name].find_one({"_id": oid})
 
 @app.get("/")
 async def root():
@@ -447,18 +514,8 @@ async def ingest_text(payload: TextIngestRequest):
                 f"level={res.get('matched_level')} | "
                 f"conf={res.get('confidence')} | "
                 f"path={res.get('resolution_path')}")
-    inserted_ids: list[ObjectId] = []
-    dupes = 0
-    for listing in listings:
-        inserted_id = insert_listing(listing)
-        if inserted_id:
-            listing["_id"] = inserted_id
-            if listing.pop("_duplicate", False):
-                dupes += 1
-            else:
-                inserted_ids.append(inserted_id)
-        else:
-            dupes += 1
+    _attach_source_message_metadata(listings, full_raw_message=payload.message)
+    inserted_ids, dupes, duplicate_details = _insert_listings_with_duplicate_tracking(listings)
     
     # ── DB trace ──────────────────────────────────────────────────────────
     print(f"  [DB {rid}] inserted={len(inserted_ids)} | duplicates={dupes}")
@@ -519,7 +576,13 @@ async def ingest_text(payload: TextIngestRequest):
         for listing in listings:
             if listing.get("transaction") != "sell":
                 continue
-            sell_doc = _find_existing_listing_by_fingerprint(listing) or listing
+
+            sell_doc = (
+                _fetch_listing_by_id("sell", listing.get("_id"))
+                or _find_existing_listing_by_fingerprint(listing)
+                or listing
+            )
+
             sell_matches.extend(run_matching_for_sell(sell_doc))
 
         for sm in sell_matches:
@@ -540,6 +603,8 @@ async def ingest_text(payload: TextIngestRequest):
         WA_TIMESTAMP_FIELD: None,
         "inserted": len(inserted_ids),
         "duplicates_skipped": dupes,
+        "duplicate_detected": dupes > 0,
+        "duplicate_details": duplicate_details,
         "listings": listings,
         "match_found": match_found,
         "reply_message": reply_message,
@@ -609,18 +674,9 @@ async def ingest_image(file: UploadFile = File(...)):
                   f"conf={res.get('confidence')} | "
                   f"path={res.get('resolution_path')}")
 
-        inserted_ids: list[ObjectId] = []
-        dupes = 0
-        for listing in listings:
-            inserted_id = insert_listing(listing)
-            if inserted_id:
-                listing["_id"] = inserted_id
-                if listing.pop("_duplicate", False):
-                    dupes += 1
-                else:
-                    inserted_ids.append(inserted_id)
-            else:
-                dupes += 1
+        _attach_source_message_metadata(listings, full_raw_message=None)
+        inserted_ids, dupes, duplicate_details = _insert_listings_with_duplicate_tracking(listings)
+
             
         # ── DB trace ──────────────────────────────────────────────────────────
         print(f"  [DB {rid}] inserted={len(inserted_ids)} | duplicates={dupes}")
@@ -681,7 +737,13 @@ async def ingest_image(file: UploadFile = File(...)):
             for listing in listings:
                 if listing.get("transaction") != "sell":
                     continue
-                sell_doc = _find_existing_listing_by_fingerprint(listing) or listing
+
+                sell_doc = (
+                    _fetch_listing_by_id("sell", listing.get("_id"))
+                    or _find_existing_listing_by_fingerprint(listing)
+                    or listing
+                )
+
                 sell_matches.extend(run_matching_for_sell(sell_doc))
 
             for sm in sell_matches:
@@ -702,6 +764,8 @@ async def ingest_image(file: UploadFile = File(...)):
             WA_TIMESTAMP_FIELD: None,
             "inserted": len(inserted_ids),
             "duplicates_skipped": dupes,
+            "duplicate_detected": dupes > 0,
+            "duplicate_details": duplicate_details,
             "listings": listings,
             "match_found": match_found,
             "reply_message": reply_message,
@@ -830,27 +894,22 @@ async def ingest_whatsapp(
                   f"conf={res.get('confidence')} | "
                   f"path={res.get('resolution_path')}")
 
+        _attach_source_message_metadata(
+            listings,
+            full_raw_message=raw_message_text if has_message else None,
+        )
+
         for listing in listings:
             if not isinstance(listing, dict):
                 continue
+
             listing[WA_STORED_MESSAGE_ID] = message_id
             listing[WA_STORED_PHONE_NUMBER] = phone_number
             listing[WA_STORED_RECEIVED_AT] = received_at
             listing["wa_sent_by"] = sent_by
             listing["customer_message"] = True
 
-        inserted_ids: list[ObjectId] = []
-        dupes = 0
-        for listing in listings:
-            inserted_id = insert_listing(listing)
-            if inserted_id:
-                listing["_id"] = inserted_id
-                if listing.pop("_duplicate", False):
-                    dupes += 1
-                else:
-                    inserted_ids.append(inserted_id)
-            else:
-                dupes += 1
+        inserted_ids, dupes, duplicate_details = _insert_listings_with_duplicate_tracking(listings)
             
         # ── DB trace ──────────────────────────────────────────────────────────
         print(f"  [DB {rid}] inserted={len(inserted_ids)} | duplicates={dupes}")
@@ -912,7 +971,13 @@ async def ingest_whatsapp(
             for listing in listings:
                 if listing.get("transaction") != "sell":
                     continue
-                sell_doc = _find_existing_listing_by_fingerprint(listing) or listing
+
+                sell_doc = (
+                    _fetch_listing_by_id("sell", listing.get("_id"))
+                    or _find_existing_listing_by_fingerprint(listing)
+                    or listing
+                )
+
                 sell_matches.extend(run_matching_for_sell(sell_doc))
 
             for sm in sell_matches:
@@ -956,6 +1021,7 @@ async def ingest_whatsapp(
                 "listings_parsed": len(listings),
                 "inserted":        len(inserted_ids),
                 "duplicates":      dupes,
+                "duplicate_details": duplicate_details,
                 "match_found":     match_found,
                 "broker_matches":  broker_count,
                 "project_matches": project_count,
@@ -974,6 +1040,8 @@ async def ingest_whatsapp(
             "sent_by": sent_by,
             "inserted": len(inserted_ids),
             "duplicates_skipped": dupes,
+            "duplicate_detected": dupes > 0,
+            "duplicate_details": duplicate_details,
             "listings_parsed": len(listings),
             "match_found": match_found,
             "reply_message": reply_message,

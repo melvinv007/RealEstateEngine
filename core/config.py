@@ -167,7 +167,26 @@ FUZZY_LOCATION_THRESHOLD = 85       # 0–100 similarity score
 # ── Duplicate Detection ───────────────────────────────────────────────────────
 DUPLICATE_DETECTION_BUY = True
 DUPLICATE_DETECTION_SELL = True
-DUPLICATE_PRICE_TOLERANCE = 0.05    # ±5% for fingerprint price comparison (tighter than match)
+
+# ±5% price tolerance for duplicate detection.
+# Example: 3.00M and 3.12M are duplicate-price-compatible, 3.00M and 3.40M are not.
+DUPLICATE_PRICE_TOLERANCE = 0.10
+
+# ±10% size tolerance for duplicate detection.
+# Used for sqft and plot_sqft duplicate checks.
+DUPLICATE_SIZE_TOLERANCE = 0.10
+
+# Raw text fuzzy similarity threshold.
+# 92 is strict enough to catch reposts while avoiding unrelated listings.
+DUPLICATE_RAW_TEXT_FUZZY_THRESHOLD = 92
+
+# Minimum number of non-null matched fields required.
+# Important rule: at least one important field must also match.
+DUPLICATE_MIN_FIELD_MATCHES = 3
+
+# Max candidate docs checked per duplicate query.
+# Keeps duplicate detection fast even when DB grows.
+DUPLICATE_CANDIDATE_LIMIT = 80
 
  
 # ── Behavior ──────────────────────────────────────────────────────────────────
