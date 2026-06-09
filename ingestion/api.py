@@ -742,6 +742,7 @@ async def ingest_whatsapp(
     try:
         raw_message_text = (raw_message or "").strip()
         has_message = bool(raw_message_text)
+        has_file = file is not None
         if has_message and not has_file and not is_real_estate_message(raw_message_text):
             return {
                 WA_FIELD_MESSAGE_ID: message_id,
@@ -758,7 +759,6 @@ async def ingest_whatsapp(
                 "reply_phone_number": None,
                 "matches": [],
             }
-        has_file = file is not None
 
         if not has_message and not has_file:
             return JSONResponse(status_code=400, content={"detail": "raw_message or file is required"})

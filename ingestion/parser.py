@@ -452,7 +452,7 @@ def old_parse_text_message(message: str) -> list[dict]:
 
 # Buy-signal keywords — if Gemini returns "sell" but message contains these, flip to buy
 _BUY_SIGNALS = [
-    "looking for", "requirement", "wanted", "budget", "pre-approved",
+    "requirement", "wanted", "budget", "pre-approved",
     "investor looking", "ready to close", "mortgage buyer",
     "client looking", "client need", "client require", "need apartment",
     "need villa", "need property", "seeking",
@@ -460,10 +460,10 @@ _BUY_SIGNALS = [
 
 _SELL_SIGNALS = [
     "for sale", "selling", "asking", "distress deal", "op + dld",
-    "open for serious offers", "bua", "plot", "seller", "available",
+    "open for serious offers", "seller", "vacant", "ready to move", "handover", "resale",
 ]
 
-def _should_flip_sell_to_buy(listing: dict, full_message: str) -> tuple[bool, list[str]]:
+def old_should_flip_sell_to_buy(listing: dict, full_message: str) -> tuple[bool, list[str]]:
     # Prefer per-listing raw_text, because one WhatsApp message can contain many listings.
     text = (listing.get("raw_text") or full_message or "").lower()
 
@@ -478,6 +478,17 @@ def _should_flip_sell_to_buy(listing: dict, full_message: str) -> tuple[bool, li
     if found_buy_signals:
         return True, found_buy_signals
 
+    return False, []
+
+def _should_flip_sell_to_buy(listing: dict, full_message: str) -> tuple[bool, list[str]]:
+    """
+    Disabled for now.
+
+    Reason:
+    Keyword-based sell→buy flipping is risky because broker messages like
+    "cash buyers required", "wanted buyer", "ready to move", etc. can still be
+    seller-side listings.
+    """
     return False, []
 
 def parse_text_message(message: str) -> list[dict]:
