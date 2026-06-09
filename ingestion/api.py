@@ -48,6 +48,9 @@ from core.database import (
     store_raw_message,
     update_listing_tag,
     backfill_new_fields,
+    get_matches_for_buy_ids,
+    get_matches_for_sell_ids,
+    get_project_matches_for_buy_ids,
 )
 from core.pipeline_watcher import check_and_run_pipelines
 from core.matcher import run_project_matching, run_matching_for_sell, run_matching_for_buy
@@ -456,6 +459,237 @@ def _fetch_listing_by_id(transaction: str, listing_id: object) -> dict | None:
 
     coll_name = COLLECTION_BUY if transaction == "buy" else COLLECTION_SELL
     return get_db()[coll_name].find_one({"_id": oid})
+
+def _as_object_id(value: object) -> ObjectId | None:
+    """Convert string/ObjectId into ObjectId safely."""
+    if isinstance(value, ObjectId):
+        return value
+
+    if isinstance(value, str):
+        try:
+            return ObjectId(value)
+        except Exception:
+            return None
+
+    return None
+
+
+def _request_listing_ids(listings: list[dict], transaction: str) -> list[ObjectId]:
+    """
+    Collect listing IDs from the current request.
+
+    Works for both:
+    - new listings
+    - duplicate listings where insert_listing() returned existing _id
+    """
+    ids: list[ObjectId] = []
+
+    for listing in listings:
+        if not isinstance(listing, dict):
+            continue
+
+        if (listing.get("transaction") or "").lower() != transaction:
+            continue
+
+        oid = _as_object_id(listing.get("_id"))
+        if oid is not None:
+            ids.append(oid)
+
+    # remove duplicates while preserving order
+    seen = set()
+    unique_ids: list[ObjectId] = []
+    for oid in ids:
+        if oid in seen:
+            continue
+        seen.add(oid)
+        unique_ids.append(oid)
+
+    return unique_ids
+
+
+def _format_existing_broker_sell_matches(match_docs: list[dict]) -> list[dict]:
+    """
+    Convert stored match documents into broker_sell response objects.
+
+    Used when current request is a BUY requirement.
+    """
+    formatted: list[dict] = []
+
+    for doc in match_docs:
+        sell_snapshot = doc.get("sell_snapshot") or {}
+        sell_broker = sell_snapshot.get("broker") or {}
+
+        formatted.append({
+            "match_type": "broker_sell",
+            "buy_id": doc.get("buy_id"),
+            "sell_id": doc.get("sell_id"),
+            "match_id": doc.get("_id"),
+            "score": doc.get("match_score") or doc.get("score"),
+            "reasons": doc.get("match_reasons") or doc.get("reasons") or [],
+            "skipped": doc.get("skipped") or [],
+            "sell_broker": sell_broker,
+            "sell_snapshot": sell_snapshot,
+            "message_id": sell_snapshot.get("wa_message_id"),
+            "phone_number": sell_snapshot.get("wa_phone_number"),
+            "matched_listing_received_at": sell_snapshot.get("wa_received_at"),
+            "matched_listing_tag": sell_snapshot.get("tag"),
+            "matched_listing_customer_message": sell_snapshot.get("customer_message"),
+            "historical_match": True,
+        })
+
+    return formatted
+
+
+def _format_existing_broker_buy_matches(match_docs: list[dict]) -> list[dict]:
+    """
+    Convert stored match documents into broker_buy response objects.
+
+    Used when current request is a SELL listing.
+    """
+    formatted: list[dict] = []
+
+    for doc in match_docs:
+        buy_snapshot = doc.get("buy_snapshot") or {}
+        buy_broker = buy_snapshot.get("broker") or {}
+
+        formatted.append({
+            "match_type": "broker_buy",
+            "buy_id": doc.get("buy_id"),
+            "sell_id": doc.get("sell_id"),
+            "match_id": doc.get("_id"),
+            "score": doc.get("match_score") or doc.get("score"),
+            "reasons": doc.get("match_reasons") or doc.get("reasons") or [],
+            "skipped": doc.get("skipped") or [],
+            "buy_broker": buy_broker,
+            "buy_snapshot": buy_snapshot,
+            "message_id": buy_snapshot.get("wa_message_id"),
+            "phone_number": buy_snapshot.get("wa_phone_number"),
+            "matched_listing_received_at": buy_snapshot.get("wa_received_at"),
+            "historical_match": True,
+        })
+
+    return formatted
+
+
+def _format_existing_project_match_docs(match_docs: list[dict]) -> list[dict]:
+    """
+    Convert stored project_match documents into project response objects.
+    """
+    formatted: list[dict] = []
+
+    for doc in match_docs:
+        project = doc.get("project_snapshot") or {}
+
+        formatted.append({
+            "match_type": "project",
+            "buy_id": doc.get("buy_id"),
+            "project_id": doc.get("project_id"),
+            "match_id": doc.get("_id"),
+            "score": doc.get("match_score") or doc.get("score"),
+            "reasons": doc.get("match_reasons") or doc.get("reasons") or [],
+            "project_name": (
+                project.get("project_name")
+                or project.get("ProjectName")
+                or project.get("name")
+            ),
+            "developer": (
+                project.get("developer")
+                or project.get("Developer")
+            ),
+            "area": (
+                project.get("area")
+                or project.get("AreaName")
+                or project.get("location")
+            ),
+            "starting_price": (
+                project.get("starting_price")
+                or project.get("StartingPrice")
+                or project.get("starting_price_aed")
+            ),
+            "handover": (
+                project.get("handover")
+                or project.get("Handover")
+                or project.get("handover_year")
+            ),
+            "payment_plan": (
+                project.get("payment_plan")
+                or project.get("PaymentPlan")
+            ),
+            "bedrooms_available": (
+                project.get("bedrooms_available")
+                or project.get("bhk_options")
+                or project.get("Bedrooms")
+            ),
+            "youtube_link": (
+                project.get("youtube_link")
+                or project.get("YouTubeLink")
+            ),
+            "image_link": (
+                project.get("image_link")
+                or project.get("ImageLink")
+            ),
+            "pdf_link": (
+                project.get("pdf_link")
+                or project.get("PDF")
+                or project.get("pdf")
+            ),
+            "historical_match": True,
+        })
+
+    return formatted
+
+
+def _match_key(match: dict) -> tuple:
+    """
+    Stable key used to avoid duplicate response rows.
+    """
+    match_type = match.get("match_type")
+
+    if match_type in ("broker_sell", "broker_buy"):
+        return (
+            "broker_pair",
+            str(match.get("buy_id")),
+            str(match.get("sell_id")),
+        )
+
+    if match_type == "project":
+        return (
+            "project_pair",
+            str(match.get("buy_id")),
+            str(match.get("project_id")),
+        )
+
+    if match.get("match_id") is not None:
+        return ("match_id", str(match.get("match_id")))
+
+    return (
+        str(match_type),
+        str(match.get("score")),
+        str(match.get("message_id")),
+    )
+
+
+def _merge_matches(*groups: list[dict]) -> list[dict]:
+    """
+    Merge fresh + historical matches without duplicate rows.
+    """
+    merged: list[dict] = []
+    seen: set[tuple] = set()
+
+    for group in groups:
+        for match in group:
+            if not isinstance(match, dict):
+                continue
+
+            key = _match_key(match)
+            if key in seen:
+                continue
+
+            seen.add(key)
+            merged.append(match)
+
+    merged.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
+    return merged
 
 @app.get("/")
 async def root():
@@ -923,53 +1157,50 @@ async def ingest_whatsapp(
 
         combined_matches: list[dict] = []
         match_found = False
-        if has_buy:
-            broker_matches: list[dict] = []
-            project_matches_combined: list[dict] = []
 
+        if has_buy:
+            request_buy_ids = _request_listing_ids(listings, "buy")
+
+            # Step 1: run matching again for this request's buyer listings.
+            # This records NEW broker matches if new sell entries came after the duplicate.
             for listing in listings:
                 if not isinstance(listing, dict):
                     continue
+
                 if (listing.get("transaction") or "").lower() != "buy":
                     continue
 
-                buy_doc = listing
-                broker_matches.extend(run_matching_for_buy(buy_doc))
+                run_matching_for_buy(listing)
 
-                buy_id = listing.get("_id")
-                if isinstance(buy_id, str):
-                    try:
-                        from bson import ObjectId as _ObjId
-                        buy_id = _ObjId(buy_id)
-                    except Exception:
-                        buy_id = None
+            # Step 2: run project matching again.
+            # This records NEW project matches if new project data became available.
+            if request_buy_ids:
+                run_project_matching()
 
-                if buy_id is not None:
-                    all_project_matches = run_project_matching()
-                    project_matches_combined.extend([
-                        m for m in all_project_matches
-                        if m.get("buy_id") == buy_id
-                    ])
+            # Step 3: fetch ALL broker/project matches now attached to these buyer IDs.
+            # This includes old matches + newly created matches.
+            broker_match_docs = get_matches_for_buy_ids(request_buy_ids)
+            project_match_docs = get_project_matches_for_buy_ids(request_buy_ids)
 
-            # Enrich broker matches with matched_listing_received_at
-            for bm in broker_matches:
-                sell_snap = bm.get("sell_snapshot") or {}
-                bm.setdefault("message_id", sell_snap.get("wa_message_id"))
-                bm.setdefault("phone_number", sell_snap.get("wa_phone_number"))
-                bm.setdefault("matched_listing_received_at", sell_snap.get("wa_received_at"))
-                bm.setdefault("matched_listing_tag", sell_snap.get("tag"))
-                bm.setdefault("matched_listing_customer_message", sell_snap.get("customer_message"))
+            broker_matches = _format_existing_broker_sell_matches(broker_match_docs)
+            project_matches = _format_existing_project_match_docs(project_match_docs)
 
-            combined_matches = broker_matches + _format_project_matches(project_matches_combined)
-            combined_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
+            combined_matches = _merge_matches(broker_matches, project_matches)
 
             match_found = bool(combined_matches)
             reply_message = _build_reply_message("buy", combined_matches)
             reply_phone_number = _best_broker_phone(combined_matches)
+
         else:
-            sell_matches: list[dict] = []
+            request_sell_ids = _request_listing_ids(listings, "sell")
+
+            # Step 1: run matching again for this request's seller listings.
+            # This records NEW buyer matches if new buy entries came after the duplicate.
             for listing in listings:
-                if listing.get("transaction") != "sell":
+                if not isinstance(listing, dict):
+                    continue
+
+                if (listing.get("transaction") or "").lower() != "sell":
                     continue
 
                 sell_doc = (
@@ -978,17 +1209,17 @@ async def ingest_whatsapp(
                     or listing
                 )
 
-                sell_matches.extend(run_matching_for_sell(sell_doc))
+                run_matching_for_sell(sell_doc)
 
-            for sm in sell_matches:
-                buy_snap = sm.get("buy_snapshot") or {}
-                sm.setdefault("message_id", buy_snap.get("wa_message_id"))
-                sm.setdefault("phone_number", buy_snap.get("wa_phone_number"))
-                sm.setdefault("matched_listing_received_at", buy_snap.get("wa_received_at"))
-            sell_matches.sort(key=lambda m: m.get("score") or 0.0, reverse=True)
-            combined_matches = sell_matches
-            match_found = bool(sell_matches)
-            reply_message = _build_reply_message("sell", sell_matches)
+            # Step 2: fetch ALL broker matches now attached to these seller IDs.
+            # This includes old matches + newly created matches.
+            broker_buy_docs = get_matches_for_sell_ids(request_sell_ids)
+            sell_matches = _format_existing_broker_buy_matches(broker_buy_docs)
+
+            combined_matches = _merge_matches(sell_matches)
+
+            match_found = bool(combined_matches)
+            reply_message = _build_reply_message("sell", combined_matches)
             reply_phone_number = phone_number
 
         # ── Match + reply trace ───────────────────────────────────────────────

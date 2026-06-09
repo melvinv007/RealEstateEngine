@@ -885,6 +885,80 @@ def get_all_matches() -> list[dict]:
 def get_all_project_matches() -> list[dict]:
     return list(_collection(COLLECTION_PROJECT_MATCHES).find())
 
+def _coerce_object_ids(values: list[object]) -> list[ObjectId]:
+    """Convert mixed string/ObjectId values into valid ObjectIds."""
+    ids: list[ObjectId] = []
+
+    for value in values:
+        if isinstance(value, ObjectId):
+            ids.append(value)
+            continue
+
+        if isinstance(value, str):
+            try:
+                ids.append(ObjectId(value))
+            except Exception:
+                continue
+
+    # remove duplicates while preserving order
+    seen = set()
+    unique_ids: list[ObjectId] = []
+    for oid in ids:
+        if oid in seen:
+            continue
+        seen.add(oid)
+        unique_ids.append(oid)
+
+    return unique_ids
+
+
+def get_matches_for_buy_ids(buy_ids: list[object]) -> list[dict]:
+    """
+    Return all historical broker matches for these buyer listing IDs.
+
+    Used after duplicate detection:
+    - matcher records only NEW pairs
+    - this fetch returns OLD + NEW pairs for reply
+    """
+    ids = _coerce_object_ids(buy_ids)
+    if not ids:
+        return []
+
+    return list(
+        _collection(COLLECTION_MATCHES)
+        .find({"buy_id": {"$in": ids}})
+        .sort("matched_at", -1)
+    )
+
+
+def get_matches_for_sell_ids(sell_ids: list[object]) -> list[dict]:
+    """
+    Return all historical broker matches for these seller listing IDs.
+    """
+    ids = _coerce_object_ids(sell_ids)
+    if not ids:
+        return []
+
+    return list(
+        _collection(COLLECTION_MATCHES)
+        .find({"sell_id": {"$in": ids}})
+        .sort("matched_at", -1)
+    )
+
+
+def get_project_matches_for_buy_ids(buy_ids: list[object]) -> list[dict]:
+    """
+    Return all historical project matches for these buyer listing IDs.
+    """
+    ids = _coerce_object_ids(buy_ids)
+    if not ids:
+        return []
+
+    return list(
+        _collection(COLLECTION_PROJECT_MATCHES)
+        .find({"buy_id": {"$in": ids}})
+        .sort("matched_at", -1)
+    )
 
 def get_all_projects() -> list[dict]:
     return list(_collection(COLLECTION_PROJECTS).find())
