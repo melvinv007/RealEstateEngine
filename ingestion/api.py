@@ -742,6 +742,22 @@ async def ingest_whatsapp(
     try:
         raw_message_text = (raw_message or "").strip()
         has_message = bool(raw_message_text)
+        if has_message and not has_file and not is_real_estate_message(raw_message_text):
+            return {
+                WA_FIELD_MESSAGE_ID: message_id,
+                WA_FIELD_PHONE_NUMBER: phone_number,
+                WA_TIMESTAMP_FIELD: received_at,
+                "filtered": True,
+                "reason": "not a real estate message",
+                "sent_by": None,
+                "inserted": 0,
+                "duplicates_skipped": 0,
+                "listings_parsed": 0,
+                "match_found": False,
+                "reply_message": "Please send a valid real estate listing message or image.",
+                "reply_phone_number": None,
+                "matches": [],
+            }
         has_file = file is not None
 
         if not has_message and not has_file:

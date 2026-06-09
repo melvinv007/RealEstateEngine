@@ -453,10 +453,32 @@ def old_parse_text_message(message: str) -> list[dict]:
 # Buy-signal keywords — if Gemini returns "sell" but message contains these, flip to buy
 _BUY_SIGNALS = [
     "looking for", "requirement", "wanted", "budget", "pre-approved",
-    "investor looking", "ready to close", "cash buyer", "mortgage buyer",
+    "investor looking", "ready to close", "mortgage buyer",
     "client looking", "client need", "client require", "need apartment",
-    "need villa", "need property", "seeking", "require",
+    "need villa", "need property", "seeking",
 ]
+
+_SELL_SIGNALS = [
+    "for sale", "selling", "asking", "distress deal", "op + dld",
+    "open for serious offers", "bua", "plot", "seller", "available",
+]
+
+def _should_flip_sell_to_buy(listing: dict, full_message: str) -> tuple[bool, list[str]]:
+    # Prefer per-listing raw_text, because one WhatsApp message can contain many listings.
+    text = (listing.get("raw_text") or full_message or "").lower()
+
+    found_buy_signals = [s for s in _BUY_SIGNALS if s in text]
+    found_sell_signals = [s for s in _SELL_SIGNALS if s in text]
+
+    # If it has sell language, do not flip.
+    if found_sell_signals:
+        return False, found_buy_signals
+
+    # Only flip when there is clear buyer intent.
+    if found_buy_signals:
+        return True, found_buy_signals
+
+    return False, []
 
 def parse_text_message(message: str) -> list[dict]:
     """
@@ -496,8 +518,8 @@ def parse_text_message(message: str) -> list[dict]:
         message_lower = message.lower()
         for listing in listings:
             if listing.get("transaction") == "sell":
-                found_signals = [s for s in _BUY_SIGNALS if s in message_lower]
-                if found_signals:
+                should_flip, found_signals = _should_flip_sell_to_buy(listing, message)
+                if should_flip:
                     listing["transaction"] = "buy"
                     try:
                         from core.logger import log_event
