@@ -190,6 +190,34 @@ IMPORTANT EXTRACTION RULES:
         - Extract the original sender name if the message includes forwarding info
             like "Message sent by: Aarav" or "From Aarav:" or just name.
         - Use null when not present.
+
+18. TOTAL PRICE DERIVATION:
+If price_per_sqft_aed and sqft or plot_sqft are both present, also calculate total price_aed.
+
+Formula:
+price_aed = price_per_sqft_aed * plot_sqft
+or
+price_aed = price_per_sqft_aed * sqft
+
+Examples:
+- "10,000 sqft plot at 250 AED per sqft"
+  → price_per_sqft_aed = 250
+  → plot_sqft = 10000
+  → price_aed = 2500000
+
+- "looking for price 250 AED per sqft, size needed 10,000 sqft"
+  → price_per_sqft_aed = 250
+  → plot_sqft = 10000
+  → price_aed = 2500000
+
+For buy requirements, this derived price_aed means buyer budget / target total price.
+For sell listings, this derived price_aed means seller asking total price.
+
+19. For plot listings:
+- Use plot_sqft for land size.
+- If only one size is shown for a plot, set both sqft and plot_sqft to that value.
+- If AED per sqft is shown, always fill price_per_sqft_aed.
+- If AED per sqft and plot_sqft are shown, always fill price_aed as total price.
 """
 
 # ─────────────────────────────────────────────────────────────
