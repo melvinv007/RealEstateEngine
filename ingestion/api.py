@@ -7,7 +7,7 @@ import os
 import tempfile
 import threading
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Any
 
 import base64
@@ -118,7 +118,47 @@ def _serialize(value: Any):
         return {k: _serialize(v) for k, v in value.items()}
     return value
 
+IST = timezone(timedelta(hours=5, minutes=30), name="IST")
 
+
+def _ist_time_str() -> str:
+    """Current time in IST for terminal logs."""
+    return datetime.now(IST).strftime("%H:%M:%S")
+
+
+def _elapsed_ms(start: float) -> int:
+    """Milliseconds elapsed since a perf_counter start."""
+    return int((time.perf_counter() - start) * 1000)
+
+
+def _fmt_duration(ms: int) -> str:
+    """Human-friendly duration."""
+    if ms >= 1000:
+        return f"{ms / 1000:.2f}s"
+    return f"{ms}ms"
+
+
+def _log_multiline(label: str, rid: str, text: object) -> None:
+    """
+    Print multiline request/reply text clearly in uvicorn terminal.
+    """
+    value = "" if text is None else str(text)
+    if not value.strip():
+        value = "<empty>"
+
+    print(f"  [{label} {rid}] ─────")
+    for line in value.splitlines():
+        print(f"    {line}")
+    print(f"  [{label} {rid}] ───── end")
+
+
+def _log_stage_time(rid: str, stage: str, start: float) -> int:
+    """
+    Print and return elapsed time for one stage.
+    """
+    ms = _elapsed_ms(start)
+    print(f"  [TIME {rid}] {stage}={_fmt_duration(ms)}")
+    return ms
 
 def _format_project_matches(project_matches: list[dict]) -> list[dict]:
     formatted = []
@@ -1021,13 +1061,33 @@ async def ingest_whatsapp(
     # ── Request tracing setup ─────────────────────────────────────────────────
     rid = str(uuid.uuid4())[:8]
     set_request_id(rid)
-    t_start = time.time()
+
+    # Use perf_counter for timings. It is better than time.time() for durations.
+    t_start = time.perf_counter()
+
     received_at = datetime.utcnow().isoformat() + "Z"
+    request_ist_time = _ist_time_str()
 
-    has_text_flag  = bool((raw_message or "").strip())
-    has_file_flag  = file is not None
-    print(f"\n[REQ {rid}] POST /ingest/whatsapp | phone={phone_number} | msg_id={message_id} | has_text={has_text_flag} | has_file={has_file_flag}")
+    raw_message_text = (raw_message or "").strip()
+    has_text_flag = bool(raw_message_text)
+    has_file_flag = file is not None
 
+    # 2 newlines before every WhatsApp request so each message is visually separate.
+    print("\n\n" + "=" * 110)
+    print(
+        f"[REQ {rid}] {request_ist_time} IST | POST /ingest/whatsapp | "
+        f"phone={phone_number} | msg_id={message_id} | "
+        f"has_text={has_text_flag} | has_file={has_file_flag}"
+    )
+
+    if has_text_flag:
+        _log_multiline("RAW", rid, raw_message_text)
+    else:
+        file_name = getattr(file, "filename", None) if file else None
+        file_type = getattr(file, "content_type", None) if file else None
+        _log_multiline("RAW", rid, f"<no text> file={file_name} content_type={file_type}")
+
+    t_store = time.perf_counter()
     store_raw_message({
         "source": "whatsapp",
         "message_id": message_id,
@@ -1036,9 +1096,9 @@ async def ingest_whatsapp(
         "has_file": file is not None,
         "received_at": received_at,
     })
+    raw_store_ms = _log_stage_time(rid, "raw_store", t_store)
 
     try:
-        raw_message_text = (raw_message or "").strip()
         has_message = bool(raw_message_text)
         has_file = file is not None
         if has_message and not has_file and not is_real_estate_message(raw_message_text):
@@ -1065,6 +1125,8 @@ async def ingest_whatsapp(
         parsed_from_image = False
         content = None
 
+        t_parse = time.perf_counter()
+
         if has_file:
             content = await file.read()
             if content:
@@ -1084,6 +1146,8 @@ async def ingest_whatsapp(
 
         if not parsed_from_image and has_message:
             listings = parse_text_message(raw_message_text)
+
+        parse_ms = _log_stage_time(rid, "parse", t_parse)
 
         # ── Parse trace ───────────────────────────────────────────────────────
         if listings:
@@ -1117,7 +1181,9 @@ async def ingest_whatsapp(
         if isinstance(first_listing, dict):
             sent_by = first_listing.get("sent_by")
 
+        t_location = time.perf_counter()
         listings = _apply_location_resolution(listings)
+        location_ms = _log_stage_time(rid, "location", t_location)
 
         # ── Location trace ────────────────────────────────────────────────────
         for lst in listings:
@@ -1143,8 +1209,10 @@ async def ingest_whatsapp(
             listing["wa_sent_by"] = sent_by
             listing["customer_message"] = True
 
+        t_db = time.perf_counter()
         inserted_ids, dupes, duplicate_details = _insert_listings_with_duplicate_tracking(listings)
-            
+        db_ms = _log_stage_time(rid, "db_insert", t_db)
+
         # ── DB trace ──────────────────────────────────────────────────────────
         print(f"  [DB {rid}] inserted={len(inserted_ids)} | duplicates={dupes}")
 
@@ -1157,6 +1225,8 @@ async def ingest_whatsapp(
 
         combined_matches: list[dict] = []
         match_found = False
+
+        t_match = time.perf_counter()
 
         if has_buy:
             request_buy_ids = _request_listing_ids(listings, "buy")
@@ -1222,10 +1292,12 @@ async def ingest_whatsapp(
             reply_message = _build_reply_message("sell", combined_matches)
             reply_phone_number = phone_number
 
+        match_ms = _log_stage_time(rid, "match", t_match)
+
         # ── Match + reply trace ───────────────────────────────────────────────
         broker_count  = sum(1 for m in combined_matches if m.get("match_type") in ("broker_sell", "broker_buy"))
         project_count = sum(1 for m in combined_matches if m.get("match_type") == "project")
-        duration_ms   = int((time.time() - t_start) * 1000)
+        duration_ms = _elapsed_ms(t_start)
 
         # Determine reply_type label for logging
         if match_found:
@@ -1242,7 +1314,18 @@ async def ingest_whatsapp(
             reply_type = "no_match_buy" if has_buy else "no_match_sell"
 
         print(f"  [MATCH {rid}] broker={broker_count} project={project_count}")
-        print(f"  [REPLY {rid}] type={reply_type} | to={phone_number} | {duration_ms}ms\n")
+        print(
+            f"  [SUMMARY {rid}] "
+            f"raw_store={_fmt_duration(raw_store_ms)} | "
+            f"parse={_fmt_duration(parse_ms)} | "
+            f"location={_fmt_duration(location_ms)} | "
+            f"db={_fmt_duration(db_ms)} | "
+            f"match={_fmt_duration(match_ms)} | "
+            f"total={_fmt_duration(duration_ms)}"
+        )
+        print(f"  [REPLY {rid}] type={reply_type} | to={phone_number}")
+        _log_multiline("REPLY_MSG", rid, reply_message)
+        print("=" * 110)
 
         log_event("ingest_request", "info", "api",
             f"WA ingest OK | {reply_type} | {duration_ms}ms",
@@ -1258,6 +1341,11 @@ async def ingest_whatsapp(
                 "project_matches": project_count,
                 "reply_type":      reply_type,
                 "duration_ms":     duration_ms,
+                "raw_store_ms":    raw_store_ms,
+                "parse_ms":        parse_ms,
+                "location_ms":     location_ms,
+                "db_ms":           db_ms,
+                "match_ms":        match_ms,
                 "parsed_from_image": parsed_from_image,
                 "has_text":        has_text_flag,
                 "has_file":        has_file_flag,
@@ -1281,8 +1369,9 @@ async def ingest_whatsapp(
         })
 
     except Exception as e:
-        duration_ms = int((time.time() - t_start) * 1000)
-        print(f"  [ERROR {rid}] WA ingest exception: {e}")
+        duration_ms = _elapsed_ms(t_start)
+        print(f"  [ERROR {rid}] WA ingest exception after {_fmt_duration(duration_ms)}: {e}")
+        print("=" * 110)
         log_api_error("/ingest/whatsapp", e, {
             "msg_id":      message_id,
             "phone":       phone_number,
