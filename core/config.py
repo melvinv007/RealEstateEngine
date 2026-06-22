@@ -84,7 +84,7 @@ COLLECTION_MATCHES = "matches"
 COLLECTION_PROJECTS = "projects"
 COLLECTION_PROJECT_MATCHES = "project_matches"
 
-PROJECTS_MASTER_EXCEL = "data/projects_master.xlsx"
+# PROJECTS_MASTER_EXCEL = "data/projects_master.xlsx"
 PROJECTS_MASTER_EXCEL = "data/projects_master.csv"
 LOCATION_MASTER_EXCEL = "data/location_master.xlsx"
 PIPELINE_STATE_FILE = "cache/pipeline_state.json"
