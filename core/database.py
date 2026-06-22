@@ -25,6 +25,7 @@ from core.config import (
     DUPLICATE_RAW_TEXT_FUZZY_THRESHOLD,
     DUPLICATE_MIN_FIELD_MATCHES,
     DUPLICATE_CANDIDATE_LIMIT,
+    RAW_DEDUPE_MODE,
 )
 from core.logger import COLLECTION_LOGS
 
@@ -70,6 +71,8 @@ def _ensure_indexes(db):
 
     project_matches = db[COLLECTION_PROJECT_MATCHES]
     project_matches.create_index([("buy_id", ASCENDING), ("project_id", ASCENDING)], unique=True)
+
+    db["raw_messages"].create_index([("dedupe_transaction", ASCENDING), ("stored_at", ASCENDING)])
 
     # system_logs TTL + query indexes — created via logger module
     from core.logger import _ensure_log_indexes
@@ -747,41 +750,6 @@ def _is_duplicate(listing: dict, coll_name: str, enabled: bool) -> tuple[dict | 
 
 # ── Insert ─────────────────────────────────────────────────────────────────────
 
-def old_insert_listing(listing: dict) -> ObjectId | None:
-    """
-    Insert a listing into the correct collection.
-    Returns existing _id if duplicate detected.
-    """
-    original_listing = listing
-    listing = listing.copy()
-    _apply_location_metadata(listing)
-    listing["created_at"] = datetime.now(timezone.utc)
-    listing["matched"] = False
-    listing["match_id"] = None
-    listing["fingerprint"] = _build_fingerprint(listing)
-    listing.setdefault("customer_message", False)
-    listing.setdefault("tag", None)
-    
-
-    transaction = listing.get("transaction", "sell").lower()
-    coll_name = COLLECTION_BUY if transaction == "buy" else COLLECTION_SELL
-
-    # dedupe_enabled = DUPLICATE_DETECTION_BUY if transaction == "buy" else DUPLICATE_DETECTION_SELL
-    dedupe_enabled = False
-
-    duplicate_doc = _is_duplicate(listing, coll_name, dedupe_enabled)
-    if duplicate_doc:
-        existing_id = duplicate_doc.get("_id")
-        if isinstance(existing_id, ObjectId):
-            if isinstance(original_listing, dict):
-                original_listing["_duplicate"] = True
-                original_listing["_id"] = existing_id
-            return str(existing_id)
-        return None
-
-    result = _collection(coll_name).insert_one(listing)
-    return str(result.inserted_id)
-
 def insert_listing(listing: dict) -> ObjectId | None:
     """
     Insert a listing into the correct collection.
@@ -816,6 +784,10 @@ def insert_listing(listing: dict) -> ObjectId | None:
         if transaction == "buy"
         else DUPLICATE_DETECTION_SELL
     )
+    if RAW_DEDUPE_MODE == "active":
+        # The raw-message-level check has already decided this is fresh content
+        # (or it would've been cloned and never reached the LLM/insert path at all).
+        dedupe_enabled = False
 
     duplicate_doc, duplicate_info = _is_duplicate(listing, coll_name, dedupe_enabled)
 
@@ -1134,13 +1106,6 @@ def dedupe_collection(transaction: str) -> dict:
 
     return {"scanned": len(all_docs), "removed": deleted}
 
-def old_store_raw_message(payload: dict) -> str:
-    """Store every incoming raw message before any processing."""
-    payload = payload.copy()
-    payload["stored_at"] = datetime.now(timezone.utc).isoformat()
-    result = get_db()["raw_messages"].insert_one(payload)
-    return str(result.inserted_id)
-
 def store_raw_message(payload: dict) -> str:
     """Store every incoming raw message before any processing."""
     payload = payload.copy()
@@ -1149,9 +1114,34 @@ def store_raw_message(payload: dict) -> str:
     raw_text = payload.get("raw_message")
     if raw_text:
         payload["raw_message_hash"] = _hash_text(raw_text)
+        payload["raw_message_normalized"] = _normalise_text(raw_text)
 
     result = get_db()["raw_messages"].insert_one(payload)
     return str(result.inserted_id)
+
+def attach_dedupe_metadata(raw_message_id: str | ObjectId, *, transaction: str, listings: list[dict]) -> None:
+    """
+    Called once a message has been parsed and its listings inserted, so future
+    raw-text fuzzy lookups have something to clone from. Stores a SNAPSHOT of
+    each listing (not a live reference), so later edits to the original listing
+    never bleed into future clones.
+    """
+    if not raw_message_id:
+        return
+    try:
+        oid = ObjectId(raw_message_id) if isinstance(raw_message_id, str) else raw_message_id
+    except Exception:
+        return
+
+    snapshots = [dict(listing) for listing in listings if isinstance(listing, dict)]
+    get_db()["raw_messages"].update_one(
+        {"_id": oid},
+        {"$set": {
+            "dedupe_transaction": transaction,
+            "dedupe_listing_count": len(snapshots),
+            "dedupe_listing_snapshots": snapshots,
+        }},
+    )
 
 def update_listing_tag(wa_message_id: str, tag: str) -> bool:
     """

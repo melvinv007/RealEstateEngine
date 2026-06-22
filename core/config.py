@@ -85,6 +85,7 @@ COLLECTION_PROJECTS = "projects"
 COLLECTION_PROJECT_MATCHES = "project_matches"
 
 PROJECTS_MASTER_EXCEL = "data/projects_master.xlsx"
+PROJECTS_MASTER_EXCEL = "data/projects_master.csv"
 LOCATION_MASTER_EXCEL = "data/location_master.xlsx"
 PIPELINE_STATE_FILE = "cache/pipeline_state.json"
 PIPELINE_WATCHER_LOG = "cache/pipeline_watcher.log"
@@ -167,6 +168,18 @@ FUZZY_LOCATION_THRESHOLD = 85       # 0–100 similarity score
 # ── Duplicate Detection ───────────────────────────────────────────────────────
 DUPLICATE_DETECTION_BUY = True
 DUPLICATE_DETECTION_SELL = True
+
+# ── Raw-Message Fuzzy Dedupe ──────────────────────────────────────────────────
+# "off"    = disabled. Legacy field-level dedupe in database.py runs exactly as today.
+# "shadow" = runs the fuzzy raw-text check and logs what it WOULD do, but always
+#            calls the LLM and stores normally — use this to validate before trusting it.
+# "active" = on a high-confidence match, skips the LLM call and clones the prior parse.
+RAW_DEDUPE_MODE = "off"
+
+RAW_DEDUPE_TEXT_THRESHOLD = 93          # rapidfuzz token_set_ratio cutoff (0-100)
+RAW_DEDUPE_REQUIRE_NUMERIC_MATCH = True # guards against "same template, different price/BHK"
+RAW_DEDUPE_SINGLE_LISTING_ONLY = True   # never fast-path messages that might have >1 listing
+RAW_DEDUPE_CANDIDATE_LOOKBACK = 500     # how many recent raw messages to fuzzy-scan
 
 # ±5% price tolerance for duplicate detection.
 # Example: 3.00M and 3.12M are duplicate-price-compatible, 3.00M and 3.40M are not.

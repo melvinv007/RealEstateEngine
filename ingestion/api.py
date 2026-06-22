@@ -20,6 +20,7 @@ import time
 import traceback
 import uuid
 from core.logger import set_request_id, get_request_id, log_event, log_api_error
+from core.raw_dedupe import find_raw_match, clone_listings_from_match, extract_sent_by
 
 from core.config import (
     API_KEY,
@@ -38,6 +39,7 @@ from core.config import (
     WA_STORED_PHONE_NUMBER,
     WA_STORED_RECEIVED_AT,
     WA_TIMESTAMP_FIELD,
+    RAW_DEDUPE_MODE,
 )
 from core.database import (
     insert_listing,
@@ -51,6 +53,7 @@ from core.database import (
     get_matches_for_buy_ids,
     get_matches_for_sell_ids,
     get_project_matches_for_buy_ids,
+    attach_dedupe_metadata,
 )
 from core.pipeline_watcher import check_and_run_pipelines
 from core.matcher import run_project_matching, run_matching_for_sell, run_matching_for_buy
@@ -1088,7 +1091,7 @@ async def ingest_whatsapp(
         _log_multiline("RAW", rid, f"<no text> file={file_name} content_type={file_type}")
 
     t_store = time.perf_counter()
-    store_raw_message({
+    raw_message_db_id = store_raw_message({
         "source": "whatsapp",
         "message_id": message_id,
         "phone_number": phone_number,
@@ -1123,29 +1126,49 @@ async def ingest_whatsapp(
 
         listings: list[dict] = []
         parsed_from_image = False
+        cloned_from_raw_match = False
         content = None
 
         t_parse = time.perf_counter()
 
-        if has_file:
-            content = await file.read()
-            if content:
-                encoded = base64.b64encode(content).decode("utf-8")
-                mime_type = (file.content_type or "").strip() or "image/jpeg"
-                if has_message:
-                    listings = parse_image(
-                        data_b64=encoded,
-                        mime_type=mime_type,
-                        context_text=raw_message_text,
-                    )
-                else:
-                    listings = parse_image(data_b64=encoded, mime_type=mime_type)
-                parsed_from_image = True
-            elif not has_message:
-                return JSONResponse(status_code=400, content={"detail": "file is required"})
+        raw_match = None
+        if has_message and not has_file:
+            raw_match = find_raw_match(raw_message_text)
 
-        if not parsed_from_image and has_message:
-            listings = parse_text_message(raw_message_text)
+        if raw_match and RAW_DEDUPE_MODE == "shadow":
+            log_event("raw_dedupe_shadow", "info", "api",
+                f"[SHADOW] would clone from raw match score={raw_match['score']}",
+                {"score": raw_match["score"], "matched_doc_id": str(raw_match["doc"].get("_id"))})
+            raw_match = None
+
+        if raw_match and RAW_DEDUPE_MODE == "active":
+            cloned = clone_listings_from_match(raw_match)
+            if cloned:
+                listings = cloned
+                cloned_from_raw_match = True
+                print(f"  [DEDUPE {rid}] cloned {len(listings)} listing(s) from raw match "
+                      f"score={raw_match['score']:.1f}, skipping LLM")
+
+        if not cloned_from_raw_match:
+            if has_file:
+                content = await file.read()
+                if content:
+                    encoded = base64.b64encode(content).decode("utf-8")
+                    mime_type = (file.content_type or "").strip() or "image/jpeg"
+                    if has_message:
+                        listings = parse_image(
+                            data_b64=encoded,
+                            mime_type=mime_type,
+                            context_text=raw_message_text,
+                        )
+                    else:
+                        listings = parse_image(data_b64=encoded, mime_type=mime_type)
+                    parsed_from_image = True
+                elif not has_message:
+                    return JSONResponse(status_code=400, content={"detail": "file is required"})
+
+            if not parsed_from_image and has_message:
+                listings = parse_text_message(raw_message_text)
 
         parse_ms = _log_stage_time(rid, "parse", t_parse)
 
@@ -1180,19 +1203,22 @@ async def ingest_whatsapp(
         first_listing = listings[0] if listings else None
         if isinstance(first_listing, dict):
             sent_by = first_listing.get("sent_by")
+        if cloned_from_raw_match:
+            sent_by = extract_sent_by(raw_message_text) or sent_by
 
         t_location = time.perf_counter()
-        listings = _apply_location_resolution(listings)
+        if cloned_from_raw_match:
+            print(f"  [LOCATION {rid}] reused from clone, skipped re-resolution")
+        else:
+            listings = _apply_location_resolution(listings)
+            for lst in listings:
+                res = lst.get("location_resolution") or {}
+                print(f"  [LOCATION {rid}] '{lst.get('location_raw')}' → "
+                      f"{res.get('matched_canonical')} | "
+                      f"level={res.get('matched_level')} | "
+                      f"conf={res.get('confidence')} | "
+                      f"path={res.get('resolution_path')}")
         location_ms = _log_stage_time(rid, "location", t_location)
-
-        # ── Location trace ────────────────────────────────────────────────────
-        for lst in listings:
-            res = lst.get("location_resolution") or {}
-            print(f"  [LOCATION {rid}] '{lst.get('location_raw')}' → "
-                  f"{res.get('matched_canonical')} | "
-                  f"level={res.get('matched_level')} | "
-                  f"conf={res.get('confidence')} | "
-                  f"path={res.get('resolution_path')}")
 
         _attach_source_message_metadata(
             listings,
@@ -1212,6 +1238,11 @@ async def ingest_whatsapp(
         t_db = time.perf_counter()
         inserted_ids, dupes, duplicate_details = _insert_listings_with_duplicate_tracking(listings)
         db_ms = _log_stage_time(rid, "db_insert", t_db)
+
+        if RAW_DEDUPE_MODE != "off" and has_message and not has_file:
+            txns = {l.get("transaction") for l in listings if isinstance(l, dict)}
+            dedupe_txn = next(iter(txns)) if len(txns) == 1 else "mixed"
+            attach_dedupe_metadata(raw_message_db_id, transaction=dedupe_txn, listings=listings)
 
         # ── DB trace ──────────────────────────────────────────────────────────
         print(f"  [DB {rid}] inserted={len(inserted_ids)} | duplicates={dupes}")

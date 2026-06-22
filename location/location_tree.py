@@ -31,6 +31,14 @@ _ALIAS_MAP: dict[str, list[dict[str, Any]]] | None = None
 _CANONICAL_MAP: dict[str, dict[str, Any]] | None = None
 _LEVEL_SETS: dict[str, set[str]] | None = None
 
+_BASE_MAPS: dict[str, dict[str, list[str]]] | None = None
+
+_LEVEL_SET_KEYS = {
+    "city": "cities",
+    "community": "communities",
+    "subcommunity": "subcommunities",
+    "property": "properties",
+}
 
 def normalize_key(value: str) -> str:
     """
@@ -307,6 +315,47 @@ def _build_indexes(nodes: dict[str, dict[str, Any]]) -> tuple[
         alias_nodes.sort(key=lambda item: item.get("canonical", "").lower())
 
     return tree, alias_map, canonical_map, level_sets
+
+
+def _compute_base_maps(
+    level_sets: dict[str, set[str]],
+    alias_map: dict[str, list[dict[str, Any]]],
+) -> dict[str, dict[str, list[str]]]:
+    """
+    Precompute, once per tree load, the phase-stripped base -> [candidate_str]
+    map for each level. This used to be rebuilt from scratch inside
+    resolver._fuzzy_candidates() on every single resolve_location() call —
+    wasted work since it only depends on the candidate set, not the input.
+    """
+    alias_keys_by_level: dict[str, set[str]] = {level: set() for level in _LEVEL_SET_KEYS}
+    for alias, nodes in alias_map.items():
+        for node in nodes:
+            level = (node.get("level") or "").lower()
+            if level in alias_keys_by_level:
+                alias_keys_by_level[level].add(alias)
+
+    base_maps: dict[str, dict[str, list[str]]] = {}
+    for level, set_key in _LEVEL_SET_KEYS.items():
+        candidate_strings = set(level_sets.get(set_key, set()))
+        candidate_strings.update(alias_keys_by_level.get(level, set()))
+
+        base_map: dict[str, list[str]] = {}
+        for candidate_str in candidate_strings:
+            base, _ = split_phase(candidate_str)
+            if base:
+                base_map.setdefault(base, []).append(candidate_str)
+        base_maps[level] = base_map
+
+    return base_maps
+
+
+def get_base_maps() -> dict[str, dict[str, list[str]]]:
+    global _BASE_MAPS
+    if _BASE_MAPS is not None:
+        return _BASE_MAPS
+    _, alias_map, _, level_sets = build_or_load_tree()
+    _BASE_MAPS = _compute_base_maps(level_sets, alias_map)
+    return _BASE_MAPS
 
 
 def _save_cache(

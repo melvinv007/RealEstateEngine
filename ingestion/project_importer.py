@@ -9,6 +9,7 @@ import re
 import sys
 from pathlib import Path
 from typing import Any
+import csv
 
 from openpyxl import load_workbook
 
@@ -148,14 +149,12 @@ def _parse_lat_lng(value: Any) -> dict | None:
     }
 
 
-def _build_project_doc(row: tuple, header_map: dict[str, int]) -> dict:
+def _build_project_doc(row: dict[str, Any]) -> dict:
     def _get_col(name: str) -> Any:
-        idx = header_map.get(name)
-        if idx is None or idx >= len(row):
-            return None
-        return row[idx]
+        return row.get(name)
 
     youtube = _normalize_value(_get_col("Youtube"))
+    link = _normalize_value(_get_col("Link"))
     project_name = _normalize_value(_get_col("ProjectName"))
     developer = _normalize_value(_get_col("Developer"))
     area_name = _normalize_value(_get_col("AreaName"))
@@ -163,12 +162,20 @@ def _build_project_doc(row: tuple, header_map: dict[str, int]) -> dict:
     starting_price_raw = _normalize_value(_get_col("StartingPrice"))
     image_link = _normalize_value(_get_col("ImageLink"))
     lat_lng_raw = _normalize_value(_get_col("Lat,Lng"))
+    language = _normalize_value(_get_col("Language"))
+    tours = _normalize_value(_get_col("Tours"))
     pdf_link = _normalize_value(_get_col("PDF"))
     red_sticker = _normalize_value(_get_col("RedSticker"))
+    green_sticker = _normalize_value(_get_col("Green Sticker"))
+    new_hot = _normalize_value(_get_col("New/Hot"))
+    free_sticker = _normalize_value(_get_col("Free Sticker"))
+    tags = _normalize_value(_get_col("Tags"))
     lifestyle = _normalize_value(_get_col("LifeStyle"))
     handover = _normalize_value(_get_col("Handover"))
     payment_plan = _normalize_value(_get_col("Payment Plan"))
     bedrooms_raw = _normalize_value(_get_col("Bedrooms"))
+    link_ru = _normalize_value(_get_col("LinkRu"))
+    link_ar = _normalize_value(_get_col("LinkAr"))
 
     property_types = _parse_property_types(property_type_raw)
     bhk_options = _parse_bedrooms(bedrooms_raw)
@@ -177,6 +184,7 @@ def _build_project_doc(row: tuple, header_map: dict[str, int]) -> dict:
 
     return {
         "Youtube": youtube,
+        "Link": link,
         "ProjectName": project_name,
         "Developer": developer,
         "AreaName": area_name,
@@ -184,36 +192,72 @@ def _build_project_doc(row: tuple, header_map: dict[str, int]) -> dict:
         "StartingPrice": starting_price_raw,
         "ImageLink": image_link,
         "Lat,Lng": lat_lng_raw,
+        "Language": language,
+        "Tours": tours,
         "PDF": pdf_link,
         "RedSticker": red_sticker,
+        "GreenSticker": green_sticker,
+        "NewHot": new_hot,
+        "FreeSticker": free_sticker,
+        "Tags": tags,
         "LifeStyle": lifestyle,
         "Handover": handover,
         "PaymentPlan": payment_plan,
         "Bedrooms": bedrooms_raw,
+        "LinkRu": link_ru,
+        "LinkAr": link_ar,
         "property_types": property_types,
         "bhk_options": bhk_options,
         "starting_price": starting_price,
         "location_coords": location_coords,
     }
 
-
-def run_import(start_row: int = 3, excel_path: str | None = None) -> dict:
-    path = Path(excel_path or PROJECTS_MASTER_EXCEL)
-
-    workbook = load_workbook(filename=path, data_only=True) #, read_only=True
+def _iter_excel_rows(path: Path, start_row: int | None) -> list[dict[str, Any]]:
+    """Legacy path: title row, header on row 2, data from row 3."""
+    workbook = load_workbook(filename=path, data_only=True)
     sheet = workbook["Sheet 1"]
-
     header = [str(c.value).strip() if c.value is not None else "" for c in sheet[2]]
-    header_map = {name: idx for idx, name in enumerate(header) if name}
+
+    rows: list[dict[str, Any]] = []
+    for row in sheet.iter_rows(min_row=start_row or 3, values_only=True):
+        if not row or not any(cell is not None and str(cell).strip() for cell in row):
+            continue
+        row_dict = {name: row[idx] if idx < len(row) else None for idx, name in enumerate(header) if name}
+        rows.append(row_dict)
+    return rows
+
+
+def _iter_csv_rows(path: Path, start_row: int | None) -> list[dict[str, Any]]:
+    """Plain CSV export: header is the first line, data starts right after."""
+    csv.field_size_limit(sys.maxsize)
+    rows: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        for i, row in enumerate(reader, start=1):
+            if i < (start_row or 1):
+                continue
+            if not any(v is not None and str(v).strip() for v in row.values()):
+                continue
+            rows.append(row)
+    return rows
+
+
+def run_import(start_row: int | None = None, excel_path: str | None = None) -> dict:
+    path = Path(excel_path or PROJECTS_MASTER_EXCEL)
+    suffix = path.suffix.lower()
+
+    if suffix == ".csv":
+        rows = _iter_csv_rows(path, start_row)
+    elif suffix in (".xlsx", ".xls", ".xlsm"):
+        rows = _iter_excel_rows(path, start_row)
+    else:
+        raise ValueError(f"Unsupported projects master file type: {suffix or '(none)'}")
 
     inserted = 0
     skipped = 0
 
-    for row in sheet.iter_rows(min_row=start_row, values_only=True):
-        if not row or not any(cell is not None and str(cell).strip() for cell in row):
-            continue
-        project_doc = _build_project_doc(row, header_map)
-        result = insert_project(project_doc)
+    for row_dict in rows:
+        result = insert_project(_build_project_doc(row_dict))
         if result == "duplicate":
             skipped += 1
         else:
@@ -222,13 +266,12 @@ def run_import(start_row: int = 3, excel_path: str | None = None) -> dict:
     print(f"[ProjectImporter] {inserted} inserted, {skipped} duplicates skipped")
     return {"inserted": inserted, "skipped": skipped}
 
-
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Import projects from Excel")
-    parser.add_argument("--start-row", type=int, default=3, help="Start row (1-based)")
-    parser.add_argument("--excel-path", type=str, default=None, help="Path to projects_master.xlsx")
+    parser = argparse.ArgumentParser(description="Import projects from Excel or CSV")
+    parser.add_argument("--start-row", type=int, default=None,
+                         help="1-based start row. Defaults to 3 for .xlsx, 1 for .csv")
+    parser.add_argument("--excel-path", type=str, default=None, help="Path to projects_master.csv or .xlsx")
     args = parser.parse_args()
-
     run_import(start_row=args.start_row, excel_path=args.excel_path)
 
 

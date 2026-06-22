@@ -29,15 +29,22 @@ from typing import Any
 from core.gemini_client import call_gemini
 from rapidfuzz import fuzz, process
 
-from core.config import GEMINI_API_KEY, PRODUCTION_MODE
-from location.location_tree import build_or_load_tree, normalize_key, split_phase
+from core.config import (
+    GEMINI_API_KEY,
+    PRODUCTION_MODE,
+    LOCATION_MIN_CONFIDENCE as MIN_CONFIDENCE,
+    LOCATION_HIGH_CONFIDENCE as HIGH_CONFIDENCE,
+    LOCATION_AMBIGUITY_BAND as AMBIGUITY_BAND,
+    USE_EMBEDDINGS,
+)
+from location.location_tree import build_or_load_tree, normalize_key, split_phase, get_base_maps
 
 from core.logger import log_event as _log_event
 
-MIN_CONFIDENCE = 0.65
-HIGH_CONFIDENCE = 0.82
-AMBIGUITY_BAND = 0.08
-USE_EMBEDDINGS = False
+# MIN_CONFIDENCE = 0.65
+# HIGH_CONFIDENCE = 0.82
+# AMBIGUITY_BAND = 0.08
+# USE_EMBEDDINGS = False
 W_FUZZY = 0.50
 W_TOKEN_COVERAGE = 0.35
 W_PHASE = 0.15
@@ -58,7 +65,6 @@ _LEVEL_SET_KEYS = {
 }
 
 _CACHE: dict[str, dict[str, Any]] | None = None
-_ALIAS_KEYS_BY_LEVEL: dict[str, set[str]] | None = None
 
 
 @dataclass
@@ -133,21 +139,6 @@ def _candidate_sort_key(candidate: Candidate) -> tuple[float, int]:
     return (candidate.confidence, _LEVEL_RANK.get(candidate.level, 0))
 
 
-def _get_alias_keys_by_level(alias_map: dict[str, list[dict[str, Any]]]) -> dict[str, set[str]]:
-    global _ALIAS_KEYS_BY_LEVEL
-    if _ALIAS_KEYS_BY_LEVEL is not None:
-        return _ALIAS_KEYS_BY_LEVEL
-
-    keys: dict[str, set[str]] = {level: set() for level in _LEVEL_RANK}
-    for alias, nodes in alias_map.items():
-        for node in nodes:
-            level = (node.get("level") or "").lower()
-            if level in keys:
-                keys[level].add(alias)
-    _ALIAS_KEYS_BY_LEVEL = keys
-    return keys
-
-
 def _add_candidate(candidates: dict[str, Candidate], candidate: Candidate) -> None:
     key = normalize_key(candidate.canonical)
     existing = candidates.get(key)
@@ -203,19 +194,9 @@ def _fuzzy_candidates(
     alias_map: dict[str, list[dict[str, Any]]],
     level_sets: dict[str, set[str]],
 ) -> list[Candidate]:
-    set_key = _LEVEL_SET_KEYS.get(level, "")
-    candidate_strings: set[str] = set(level_sets.get(set_key, set()))
-    alias_keys = _get_alias_keys_by_level(alias_map).get(level, set())
-    candidate_strings.update(alias_keys)
-
-    if not candidate_strings:
+    base_map = get_base_maps().get(level, {})
+    if not base_map:
         return []
-
-    base_map: dict[str, list[str]] = {}
-    for candidate_str in candidate_strings:
-        base, _ = split_phase(candidate_str)
-        if base:
-            base_map.setdefault(base, []).append(candidate_str)
 
     matches = process.extract(
         input_base,
